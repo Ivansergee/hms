@@ -22,7 +22,7 @@
         <div
           v-if="isBookingStart(record.id, column.dataIndex)"
           class="draggable-bar"
-          :style="getBookingBarStyle(record.id, column.dataIndex)"
+          :style="{ width: getBookingBarWidth(record.id, column.dataIndex) }"
           :draggable="!resizedBooking"
           @mouseover.stop
           @dragstart.stop="handleDragStart(record.id, column.dataIndex)"
@@ -115,22 +115,12 @@ const getBookingForStart = (roomId: number, dayIndex: string): Booking | undefin
   return roomBookings.find(b => b.start === dayNum);
 };
 
-const getBookingBarStyle = (roomId: number, dayIndex: string): StyleValue => {
+const getBookingBarWidth = (roomId: number, dayIndex: string): string => {
   const booking = getBookingForStart(roomId, dayIndex);
-  if (!booking) return {};
+  if (!booking) return '';
   const daysSpan = booking.end - booking.start + 1;
   const width = daysSpan * cellWidth;
-  return {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    width: `${width}px`,
-    height: '100%',
-    backgroundColor: '#1890ff',
-    borderRadius: '4px',
-    cursor: 'grab',
-    zIndex: 10,
-  };
+  return `${width}px`;
 };
 
 const handleCellMouseDown = (e: MouseEvent, roomId: number, dayIndex: string) => {
@@ -229,6 +219,10 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   user-select: none;
+  z-index: 10;
+  cursor: grab;
+  border-radius: 4px;
+  background-color: #1890ff;
 }
 
 .plan-table :deep(.ant-table-tbody > tr > td.ant-table-cell) {
@@ -243,13 +237,14 @@ onUnmounted(() => {
   background-color: #1890ff;
   cursor: ew-resize;
   top: 0;
+  border-radius: 4px;
 }
 
 .resize-handle.left {
-  left: -3px;
+  left: 0;
 }
 
 .resize-handle.right {
-  right: -3px;
+  right: 0;
 }
 </style>
