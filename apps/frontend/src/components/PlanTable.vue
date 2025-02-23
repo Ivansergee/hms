@@ -137,7 +137,6 @@ const handleCellMouseDown = (e: MouseEvent, roomId: number, dayIndex: string) =>
   const cellOffsetDays = Math.floor(e.offsetX / cellWidth);
   const baseDay = Number(dayIndex);
   sourceDay.value = baseDay + cellOffsetDays;
-  console.log('Precise clicked day:', sourceDay.value);
 };
 
 const handleDragStart = (roomId: number, dayIndex: string): void => {
@@ -172,7 +171,6 @@ let resizeOffset = 0;
 
 const handleResizeStart = (roomId: number, dayIndex: string, side: ResizeDirection) => {
   const booking = bookings.value.find(b => b.roomId === roomId && range(b.start, b.end).includes(Number(dayIndex)));
-  console.log('RS START', booking);
   if (booking) {
     resizedBooking.value = booking;
     resizeDirection.value = side;
