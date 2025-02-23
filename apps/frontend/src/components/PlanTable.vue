@@ -14,20 +14,31 @@
         class="cell"
         :data-day="column.dataIndex"
         @mousedown="handleCellMouseDown($event, record.id, column.dataIndex)"
+        @mouseup="handleResizeEnd()"
+        @mouseover="handleResizeMove(column.dataIndex)"
         @dragover.prevent
         @drop="handleDrop(record.id, column.dataIndex)"
       >
-        <!-- Render the booking bar only on the start cell -->
-        <template v-if="isBookingStart(record.id, column.dataIndex)">
+        <div
+          v-if="isBookingStart(record.id, column.dataIndex)"
+          class="draggable-bar"
+          :style="getBookingBarStyle(record.id, column.dataIndex)"
+          :draggable="!resizedBooking"
+          @mouseover.stop
+          @dragstart.stop="handleDragStart(record.id, column.dataIndex)"
+        >
           <div
-            class="draggable-bar"
-            :style="getBookingBarStyle(record.id, column.dataIndex)"
-            draggable="true"
-            @dragstart.stop="handleDragStart(record.id, column.dataIndex)"
-          >
-            Booking
-          </div>
-        </template>
+            class="resize-handle left"
+            @dragstart.stop
+            @mousedown.stop="handleResizeStart(record.id, column.dataIndex, ResizeDirection.LEFT)"
+          ></div>
+          Booking
+          <div
+            class="resize-handle right"
+            @dragstart.stop
+            @mousedown.stop="handleResizeStart(record.id, column.dataIndex, ResizeDirection.RIGHT)"
+          ></div>
+        </div>
       </div>
       <div v-else>
         {{ record.name }}
@@ -37,9 +48,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import {computed, onMounted, onUnmounted, ref, type StyleValue} from 'vue';
 import { type TableColumnType } from 'ant-design-vue';
-import { getDaysInMonth } from "@/utils/utils.ts";
+import {getDaysInMonth, range} from "@/utils/utils.ts";
 
 interface RoomData {
   id: number;
@@ -51,6 +62,11 @@ interface Booking {
   roomId: number;
   start: number;
   end: number;
+}
+
+enum ResizeDirection {
+  LEFT = 'left',
+  RIGHT = 'right',
 }
 
 const cellWidth = 50;
@@ -84,6 +100,8 @@ const columns = computed(() => {
 
 const draggedBookingId = ref<number>();
 const sourceDay = ref<number>();
+const resizedBooking = ref<Booking>();
+const resizeDirection = ref<ResizeDirection>();
 
 const isBookingStart = (roomId: number, dayIndex: string): boolean => {
   const roomBookings = bookings.value.filter(b => b.roomId === roomId);
@@ -97,7 +115,7 @@ const getBookingForStart = (roomId: number, dayIndex: string): Booking | undefin
   return roomBookings.find(b => b.start === dayNum);
 };
 
-const getBookingBarStyle = (roomId: number, dayIndex: string) => {
+const getBookingBarStyle = (roomId: number, dayIndex: string): StyleValue => {
   const booking = getBookingForStart(roomId, dayIndex);
   if (!booking) return {};
   const daysSpan = booking.end - booking.start + 1;
@@ -115,7 +133,6 @@ const getBookingBarStyle = (roomId: number, dayIndex: string) => {
   };
 };
 
-// Use cell mousedown to capture the exact clicked position
 const handleCellMouseDown = (e: MouseEvent, roomId: number, dayIndex: string) => {
   const cellOffsetDays = Math.floor(e.offsetX / cellWidth);
   const baseDay = Number(dayIndex);
@@ -123,12 +140,14 @@ const handleCellMouseDown = (e: MouseEvent, roomId: number, dayIndex: string) =>
   console.log('Precise clicked day:', sourceDay.value);
 };
 
-const handleDragStart = (roomId: number, dayIndex: string) => {
-  // Set booking info, but do NOT override sourceDay if already set.
+const handleDragStart = (roomId: number, dayIndex: string): void => {
+  if (resizedBooking.value) {
+    return;
+  }
   const booking = getBookingForStart(roomId, dayIndex);
   if (booking) {
     draggedBookingId.value = booking.id;
-    if (sourceDay.value === null) {
+    if (!sourceDay.value) {
       sourceDay.value = booking.start;
     }
   }
@@ -147,6 +166,53 @@ const handleDrop = (targetRoomId: number, targetDay: string) => {
     sourceDay.value = undefined;
   }
 };
+
+// Resizing handlers
+let resizeOffset = 0;
+
+const handleResizeStart = (roomId: number, dayIndex: string, side: ResizeDirection) => {
+  const booking = bookings.value.find(b => b.roomId === roomId && range(b.start, b.end).includes(Number(dayIndex)));
+  console.log('RS START', booking);
+  if (booking) {
+    resizedBooking.value = booking;
+    resizeDirection.value = side;
+  }
+};
+
+const handleResizeEnd = () => {
+  if (!resizedBooking.value) {
+    return;
+  }
+  if (resizeDirection.value === ResizeDirection.LEFT) {
+    resizedBooking.value.start = Math.round(resizedBooking.value.start);
+  }
+  if (resizeDirection.value === ResizeDirection.RIGHT) {
+    resizedBooking.value.end = Math.round(resizedBooking.value.end);
+  }
+  resizedBooking.value = undefined;
+  resizeOffset = 0;
+};
+
+const handleResizeMove = (event: MouseEvent) => {
+  if (!resizedBooking.value || !event.movementX) {
+    return;
+  }
+  resizeOffset += event.movementX;
+
+  if (resizeDirection.value === ResizeDirection.LEFT) {
+    resizedBooking.value.start += event.movementX / cellWidth;
+  }
+  if (resizeDirection.value === ResizeDirection.RIGHT) {
+    resizedBooking.value.end += event.movementX / cellWidth;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('mousemove', handleResizeMove);
+});
+onUnmounted(() => {
+  document.removeEventListener('mousemove', handleResizeMove);
+});
 </script>
 
 <style scoped>
@@ -154,6 +220,7 @@ const handleDrop = (targetRoomId: number, targetDay: string) => {
   min-height: 60px;
   position: relative;
 }
+
 .draggable-bar {
   position: absolute;
   top: 0;
@@ -165,8 +232,26 @@ const handleDrop = (targetRoomId: number, targetDay: string) => {
   justify-content: center;
   user-select: none;
 }
+
 .plan-table :deep(.ant-table-tbody > tr > td.ant-table-cell) {
   padding: 0;
   position: relative;
+}
+
+.resize-handle {
+  position: absolute;
+  width: 6px;
+  height: 100%;
+  background-color: #1890ff;
+  cursor: ew-resize;
+  top: 0;
+}
+
+.resize-handle.left {
+  left: -3px;
+}
+
+.resize-handle.right {
+  right: -3px;
 }
 </style>
