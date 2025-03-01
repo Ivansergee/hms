@@ -17,7 +17,7 @@
         @mouseup="handleResizeEnd()"
         @mouseover="handleResizeMove(column.dataIndex)"
         @dragover.prevent
-        @drop="handleDrop(record.id, column.dataIndex)"
+        @drop="handleDrop($event, record.id, column.dataIndex)"
       >
         <div
           v-if="isBookingStart(record.id, column.dataIndex)"
@@ -25,7 +25,7 @@
           :style="{ width: getBookingBarWidth(record.id, column.dataIndex) }"
           :draggable="!ghostBooking"
           @mouseover.stop
-          @dragstart.stop="handleDragStart(record.id, column.dataIndex)"
+          @dragstart.stop="handleDragStart($event, record.id, column.dataIndex)"
         >
           <div
             class="resize-handle left"
@@ -166,7 +166,7 @@ const handleCellMouseDown = (e: MouseEvent, roomId: number, dayIndex: string) =>
   sourceDay.value = baseDay + cellOffsetDays;
 };
 
-const handleDragStart = (roomId: number, dayIndex: string): void => {
+const handleDragStart = (event: Event, roomId: number, dayIndex: string): void => {
   if (ghostBooking.value) {
     return;
   }
@@ -178,9 +178,14 @@ const handleDragStart = (roomId: number, dayIndex: string): void => {
       sourceDay.value = booking.start;
     }
   }
+
+  const target = event.target as HTMLElement;
+  setTimeout(() => {
+    target.style.visibility = "hidden";
+  }, 0);
 };
 
-const handleDrop = (targetRoomId: number, targetDay: string) => {
+const handleDrop = (event: Event, targetRoomId: number, targetDay: string) => {
   if (!draggedBookingId.value || !sourceDay.value) {
     return;
   }
@@ -194,6 +199,9 @@ const handleDrop = (targetRoomId: number, targetDay: string) => {
   }
   draggedBookingId.value = undefined;
   sourceDay.value = undefined;
+
+  const target = event.target as HTMLElement;
+  target.style.visibility = "visible";
 };
 
 // Resizing handlers
