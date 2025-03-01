@@ -45,7 +45,10 @@
           :style="getGhostBarStyle"
         >Booking</div>
       </div>
-      <div v-else>
+      <div
+        v-else
+        class="name-cell"
+      >
         {{ record.name }}
       </div>
     </template>
@@ -118,11 +121,11 @@ const isGhostBarStart = (roomId: number, dayIndex: string): boolean => {
     ? ghostBooking.value?.end === Number(dayIndex)
     : ghostBooking.value?.start === Number(dayIndex);
 
-  return ghostBooking.value?.id === roomId && isGhostStartCell;
+  return ghostBooking.value?.roomId === roomId && isGhostStartCell;
 };
 
 const isGhostBarShown = (roomId: number): boolean => {
-  return ghostBooking.value?.id === roomId;
+  return ghostBooking.value?.roomId === roomId;
 };
 
 const getBookingForStart = (roomId: number, dayIndex: string): Booking | undefined => {
@@ -247,6 +250,10 @@ onUnmounted(() => {
   position: relative;
 }
 
+.name-cell {
+  padding: 10px;
+}
+
 .draggable-bar {
   position: absolute;
   top: 0;
@@ -280,6 +287,10 @@ onUnmounted(() => {
 .plan-table :deep(.ant-table-tbody > tr > td.ant-table-cell) {
   padding: 0;
   position: relative;
+}
+
+.plan-table :deep(.ant-table-cell-fix-left) {
+  z-index: 20;
 }
 
 .resize-handle {
