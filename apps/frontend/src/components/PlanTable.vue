@@ -23,7 +23,7 @@
           v-if="isBookingStart(record.id, column.dataIndex)"
           class="draggable-bar"
           :style="{ width: getBookingBarWidth(record.id, column.dataIndex) }"
-          :draggable="!resizedBooking"
+          :draggable="!ghostBooking"
           @mouseover.stop
           @dragstart.stop="handleDragStart(record.id, column.dataIndex)"
         >
@@ -39,6 +39,11 @@
             @mousedown.stop="handleResizeStart(record.id, column.dataIndex, ResizeDirection.RIGHT)"
           ></div>
         </div>
+        <div
+          v-if="isGhostBarShown(record.id) && isGhostBarStart(record.id, column.dataIndex)"
+          class="ghost-bar"
+          :style="getGhostBarStyle"
+        ></div>
       </div>
       <div v-else>
         {{ record.name }}
@@ -100,28 +105,57 @@ const columns = computed(() => {
 
 const draggedBookingId = ref<number>();
 const sourceDay = ref<number>();
-const resizedBooking = ref<Booking>();
+const ghostBooking = ref<Booking>();
 const resizeDirection = ref<ResizeDirection>();
 
 const isBookingStart = (roomId: number, dayIndex: string): boolean => {
   const roomBookings = bookings.value.filter(b => b.roomId === roomId);
-  const dayNum = Number(dayIndex);
-  return roomBookings.some(b => b.start === dayNum);
+  return roomBookings.some(b => b.start === Number(dayIndex));
+};
+
+const isGhostBarStart = (roomId: number, dayIndex: string): boolean => {
+  const isGhostStartCell = resizeDirection.value === ResizeDirection.LEFT
+    ? ghostBooking.value?.end === Number(dayIndex)
+    : ghostBooking.value?.start === Number(dayIndex);
+
+  return ghostBooking.value?.id === roomId && isGhostStartCell;
+};
+
+const isGhostBarShown = (roomId: number): boolean => {
+  return ghostBooking.value?.id === roomId;
 };
 
 const getBookingForStart = (roomId: number, dayIndex: string): Booking | undefined => {
   const roomBookings = bookings.value.filter(b => b.roomId === roomId);
   const dayNum = Number(dayIndex);
+
   return roomBookings.find(b => b.start === dayNum);
 };
 
 const getBookingBarWidth = (roomId: number, dayIndex: string): string => {
   const booking = getBookingForStart(roomId, dayIndex);
-  if (!booking) return '';
+  if (!booking) {
+    return '';
+  }
+
   const daysSpan = booking.end - booking.start + 1;
   const width = daysSpan * cellWidth;
+
   return `${width}px`;
 };
+
+const getGhostBarStyle = computed((): StyleValue => {
+  if (!ghostBooking.value || !resizeDirection.value) {
+    return;
+  }
+
+  const daysSpan = ghostBooking.value.end - ghostBooking.value.start + 1
+  const width = daysSpan * cellWidth;
+
+  return resizeDirection.value === ResizeDirection.RIGHT
+    ? { left: 0, width: `${width}px` }
+    : { right: 0, width: `${width}px` };
+});
 
 const handleCellMouseDown = (e: MouseEvent, roomId: number, dayIndex: string) => {
   const cellOffsetDays = Math.floor(e.offsetX / cellWidth);
@@ -130,9 +164,10 @@ const handleCellMouseDown = (e: MouseEvent, roomId: number, dayIndex: string) =>
 };
 
 const handleDragStart = (roomId: number, dayIndex: string): void => {
-  if (resizedBooking.value) {
+  if (ghostBooking.value) {
     return;
   }
+
   const booking = getBookingForStart(roomId, dayIndex);
   if (booking) {
     draggedBookingId.value = booking.id;
@@ -143,55 +178,58 @@ const handleDragStart = (roomId: number, dayIndex: string): void => {
 };
 
 const handleDrop = (targetRoomId: number, targetDay: string) => {
-  if (draggedBookingId.value && sourceDay.value) {
-    const offset = Number(targetDay) - sourceDay.value;
-    const booking = bookings.value.find(b => b.id === draggedBookingId.value);
-    if (booking) {
-      booking.roomId = targetRoomId;
-      booking.start += offset;
-      booking.end += offset;
-    }
-    draggedBookingId.value = undefined;
-    sourceDay.value = undefined;
+  if (!draggedBookingId.value || !sourceDay.value) {
+    return;
   }
+
+  const offset = Number(targetDay) - sourceDay.value;
+  const booking = bookings.value.find(b => b.id === draggedBookingId.value);
+  if (booking) {
+    booking.roomId = targetRoomId;
+    booking.start += offset;
+    booking.end += offset;
+  }
+  draggedBookingId.value = undefined;
+  sourceDay.value = undefined;
 };
 
 // Resizing handlers
-let resizeOffset = 0;
-
 const handleResizeStart = (roomId: number, dayIndex: string, side: ResizeDirection) => {
   const booking = bookings.value.find(b => b.roomId === roomId && range(b.start, b.end).includes(Number(dayIndex)));
   if (booking) {
-    resizedBooking.value = booking;
+    ghostBooking.value = { ...booking };
     resizeDirection.value = side;
   }
 };
 
 const handleResizeEnd = () => {
-  if (!resizedBooking.value) {
+  if (!ghostBooking.value) {
+    return;
+  }
+
+  const resizingBooking = bookings.value.find(booking => booking.id === ghostBooking.value?.id);
+  if (!resizingBooking) {
     return;
   }
   if (resizeDirection.value === ResizeDirection.LEFT) {
-    resizedBooking.value.start = Math.round(resizedBooking.value.start);
+    resizingBooking.start = Math.round(ghostBooking.value.start);
   }
   if (resizeDirection.value === ResizeDirection.RIGHT) {
-    resizedBooking.value.end = Math.round(resizedBooking.value.end);
+    resizingBooking.end = Math.round(ghostBooking.value.end);
   }
-  resizedBooking.value = undefined;
-  resizeOffset = 0;
+  ghostBooking.value = undefined;
 };
 
 const handleResizeMove = (event: MouseEvent) => {
-  if (!resizedBooking.value || !event.movementX) {
+  if (!ghostBooking.value || !event.movementX) {
     return;
   }
-  resizeOffset += event.movementX;
 
   if (resizeDirection.value === ResizeDirection.LEFT) {
-    resizedBooking.value.start += event.movementX / cellWidth;
+    ghostBooking.value.start += event.movementX / cellWidth;
   }
   if (resizeDirection.value === ResizeDirection.RIGHT) {
-    resizedBooking.value.end += event.movementX / cellWidth;
+    ghostBooking.value.end += event.movementX / cellWidth;
   }
 };
 
@@ -223,6 +261,20 @@ onUnmounted(() => {
   cursor: grab;
   border-radius: 4px;
   background-color: #1890ff;
+}
+
+.ghost-bar {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  z-index: 15;
+  border-radius: 4px;
+  background-color: red;
 }
 
 .plan-table :deep(.ant-table-tbody > tr > td.ant-table-cell) {
