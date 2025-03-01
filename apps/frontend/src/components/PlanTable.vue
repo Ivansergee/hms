@@ -43,7 +43,7 @@
           v-if="isGhostBarShown(record.id) && isGhostBarStart(record.id, column.dataIndex)"
           class="ghost-bar"
           :style="getGhostBarStyle"
-        ></div>
+        >Booking</div>
       </div>
       <div v-else>
         {{ record.name }}
@@ -274,7 +274,7 @@ onUnmounted(() => {
   user-select: none;
   z-index: 15;
   border-radius: 4px;
-  background-color: red;
+  background-color: rgb(121, 121, 121);
 }
 
 .plan-table :deep(.ant-table-tbody > tr > td.ant-table-cell) {
