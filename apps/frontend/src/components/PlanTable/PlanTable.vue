@@ -3,25 +3,25 @@
     class="plan-table"
     :columns="columns"
     :dataSource="rooms"
-    rowKey="id"
     :pagination="false"
-    bordered
     :scroll="{ x: 1700 }"
+    rowKey="id"
+    bordered
   >
     <template #bodyCell="{ column, record }">
       <div
-        @mouseenter="onMouseEnterCell(record.id, column.dataIndex)"
+        @mouseenter="onMouseEnterCell($event, record.id, column.dataIndex)"
         @mouseleave="onMouseLeaveCell(record.id, column.dataIndex)"
       >
         <div
           v-if="column.dataIndex !== 'name'"
           class="cell"
-          :data-day="column.dataIndex"
           @mousedown="handleCellMouseDown($event, record.id, column.dataIndex)"
           @mouseup="handleResizeEnd()"
           @mouseover="handleResizeMove(column.dataIndex)"
-          @dragover.prevent
+          @dragenter="onDragEnterCell(record.id, column.dataIndex)"
           @drop="handleDrop(record.id, column.dataIndex)"
+          @dragover.prevent
         >
           <div
             v-if="isBookingStart(record.id, column.dataIndex)"
@@ -30,9 +30,9 @@
             :style="{ width: getBookingBarWidth(record.id, column.dataIndex) }"
             :draggable="!ghostBooking"
             @mouseover.stop
-            @mouseenter.stop="onMouseEnterBar(record.id, column.dataIndex)"
-            @mouseleave.stop="onMouseLeaveBar"
-            @dragstart.stop="handleDragStart(record.id, column.dataIndex)"
+            @mouseenter="onMouseEnterBar(record.id, column.dataIndex)"
+            @mouseleave="onMouseLeaveBar"
+            @dragstart.stop="handleDragStart($event, record.id, column.dataIndex)"
             @drop.stop="handleDropOnBar"
           >
             <div
@@ -75,9 +75,9 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, onMounted, onUnmounted, ref, type StyleValue} from 'vue';
+import { computed, onMounted, onUnmounted, ref, type StyleValue } from 'vue';
 import { type TableColumnType } from 'ant-design-vue';
-import {getDaysInMonth, range} from "@/utils/utils.ts";
+import { getDaysInMonth, range } from "@/utils/utils.ts";
 
 interface RoomData {
   id: number;
@@ -132,11 +132,16 @@ const columns = computed(() => {
 });
 
 const draggedBookingId = ref<number>();
+const draggedCellOffset = ref<number>(0);
 const sourceDay = ref<number>();
 const ghostBooking = ref<Booking>();
 const resizeDirection = ref<ResizeDirection>();
 const highlightedDays = ref<string[]>([]);
 const highlightedRoomId = ref<number>();
+const lastDraggedCell = ref<{ roomId: number; dayIndex: string }>();
+
+let dragEndedRecently = false;
+
 
 const isBookingStart = (roomId: number, dayIndex: string): boolean => {
   const roomBookings = bookings.value.filter(b => b.roomId === roomId);
@@ -174,8 +179,20 @@ const getBookingBarWidth = (roomId: number, dayIndex: string): string => {
   return `${width}px`;
 };
 
-const onMouseEnterCell = (roomId: number, dayIndex: string): void => {
-  highlightedDays.value.push(dayIndex);
+const onMouseEnterCell = (event: MouseEvent, roomId: number, dayIndex: string): void => {
+  // Ignore event for the last dragged cell
+  if (dragEndedRecently
+    && lastDraggedCell.value?.roomId === roomId
+    && Number(lastDraggedCell.value?.dayIndex) === Number(dayIndex) - draggedCellOffset.value
+  ) {
+    return;
+  }
+
+  const target = event.currentTarget as HTMLElement;
+  if (target.querySelector('.draggable-bar')) {
+    return;
+  }
+  highlightedDays.value = [dayIndex];
   highlightedRoomId.value = roomId;
 };
 
@@ -186,14 +203,25 @@ const onMouseLeaveCell = (roomId: number, dayIndex: string): void => {
 
 const onMouseEnterBar = (roomId: number, dayIndex: string): void => {
   const booking = getBookingForStart(roomId, dayIndex);
-  if (!booking) {
-    return;
+  if (booking) {
+    highlightedDays.value = range(booking.start, booking.end).map(day => day.toString());
+    highlightedRoomId.value = booking.roomId;
   }
-  highlightedDays.value = range(booking.start, booking.end).map(day => day.toString());
 };
 
 const onMouseLeaveBar = (): void => {
   highlightedDays.value = [];
+};
+
+const onDragEnterCell = (roomId: number, dayIndex: string): void => {
+  highlightedRoomId.value = roomId;
+
+  const draggedBooking = bookings.value.find(booking => booking.id === draggedBookingId.value);
+  if (draggedBooking) {
+    const bookingDayAmount = range(draggedBooking.start, draggedBooking.end).length - 1;
+    highlightedDays.value = range(Number(dayIndex), Number(dayIndex) + bookingDayAmount)
+      .map(day => (day - draggedCellOffset.value).toString());
+  }
 };
 
 const isColHighlighted = (dayIndex: string): boolean => {
@@ -223,10 +251,12 @@ const handleCellMouseDown = (e: MouseEvent, roomId: number, dayIndex: string): v
   sourceDay.value = baseDay + cellOffsetDays;
 };
 
-const handleDragStart = (roomId: number, dayIndex: string): void => {
+const handleDragStart = (event: DragEvent, roomId: number, dayIndex: string): void => {
   if (ghostBooking.value) {
     return;
   }
+  lastDraggedCell.value = { roomId, dayIndex };
+  draggedCellOffset.value = Math.trunc(event.offsetX / cellWidth);
 
   const booking = getBookingForStart(roomId, dayIndex);
   if (booking) {
@@ -241,6 +271,12 @@ const handleDrop = (targetRoomId: number, targetDay: string): void => {
   if (!draggedBookingId.value || !sourceDay.value) {
     return;
   }
+  dragEndedRecently = true;
+
+  // Disable mouseenter events for a short time
+  setTimeout(() => {
+    dragEndedRecently = false;
+  }, 50);
 
   const offset = Number(targetDay) - sourceDay.value;
   const booking = bookings.value.find(b => b.id === draggedBookingId.value);
