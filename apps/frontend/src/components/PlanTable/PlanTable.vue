@@ -325,8 +325,8 @@ onUnmounted(() => {
   align-items: center;
 }
 
-.header-cell.highlighted {
-  background-color: red;
+.highlighted {
+  background-color: #b5b5b5;
 }
 
 .name-cell {
@@ -335,10 +335,6 @@ onUnmounted(() => {
   justify-content: left;
   align-items: center;
   padding-left: 10px;
-}
-
-.name-cell.highlighted {
-  background-color: red;
 }
 
 .draggable-bar {
