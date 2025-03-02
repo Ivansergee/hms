@@ -10,46 +10,65 @@
   >
     <template #bodyCell="{ column, record }">
       <div
-        v-if="column.dataIndex !== 'name'"
-        class="cell"
-        :data-day="column.dataIndex"
-        @mousedown="handleCellMouseDown($event, record.id, column.dataIndex)"
-        @mouseup="handleResizeEnd()"
-        @mouseover="handleResizeMove(column.dataIndex)"
-        @dragover.prevent
-        @drop="handleDrop($event, record.id, column.dataIndex)"
+        @mouseenter="onMouseEnterCell(record.id, column.dataIndex)"
+        @mouseleave="onMouseLeaveCell(record.id, column.dataIndex)"
       >
         <div
-          v-if="isBookingStart(record.id, column.dataIndex)"
-          class="draggable-bar"
-          :style="{ width: getBookingBarWidth(record.id, column.dataIndex) }"
-          :draggable="!ghostBooking"
-          @mouseover.stop
-          @dragstart.stop="handleDragStart($event, record.id, column.dataIndex)"
+          v-if="column.dataIndex !== 'name'"
+          class="cell"
+          :data-day="column.dataIndex"
+          @mousedown="handleCellMouseDown($event, record.id, column.dataIndex)"
+          @mouseup="handleResizeEnd()"
+          @mouseover="handleResizeMove(column.dataIndex)"
+          @dragover.prevent
+          @drop="handleDrop(record.id, column.dataIndex)"
         >
           <div
-            class="resize-handle left"
-            @dragstart.stop
-            @mousedown.stop="handleResizeStart(record.id, column.dataIndex, ResizeDirection.LEFT)"
-          ></div>
-          Booking
+            v-if="isBookingStart(record.id, column.dataIndex)"
+            class="draggable-bar"
+            :class="{ hidden: isBarHidden(record.id, column.dataIndex) }"
+            :style="{ width: getBookingBarWidth(record.id, column.dataIndex) }"
+            :draggable="!ghostBooking"
+            @mouseover.stop
+            @mouseenter.stop="onMouseEnterBar(record.id, column.dataIndex)"
+            @mouseleave.stop="onMouseLeaveBar"
+            @dragstart.stop="handleDragStart(record.id, column.dataIndex)"
+            @drop.stop="handleDropOnBar"
+          >
+            <div
+              class="resize-handle left"
+              @dragstart.stop
+              @mousedown.stop="handleResizeStart(record.id, column.dataIndex, ResizeDirection.LEFT)"
+            ></div>
+            Booking
+            <div
+              class="resize-handle right"
+              @dragstart.stop
+              @mousedown.stop="handleResizeStart(record.id, column.dataIndex, ResizeDirection.RIGHT)"
+            ></div>
+          </div>
           <div
-            class="resize-handle right"
-            @dragstart.stop
-            @mousedown.stop="handleResizeStart(record.id, column.dataIndex, ResizeDirection.RIGHT)"
-          ></div>
+            v-if="isGhostBarShown(record.id) && isGhostBarStart(record.id, column.dataIndex)"
+            class="ghost-bar"
+            :style="getGhostBarStyle"
+          >Booking</div>
         </div>
         <div
-          v-if="isGhostBarShown(record.id) && isGhostBarStart(record.id, column.dataIndex)"
-          class="ghost-bar"
-          :style="getGhostBarStyle"
-        >Booking</div>
+          v-else
+          class="name-cell"
+          :class="{ highlighted: isRowHighlighted(record.id) }"
+        >
+          {{ record.name }}
+        </div>
       </div>
+    </template>
+    <template #headerCell="{ title, column }">
       <div
-        v-else
-        class="name-cell"
+        v-if="column.dataIndex !== 'name'"
+        class="header-cell"
+        :class="{ highlighted: isColHighlighted(column.dataIndex) }"
       >
-        {{ record.name }}
+        <span>{{ title }}</span>
       </div>
     </template>
   </a-table>
@@ -87,6 +106,12 @@ const bookings = ref<Booking[]>([
 const rooms = ref<RoomData[]>([
   { id: 1, name: 'Room 1' },
   { id: 2, name: 'Room 2' },
+  { id: 3, name: 'Room 3' },
+  { id: 4, name: 'Room 4' },
+  { id: 5, name: 'Room 5' },
+  { id: 6, name: 'Room 6' },
+  { id: 7, name: 'Room 7' },
+  { id: 8, name: 'Room 8' },
 ]);
 
 const columns = computed(() => {
@@ -97,7 +122,7 @@ const columns = computed(() => {
     width: cellWidth,
   }));
   daysCols.unshift({
-    title: 'Room',
+    title: '',
     dataIndex: 'name',
     key: 'title',
     fixed: 'left',
@@ -110,6 +135,8 @@ const draggedBookingId = ref<number>();
 const sourceDay = ref<number>();
 const ghostBooking = ref<Booking>();
 const resizeDirection = ref<ResizeDirection>();
+const highlightedDays = ref<string[]>([]);
+const highlightedRoomId = ref<number>();
 
 const isBookingStart = (roomId: number, dayIndex: string): boolean => {
   const roomBookings = bookings.value.filter(b => b.roomId === roomId);
@@ -147,6 +174,36 @@ const getBookingBarWidth = (roomId: number, dayIndex: string): string => {
   return `${width}px`;
 };
 
+const onMouseEnterCell = (roomId: number, dayIndex: string): void => {
+  highlightedDays.value.push(dayIndex);
+  highlightedRoomId.value = roomId;
+};
+
+const onMouseLeaveCell = (roomId: number, dayIndex: string): void => {
+  highlightedDays.value = highlightedDays.value.filter(day => day !== dayIndex);
+  highlightedRoomId.value = undefined;
+};
+
+const onMouseEnterBar = (roomId: number, dayIndex: string): void => {
+  const booking = getBookingForStart(roomId, dayIndex);
+  if (!booking) {
+    return;
+  }
+  highlightedDays.value = range(booking.start, booking.end).map(day => day.toString());
+};
+
+const onMouseLeaveBar = (): void => {
+  highlightedDays.value = [];
+};
+
+const isColHighlighted = (dayIndex: string): boolean => {
+  return highlightedDays.value.includes(dayIndex);
+};
+
+const isRowHighlighted = (roomId: number): boolean => {
+  return highlightedRoomId.value === roomId;
+};
+
 const getGhostBarStyle = computed((): StyleValue => {
   if (!ghostBooking.value || !resizeDirection.value) {
     return;
@@ -160,13 +217,13 @@ const getGhostBarStyle = computed((): StyleValue => {
     : { right: 0, width: `${width}px` };
 });
 
-const handleCellMouseDown = (e: MouseEvent, roomId: number, dayIndex: string) => {
+const handleCellMouseDown = (e: MouseEvent, roomId: number, dayIndex: string): void => {
   const cellOffsetDays = Math.floor(e.offsetX / cellWidth);
   const baseDay = Number(dayIndex);
   sourceDay.value = baseDay + cellOffsetDays;
 };
 
-const handleDragStart = (event: Event, roomId: number, dayIndex: string): void => {
+const handleDragStart = (roomId: number, dayIndex: string): void => {
   if (ghostBooking.value) {
     return;
   }
@@ -178,14 +235,9 @@ const handleDragStart = (event: Event, roomId: number, dayIndex: string): void =
       sourceDay.value = booking.start;
     }
   }
-
-  const target = event.target as HTMLElement;
-  setTimeout(() => {
-    target.style.visibility = "hidden";
-  }, 0);
 };
 
-const handleDrop = (event: Event, targetRoomId: number, targetDay: string) => {
+const handleDrop = (targetRoomId: number, targetDay: string): void => {
   if (!draggedBookingId.value || !sourceDay.value) {
     return;
   }
@@ -199,14 +251,22 @@ const handleDrop = (event: Event, targetRoomId: number, targetDay: string) => {
   }
   draggedBookingId.value = undefined;
   sourceDay.value = undefined;
+};
 
-  const target = event.target as HTMLElement;
-  target.style.visibility = "visible";
+const handleDropOnBar = () => {
+  draggedBookingId.value = undefined;
+  sourceDay.value = undefined;
+};
+
+const isBarHidden = (roomId: number, dayIndex: string): boolean => {
+  return draggedBookingId.value === getBookingForStart(roomId, dayIndex)?.id;
 };
 
 // Resizing handlers
 const handleResizeStart = (roomId: number, dayIndex: string, side: ResizeDirection) => {
-  const booking = bookings.value.find(b => b.roomId === roomId && range(b.start, b.end).includes(Number(dayIndex)));
+  const booking = bookings.value.find((b) => {
+    return b.roomId === roomId && range(b.start, b.end).includes(Number(dayIndex));
+  });
   if (booking) {
     ghostBooking.value = { ...booking };
     resizeDirection.value = side;
@@ -258,8 +318,27 @@ onUnmounted(() => {
   position: relative;
 }
 
+.header-cell {
+  min-height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-cell.highlighted {
+  background-color: red;
+}
+
 .name-cell {
-  padding: 10px;
+  min-height: 60px;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  padding-left: 10px;
+}
+
+.name-cell.highlighted {
+  background-color: red;
 }
 
 .draggable-bar {
@@ -278,6 +357,11 @@ onUnmounted(() => {
   background-color: #1890ff;
 }
 
+.draggable-bar.hidden {
+  transition: 0.01s;
+  transform: translateX(-9999px);
+}
+
 .ghost-bar {
   position: absolute;
   top: 0;
@@ -292,7 +376,7 @@ onUnmounted(() => {
   background-color: rgb(121, 121, 121);
 }
 
-.plan-table :deep(.ant-table-tbody > tr > td.ant-table-cell) {
+.plan-table :deep(.ant-table-cell) {
   padding: 0;
   position: relative;
 }
