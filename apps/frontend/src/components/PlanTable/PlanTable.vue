@@ -189,7 +189,7 @@ const onMouseEnterCell = (event: MouseEvent, roomId: number, dayIndex: string): 
   }
 
   const target = event.currentTarget as HTMLElement;
-  if (target.querySelector('.draggable-bar')) {
+  if (target.querySelector('.draggable-bar') || target.querySelector('.ghost-bar')) {
     return;
   }
   highlightedDays.value = [dayIndex];
@@ -197,6 +197,10 @@ const onMouseEnterCell = (event: MouseEvent, roomId: number, dayIndex: string): 
 };
 
 const onMouseLeaveCell = (roomId: number, dayIndex: string): void => {
+  if (ghostBooking.value) {
+    return;
+  }
+
   highlightedDays.value = highlightedDays.value.filter(day => day !== dayIndex);
   highlightedRoomId.value = undefined;
 };
@@ -210,6 +214,10 @@ const onMouseEnterBar = (roomId: number, dayIndex: string): void => {
 };
 
 const onMouseLeaveBar = (): void => {
+  if (ghostBooking.value) {
+    return;
+  }
+
   highlightedDays.value = [];
 };
 
@@ -306,6 +314,8 @@ const handleResizeStart = (roomId: number, dayIndex: string, side: ResizeDirecti
   if (booking) {
     ghostBooking.value = { ...booking };
     resizeDirection.value = side;
+    highlightedRoomId.value = booking.roomId;
+    highlightedDays.value = range(booking.start, booking.end).map(day => day.toString());
   }
 };
 
@@ -338,6 +348,9 @@ const handleResizeMove = (event: MouseEvent) => {
   if (resizeDirection.value === ResizeDirection.RIGHT) {
     ghostBooking.value.end += event.movementX / cellWidth;
   }
+
+  highlightedDays.value = range(Math.round(ghostBooking.value.start),
+    Math.round(ghostBooking.value.end)).map(day => day.toString());
 };
 
 onMounted(() => {
