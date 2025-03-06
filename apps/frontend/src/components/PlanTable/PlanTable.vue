@@ -26,6 +26,7 @@
           <DraggableBar
             v-if="isBookingStart(record.id, column.dataIndex)"
             :booking="getBookingForStart(record.id, column.dataIndex)"
+            :dragged-booking-id="draggedBookingId"
             :is-draggable="!ghostBooking"
             @resize="handleResizeStart"
             @mouseenter="onMouseEnterBar(record.id, column.dataIndex)"
@@ -33,13 +34,11 @@
             @dragstart.stop="handleDragStart($event, record.id, column.dataIndex)"
             @drop.stop="handleDropOnBar"
           />
-          <div
+          <GhostBar
             v-if="isGhostBarShown(record.id) && isGhostBarStart(record.id, column.dataIndex)"
-            class="ghost-bar"
-            :style="getGhostBarStyle"
-          >
-            Booking
-          </div>
+            :booking="ghostBooking"
+            :direction="resizeDirection"
+          />
         </div>
         <div
           v-else
@@ -63,28 +62,17 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref, type StyleValue } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { type TableColumnType } from 'ant-design-vue';
 import { getDaysInMonth, range } from "@/utils/utils.ts";
-import { type Booking } from "@/types/booking.ts";
-import { ResizeDirection, type RoomData } from "@/components/PlanTable/planTableTypes.ts";
-import { CELL_WIDTH } from "@/components/PlanTable/planTableUtils.ts";
+import { type Booking } from "@/types/Booking.ts";
+import { CELL_WIDTH, ResizeDirection } from "@/components/PlanTable/planTableUtils.ts";
+import GhostBar from "@/components/PlanTable/GhostBar.vue";
+import { useHighlighting } from "@/components/PlanTable/composables/useHighlighting.ts";
+import { rooms } from "@/queries/roomQueries.ts";
+import { bookings } from "@/queries/bookingQueries.ts";
 
-const bookings = ref<Booking[]>([
-  { id: 1, roomId: 1, start: 6, end: 8 },
-  { id: 2, roomId: 2, start: 9, end: 12 }
-]);
-
-const rooms = ref<RoomData[]>([
-  { id: 1, name: 'Room 1' },
-  { id: 2, name: 'Room 2' },
-  { id: 3, name: 'Room 3' },
-  { id: 4, name: 'Room 4' },
-  { id: 5, name: 'Room 5' },
-  { id: 6, name: 'Room 6' },
-  { id: 7, name: 'Room 7' },
-  { id: 8, name: 'Room 8' },
-]);
+const { highlightedDays, highlightedRoomId, isColHighlighted, isRowHighlighted } = useHighlighting();
 
 const columns = computed(() => {
   const daysCols: TableColumnType[] = getDaysInMonth(2025, 1).map((day) => ({
@@ -108,12 +96,9 @@ const draggedCellOffset = ref<number>(0);
 const sourceDay = ref<number>();
 const ghostBooking = ref<Booking>();
 const resizeDirection = ref<ResizeDirection>();
-const highlightedDays = ref<string[]>([]);
-const highlightedRoomId = ref<number>();
 const lastDraggedCell = ref<{ roomId: number; dayIndex: string }>();
 
 let dragEndedRecently = false;
-
 
 const isBookingStart = (roomId: number, dayIndex: string): boolean => {
   const roomBookings = bookings.value.filter(b => b.roomId === roomId);
@@ -191,27 +176,6 @@ const onDragEnterCell = (roomId: number, dayIndex: string): void => {
       .map(day => (day - draggedCellOffset.value).toString());
   }
 };
-
-const isColHighlighted = (dayIndex: string): boolean => {
-  return highlightedDays.value.includes(dayIndex);
-};
-
-const isRowHighlighted = (roomId: number): boolean => {
-  return highlightedRoomId.value === roomId;
-};
-
-const getGhostBarStyle = computed((): StyleValue => {
-  if (!ghostBooking.value || !resizeDirection.value) {
-    return;
-  }
-
-  const daysSpan = ghostBooking.value.end - ghostBooking.value.start + 1
-  const width = daysSpan * CELL_WIDTH;
-
-  return resizeDirection.value === ResizeDirection.RIGHT
-    ? { left: 0, width: `${width}px` }
-    : { right: 0, width: `${width}px` };
-});
 
 const handleCellMouseDown = (e: MouseEvent, roomId: number, dayIndex: string): void => {
   const cellOffsetDays = Math.floor(e.offsetX / CELL_WIDTH);
@@ -314,7 +278,7 @@ onUnmounted(() => {
 
 <style scoped>
 .cell {
-  min-height: 60px;
+  min-height: 40px;
   position: relative;
 }
 
@@ -330,25 +294,11 @@ onUnmounted(() => {
 }
 
 .name-cell {
-  min-height: 60px;
+  min-height: 40px;
   display: flex;
   justify-content: left;
   align-items: center;
   padding-left: 10px;
-}
-
-.ghost-bar {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-  z-index: 15;
-  border-radius: 4px;
-  background-color: rgb(121, 121, 121);
 }
 
 .plan-table :deep(.ant-table-cell) {

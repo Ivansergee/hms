@@ -1,32 +1,32 @@
 <template>
   <div
     class="draggable-bar"
-    :class="{ hidden: !!resizeDirection }"
+    :class="{ hidden: isHidden }"
     :style="{ width: getBookingBarWidth }"
     :draggable="isDraggable"
   >
     <div
       class="resize-handle left"
       @dragstart.stop
-      @mousedown.stop="handleResizeStart(ResizeDirection.LEFT)"
+      @mousedown="handleResizeStart(ResizeDirection.LEFT)"
     ></div>
     Booking
     <div
       class="resize-handle right"
       @dragstart.stop
-      @mousedown.stop="handleResizeStart(ResizeDirection.RIGHT)"
+      @mousedown="handleResizeStart(ResizeDirection.RIGHT)"
     ></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ResizeDirection } from "@/components/PlanTable/planTableTypes.ts";
-import { computed, ref } from "vue";
-import { type Booking } from "@/types/booking.ts";
-import { CELL_WIDTH } from "@/components/PlanTable/planTableUtils.ts";
+import { computed } from "vue";
+import { type Booking } from "@/types/Booking.ts";
+import { CELL_WIDTH, ResizeDirection } from "@/components/PlanTable/planTableUtils.ts";
 
 interface Props {
   booking: Booking;
+  draggedBookingId: number;
   isDraggable: boolean;
 }
 
@@ -35,7 +35,7 @@ const emit = defineEmits<{
   (event: "resize", payload: { booking: Booking, direction: ResizeDirection }): void;
 }>();
 
-const resizeDirection = ref<ResizeDirection>();
+const isHidden = computed(() => props.draggedBookingId === props.booking.id);
 
 const handleResizeStart = (direction: ResizeDirection): void => {
   emit('resize', { booking: props.booking, direction });
