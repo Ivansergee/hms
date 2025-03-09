@@ -7,29 +7,66 @@
 </div>
 </template>
 <script setup lang="ts">
-import { computed, type StyleValue } from "vue";
+import { computed, type StyleValue, watch } from "vue";
 import { CELL_WIDTH, ResizeDirection } from "@/components/PlanTable/planTableUtils.ts";
-import { type Booking } from "@/types/Booking.ts";
+import { range } from "@/utils/utils.ts";
+
+export interface GhostBooking {
+  id?: number;
+  roomId: number;
+  start: number;
+  end: number;
+}
 
 interface Props {
-  booking?: Booking;
+  data?: GhostBooking;
   direction?: ResizeDirection;
+  xOffset: number;
 }
 
 const props = defineProps<Props>();
+const emit = defineEmits<{
+  (event: "ghostBarRange", value: string[]): void;
+}>();
+
+const resizeDirection = computed(() => {
+  if (!props.direction) {
+    return props.xOffset < 0 ? ResizeDirection.LEFT : ResizeDirection.RIGHT;
+  } else {
+    return props.direction;
+  }
+});
 
 const getGhostBarStyle = computed((): StyleValue => {
-  if (!props.booking || !props.direction) {
+  if (!props.data) {
     return;
   }
 
-  const daysSpan = props.booking.end - props.booking.start + 1
-  const width = daysSpan * CELL_WIDTH;
+  const initialSpan = (props.data.end - props.data.start + 1) * CELL_WIDTH;
 
-  return props.direction === ResizeDirection.RIGHT
-    ? { left: 0, width: `${width}px` }
-    : { right: 0, width: `${width}px` };
+  return resizeDirection.value === ResizeDirection.RIGHT
+    ? { left: 0, width: `${initialSpan + props.xOffset}px` }
+    : { right: 0, width: `${initialSpan - props.xOffset}px` };
 });
+
+const ghostBookingRange = computed(() => {
+  if (!props.data) {
+    return [];
+  }
+  let start = props.data.start;
+  let end = props.data.end;
+  if (resizeDirection.value === ResizeDirection.LEFT) {
+    start += props.xOffset / CELL_WIDTH;
+  }
+  if (resizeDirection.value === ResizeDirection.RIGHT) {
+    end += props.xOffset / CELL_WIDTH;
+  }
+  return range(Math.round(start), Math.round(end)).map(day => day.toString());
+});
+
+watch(ghostBookingRange, (newRange) => {
+    emit('ghostBarRange', newRange);
+  });
 </script>
 <style scoped>
 .ghost-bar {

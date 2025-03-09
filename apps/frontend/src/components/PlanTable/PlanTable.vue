@@ -1,5 +1,6 @@
 <template>
   <a-table
+    ref="planTable"
     class="plan-table"
     :columns="columns"
     :dataSource="rooms"
@@ -17,15 +18,15 @@
           v-if="column.dataIndex !== 'name'"
           class="cell"
           @mousedown="handleCellMouseDown($event, record.id, column.dataIndex)"
-          @mouseup="handleResizeEnd()"
-          @mouseover="handleResizeMove(column.dataIndex)"
+          @mouseup="handleResizeEnd"
           @dragenter="onDragEnterCell(record.id, column.dataIndex)"
           @drop="handleDrop(record.id, column.dataIndex)"
           @dragover.prevent
+          @dragstart.prevent
         >
           <DraggableBar
             v-if="isBookingStart(record.id, column.dataIndex)"
-            :booking="getBookingForStart(record.id, column.dataIndex)"
+            :booking="getBooking(record.id, column.dataIndex)"
             :dragged-booking-id="draggedBookingId"
             :is-draggable="!ghostBooking"
             @resize="handleResizeStart"
@@ -36,14 +37,18 @@
           />
           <GhostBar
             v-if="isGhostBarShown(record.id) && isGhostBarStart(record.id, column.dataIndex)"
-            :booking="ghostBooking"
+            :data="ghostBooking"
             :direction="resizeDirection"
+            :xOffset="movementX"
+            @ghost-bar-range="onGhostBarRangeChange"
           />
         </div>
         <div
           v-else
           class="name-cell"
           :class="{ highlighted: isRowHighlighted(record.id) }"
+          @mousedown.prevent
+          @dragstart.prevent
         >
           {{ record.name }}
         </div>
@@ -62,17 +67,16 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { type TableColumnType } from 'ant-design-vue';
 import { getDaysInMonth, range } from "@/utils/utils.ts";
 import { type Booking } from "@/types/Booking.ts";
 import { CELL_WIDTH, ResizeDirection } from "@/components/PlanTable/planTableUtils.ts";
-import GhostBar from "@/components/PlanTable/GhostBar.vue";
+import GhostBar, { type GhostBooking } from "@/components/PlanTable/GhostBar.vue";
 import { useHighlighting } from "@/components/PlanTable/composables/useHighlighting.ts";
 import { rooms } from "@/queries/roomQueries.ts";
 import { bookings } from "@/queries/bookingQueries.ts";
-
-const { highlightedDays, highlightedRoomId, isColHighlighted, isRowHighlighted } = useHighlighting();
+import {useMouseEvents} from "@/components/PlanTable/composables/useMouseEvents.ts";
 
 const columns = computed(() => {
   const daysCols: TableColumnType[] = getDaysInMonth(2025, 1).map((day) => ({
@@ -91,17 +95,24 @@ const columns = computed(() => {
   return daysCols;
 });
 
+const bookingsRef = ref<Booking[]>(bookings);
+const planTable = ref();
 const draggedBookingId = ref<number>();
 const draggedCellOffset = ref<number>(0);
 const sourceDay = ref<number>();
-const ghostBooking = ref<Booking>();
+const ghostBooking = ref<GhostBooking>();
 const resizeDirection = ref<ResizeDirection>();
+const resizingBookingRange = ref<string[]>([]);
 const lastDraggedCell = ref<{ roomId: number; dayIndex: string }>();
+const isCreating = ref<boolean>(false);
+
+const { highlightedDays, highlightedRoomId, isColHighlighted, isRowHighlighted } = useHighlighting();
+const { movementX } = useMouseEvents(computed(() => planTable.value?.$el))
 
 let dragEndedRecently = false;
 
 const isBookingStart = (roomId: number, dayIndex: string): boolean => {
-  const roomBookings = bookings.value.filter(b => b.roomId === roomId);
+  const roomBookings = bookingsRef.value.filter(b => b.roomId === roomId);
   return roomBookings.some(b => b.start === Number(dayIndex));
 };
 
@@ -117,12 +128,20 @@ const isGhostBarShown = (roomId: number): boolean => {
   return ghostBooking.value?.roomId === roomId;
 };
 
-const getBookingForStart = (roomId: number, dayIndex: string): Booking | undefined => {
-  const roomBookings = bookings.value.filter(b => b.roomId === roomId);
+const getBooking = (roomId: number, dayIndex: string): Booking | undefined => {
+  const roomBookings = bookingsRef.value.filter(b => b.roomId === roomId);
   const dayNum = Number(dayIndex);
 
   return roomBookings.find(b => b.start === dayNum);
 };
+
+const getNewBooking = (roomId: number, dayIndex: string): GhostBooking => {
+  return {
+    roomId,
+    start: Number(dayIndex),
+    end: Number(dayIndex),
+  };
+}
 
 const onMouseEnterCell = (event: MouseEvent, roomId: number, dayIndex: string): void => {
   // Ignore event for the last dragged cell
@@ -151,7 +170,7 @@ const onMouseLeaveCell = (roomId: number, dayIndex: string): void => {
 };
 
 const onMouseEnterBar = (roomId: number, dayIndex: string): void => {
-  const booking = getBookingForStart(roomId, dayIndex);
+  const booking = getBooking(roomId, dayIndex);
   if (booking) {
     highlightedDays.value = range(booking.start, booking.end).map(day => day.toString());
     highlightedRoomId.value = booking.roomId;
@@ -169,7 +188,7 @@ const onMouseLeaveBar = (): void => {
 const onDragEnterCell = (roomId: number, dayIndex: string): void => {
   highlightedRoomId.value = roomId;
 
-  const draggedBooking = bookings.value.find(booking => booking.id === draggedBookingId.value);
+  const draggedBooking = bookingsRef.value.find(booking => booking.id === draggedBookingId.value);
   if (draggedBooking) {
     const bookingDayAmount = range(draggedBooking.start, draggedBooking.end).length - 1;
     highlightedDays.value = range(Number(dayIndex), Number(dayIndex) + bookingDayAmount)
@@ -181,6 +200,10 @@ const handleCellMouseDown = (e: MouseEvent, roomId: number, dayIndex: string): v
   const cellOffsetDays = Math.floor(e.offsetX / CELL_WIDTH);
   const baseDay = Number(dayIndex);
   sourceDay.value = baseDay + cellOffsetDays;
+  if (!getBooking(roomId, dayIndex)) {
+    isCreating.value = true;
+    ghostBooking.value = getNewBooking(roomId, dayIndex);
+  }
 };
 
 const handleDragStart = (event: DragEvent, roomId: number, dayIndex: string): void => {
@@ -190,7 +213,7 @@ const handleDragStart = (event: DragEvent, roomId: number, dayIndex: string): vo
   lastDraggedCell.value = { roomId, dayIndex };
   draggedCellOffset.value = Math.trunc(event.offsetX / CELL_WIDTH);
 
-  const booking = getBookingForStart(roomId, dayIndex);
+  const booking = getBooking(roomId, dayIndex);
   if (booking) {
     draggedBookingId.value = booking.id;
     if (!sourceDay.value) {
@@ -211,7 +234,7 @@ const handleDrop = (targetRoomId: number, targetDay: string): void => {
   }, 50);
 
   const offset = Number(targetDay) - sourceDay.value;
-  const booking = bookings.value.find(b => b.id === draggedBookingId.value);
+  const booking = bookingsRef.value.find(b => b.id === draggedBookingId.value);
   if (booking) {
     booking.roomId = targetRoomId;
     booking.start += offset;
@@ -235,51 +258,44 @@ const handleResizeStart = (data: { booking: Booking; direction: ResizeDirection 
 };
 
 const handleResizeEnd = () => {
-  if (!ghostBooking.value) {
+  if (!ghostBooking.value || !resizingBookingRange.value.length) {
     return;
   }
 
-  const resizingBooking = bookings.value.find(booking => booking.id === ghostBooking.value?.id);
-  if (!resizingBooking) {
-    return;
+  const start = Number(resizingBookingRange.value[0]);
+  const end = Number(resizingBookingRange.value[resizingBookingRange.value.length - 1]);
+
+  if (isCreating.value) {
+    bookingsRef.value.push({
+      id: 123,
+      start,
+      end,
+      roomId: ghostBooking.value.roomId,
+    });
+  } else {
+    const booking = bookingsRef.value.find(booking => booking.id === ghostBooking.value?.id);
+    if (booking) {
+      booking.start = start;
+      booking.end = end;
+    }
   }
-  if (resizeDirection.value === ResizeDirection.LEFT) {
-    resizingBooking.start = Math.round(ghostBooking.value.start);
-  }
-  if (resizeDirection.value === ResizeDirection.RIGHT) {
-    resizingBooking.end = Math.round(ghostBooking.value.end);
-  }
+
   ghostBooking.value = undefined;
 };
 
-const handleResizeMove = (event: MouseEvent) => {
-  if (!ghostBooking.value || !event.movementX) {
-    return;
-  }
-
-  if (resizeDirection.value === ResizeDirection.LEFT) {
-    ghostBooking.value.start += event.movementX / CELL_WIDTH;
-  }
-  if (resizeDirection.value === ResizeDirection.RIGHT) {
-    ghostBooking.value.end += event.movementX / CELL_WIDTH;
-  }
-
-  highlightedDays.value = range(Math.round(ghostBooking.value.start),
-    Math.round(ghostBooking.value.end)).map(day => day.toString());
+const onGhostBarRangeChange = (range: string[]): void => {
+  highlightedDays.value = range;
+  resizingBookingRange.value = range;
 };
-
-onMounted(() => {
-  document.addEventListener('mousemove', handleResizeMove);
-});
-onUnmounted(() => {
-  document.removeEventListener('mousemove', handleResizeMove);
-});
 </script>
 
 <style scoped>
 .cell {
   min-height: 40px;
   position: relative;
+  /* Prevents accidental text selection and dragging */
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .header-cell {
@@ -287,6 +303,8 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .highlighted {
