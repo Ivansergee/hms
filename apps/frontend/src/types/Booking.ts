@@ -3,4 +3,5 @@ export interface Booking {
   roomId: number;
   start: number;
   end: number;
+  guestId: number;
 }
