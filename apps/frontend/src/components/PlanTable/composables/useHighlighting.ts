@@ -4,8 +4,8 @@ export function useHighlighting() {
   const highlightedDays = ref<string[]>([]);
   const highlightedRoomId = ref<number>();
 
-  const isColHighlighted = (dayIndex: string): boolean => {
-    return highlightedDays.value.includes(dayIndex);
+  const isColHighlighted = (day: string): boolean => {
+    return highlightedDays.value.includes(day);
   };
 
   const isRowHighlighted = (roomId: number): boolean => {

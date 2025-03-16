@@ -8,14 +8,14 @@
 </template>
 <script setup lang="ts">
 import { computed, type StyleValue, watch } from "vue";
-import { CELL_WIDTH, ResizeDirection } from "@/components/PlanTable/planTableUtils.ts";
-import { range } from "@/utils/utils.ts";
+import { CELL_WIDTH, ResizeDirection } from "@/utils/planTableUtils.ts";
+import { getDaysRange, getDifferenceInDays } from "@/utils/dateTimeUtils.ts";
 
 export interface GhostBooking {
   id?: number;
   roomId: number;
-  start: number;
-  end: number;
+  start: string;
+  end: string;
 }
 
 interface Props {
@@ -42,7 +42,7 @@ const getGhostBarStyle = computed((): StyleValue => {
     return;
   }
 
-  const initialSpan = (props.data.end - props.data.start + 1) * CELL_WIDTH;
+  const initialSpan = (getDifferenceInDays(props.data.end, props.data.start) + 1) * CELL_WIDTH;
 
   return resizeDirection.value === ResizeDirection.RIGHT
     ? { left: 0, width: `${initialSpan + props.xOffset}px` }
@@ -61,7 +61,7 @@ const ghostBookingRange = computed(() => {
   if (resizeDirection.value === ResizeDirection.RIGHT) {
     end += props.xOffset / CELL_WIDTH;
   }
-  return range(Math.round(start), Math.round(end)).map(day => day.toString());
+  return getDaysRange(start, end);
 });
 
 watch(ghostBookingRange, (newRange) => {

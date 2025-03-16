@@ -1,5 +1,5 @@
 import {ref} from "vue";
-import type {RoomData} from "@/components/PlanTable/planTableUtils.ts";
+import type {RoomData} from "@/utils/planTableUtils.ts";
 
 export const rooms = ref<RoomData[]>([
   { id: 1, name: 'Room 1' },

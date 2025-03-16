@@ -2,8 +2,11 @@
   <div
     class="draggable-bar"
     :class="{ hidden: isHidden }"
-    :style="{ width: getBookingBarWidth }"
+    :style="getBookingBarStyle"
     :draggable="isDraggable"
+    @dragstart.stop="onDragStart"
+    @mousedown="handleMouseDown"
+    @click="onBarClick"
   >
     <div
       class="resize-handle left"
@@ -20,36 +23,71 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, ref, type StyleValue } from "vue";
 import { type Booking } from "@/types/Booking.ts";
-import { CELL_WIDTH, ResizeDirection } from "@/components/PlanTable/planTableUtils.ts";
+import { CELL_WIDTH, ResizeDirection } from "@/utils/planTableUtils.ts";
+import { getDifferenceInDays, getTimeFromDate, timeToPercentOfDay } from "@/utils/dateTimeUtils.ts";
 
 interface Props {
   booking: Booking;
-  draggedBookingId: number;
   isDraggable: boolean;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
-  (event: "resize", payload: { booking: Booking, direction: ResizeDirection }): void;
+  (event: 'resize', payload: { booking: Booking, direction: ResizeDirection }): void;
+  (event: 'bar-clicked', booking: Booking): void;
+  (event: 'drag-start', payload: { booking: Booking, clickedCellIndex: number }): void;
 }>();
 
-const isHidden = computed(() => props.draggedBookingId === props.booking.id);
+const isHidden = ref<boolean>(false);
+const mouseDownCellIndex = ref<number>(0);
+const startOffset = ref<number>(0);
+const endOffset = ref<number>(0);
+const barWidth = ref<number>(0);
 
 const handleResizeStart = (direction: ResizeDirection): void => {
   emit('resize', { booking: props.booking, direction });
 };
 
-const getBookingBarWidth = computed((): string => {
-  if (!props.booking) {
-    return '';
+const getBookingBarStyle = computed((): StyleValue => {
+  return {
+    width: `${barWidth.value}px`,
+    marginLeft: `${startOffset.value}px`,
+    marginRight: `${endOffset.value}px`,
+  };
+});
+
+const daysSpan = computed(() => {
+  return getDifferenceInDays(props.booking.end, props.booking.start) + 1;
+});
+
+const onBarClick = (): void => {
+  emit('bar-clicked', props.booking);
+};
+
+const onDragStart = (): void => {
+  isHidden.value = true;
+  emit('drag-start', { booking: props.booking, clickedCellIndex: mouseDownCellIndex.value });
+};
+
+const handleMouseDown = (e: MouseEvent) => {
+  if (e.offsetX < (CELL_WIDTH - startOffset.value)) {
+    mouseDownCellIndex.value = 0;
+  } else if (e.offsetX > (barWidth.value - (CELL_WIDTH - endOffset.value))) {
+    mouseDownCellIndex.value = daysSpan.value - 1;
+  } else {
+    mouseDownCellIndex.value = Math.floor((e.offsetX + startOffset.value) / CELL_WIDTH);
   }
+};
 
-  const daysSpan = props.booking.end - props.booking.start + 1;
-  const width = daysSpan * CELL_WIDTH;
+onMounted(() => {
+  const fullBarWidth = daysSpan.value * CELL_WIDTH;
+  const widthWithoutStartAndEnd = fullBarWidth - (CELL_WIDTH * 2);
 
-  return `${width}px`;
+  startOffset.value = timeToPercentOfDay(getTimeFromDate(props.booking.start)) * CELL_WIDTH;
+  endOffset.value = CELL_WIDTH - (timeToPercentOfDay(getTimeFromDate(props.booking.end)) * CELL_WIDTH);
+  barWidth.value = widthWithoutStartAndEnd + (CELL_WIDTH - startOffset.value) + (CELL_WIDTH - endOffset.value);
 });
 </script>
 
@@ -65,7 +103,7 @@ const getBookingBarWidth = computed((): string => {
   justify-content: center;
   user-select: none;
   z-index: 10;
-  cursor: grab;
+  cursor: pointer;
   border-radius: 4px;
   background-color: #1890ff;
 }
