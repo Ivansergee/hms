@@ -1,7 +1,13 @@
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isBetween from "dayjs/plugin/isBetween";
+import minMax from 'dayjs/plugin/minMax'
 
 dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isBetween);
+dayjs.extend(minMax);
 
 export function getDaysRange(from: string, to: string): string[] {
   const fromObj = dayjs(from);
@@ -11,7 +17,7 @@ export function getDaysRange(from: string, to: string): string[] {
 
   let date = fromObj.startOf('day');
   while (date.isBefore(toObj.add(1, 'day'), 'day')) {
-    dates.push(date.format('YYYY-MM-DD HH:mm'));
+    dates.push(date.format('YYYY-MM-DD'));
     date = date.add(1, 'day');
   }
 
@@ -29,6 +35,19 @@ export function getAdjacentMonthDates(): string[] {
   let date = startDate.startOf('day');
   while (date.isBefore(endDate.add(1, 'day'), 'day')) {
     dates.push(date.format('YYYY-MM-DD HH:mm'));
+    date = date.add(1, 'day');
+  }
+
+  return dates;
+}
+
+export function getMonthDates(initDate: dayjs.Dayjs): string[] {
+  const endDate = initDate.startOf('month').add(1, 'month');
+  const dates = [];
+
+  let date = initDate.startOf('month');
+  while (date.isBefore(endDate, 'day')) {
+    dates.push(date.format('YYYY-MM-DD'));
     date = date.add(1, 'day');
   }
 
@@ -53,7 +72,15 @@ export function getWeekdayFromDate(date: string): string {
 }
 
 export function getDifferenceInDays(date1: string, date2: string): number {
-  return dayjs(date1).startOf('day').diff(dayjs(date2).startOf('day'), 'd');
+  return dayjs(date2).startOf('day').diff(dayjs(date1).startOf('day'), 'd');
+}
+
+export function getMinDateByDay(date1: dayjs.Dayjs | string, date2: dayjs.Dayjs | string): string {
+  return dayjs.min(dayjs(date1), dayjs(date2)).format('YYYY-MM-DD HH:mm');
+}
+
+export function getMaxDateByDay(date1: dayjs.Dayjs | string, date2: dayjs.Dayjs | string): string {
+  return dayjs.max(dayjs(date1), dayjs(date2)).format('YYYY-MM-DD HH:mm');
 }
 
 export function addDays(date: string, daysAmount: number): string {

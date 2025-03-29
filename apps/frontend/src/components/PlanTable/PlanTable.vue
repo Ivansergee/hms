@@ -1,5 +1,13 @@
 <template>
   <div>
+    <button @click="onPrevMonth()">Prev</button>
+    <button @click="onNextMonth()">Next</button>
+    <span>{{ movementX }} {{ positionX }}</span>
+  </div>
+  <div>
+    {{ visibleStartDate.format('MMMM') }}
+  </div>
+  <div>
     <a-table
       ref="planTable"
       class="plan-table"
@@ -11,55 +19,38 @@
       bordered
     >
       <template #bodyCell="{ column, record }">
+        <PlanTableCell
+          v-if="column.dataIndex !== 'name'"
+          :room-id="record.id"
+          :day="column.dataIndex"
+          :visible-start-date="visibleStartDate"
+          :visible-end-date="visibleEndDate"
+          :xOffset="movementX"
+          :is-dragging="!!draggingBooking"
+          :is-creating="isCreating"
+          :is-resizing="isResizing"
+          @dragenter="onDragEnterCell(record.id, column.dataIndex)"
+          @drop="onDrop(record.id, column.dataIndex)"
+          @drag-start="onDragStart"
+          @bar-clicked="showEditDialog"
+          @resize-start="isResizing = true"
+          @resize-end="onResizeEnd"
+        />
         <div
-          @mouseenter="onMouseEnterCell($event, record.id, column.dataIndex)"
-          @mouseleave="onMouseLeaveCell(record.id, column.dataIndex)"
+          v-else
+          class="name-cell"
+          :class="{ highlighted: highlightStore.isRowHighlighted(record.id) }"
+          @mousedown.prevent
+          @dragstart.prevent
         >
-          <div
-            v-if="column.dataIndex !== 'name'"
-            class="cell"
-            @mousedown="handleCellMouseDown(record.id, column.dataIndex)"
-            @mouseup="handleResizeEnd"
-            @dragenter="onDragEnterCell(record.id, column.dataIndex)"
-            @drop="handleDrop(record.id, column.dataIndex)"
-            @dragover.prevent
-            @dragstart.prevent
-          >
-            <DraggableBar
-              v-if="bookingStore.getByRoomAndDay(record.id, column.dataIndex)"
-              :booking="bookingStore.getByRoomAndDay(record.id, column.dataIndex)"
-              :is-draggable="!ghostBooking"
-              @mouseenter="onMouseEnterBar(record.id, column.dataIndex)"
-              @mouseleave="onMouseLeaveBar"
-              @drop.stop="handleDropOnBar"
-              @bar-clicked="showEditDialog"
-              @drag-start="handleDragStart"
-              @resize="handleResizeStart"
-            />
-            <GhostBar
-              v-if="isGhostBarShown && isGhostBarStart(record.id, column.dataIndex)"
-              :data="ghostBooking"
-              :direction="resizeDirection"
-              :xOffset="movementX"
-              @ghost-bar-range="onGhostBarRangeChange"
-            />
-          </div>
-          <div
-            v-else
-            class="name-cell"
-            :class="{ highlighted: isRowHighlighted(record.id) }"
-            @mousedown.prevent
-            @dragstart.prevent
-          >
-            {{ record.name }}
-          </div>
+          {{ record.name }}
         </div>
       </template>
       <template #headerCell="{ column }">
         <div
           v-if="column.dataIndex !== 'name'"
           class="header-cell"
-          :class="{ highlighted: isColHighlighted(column.dataIndex) }"
+          :class="{ highlighted: highlightStore.isColHighlighted(column.dataIndex) }"
         >
           <div>{{ getDayFromDate(column.dataIndex) }}</div>
           <div>{{ getWeekdayFromDate(column.dataIndex) }}</div>
@@ -78,22 +69,41 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { type TableColumnType } from 'ant-design-vue';
 import {
-  getAdjacentMonthDates,
   getDaysRange,
   getDayFromDate,
   getDifferenceInDays,
-  getWeekdayFromDate, addDays, subtractDays, getTimeFromDate, setTimeOnDate, isSameDay,
+  getWeekdayFromDate,
+  addDays,
+  getMonthDates,
 } from "@/utils/dateTimeUtils.ts";
-import { type Booking } from "@/types/Booking.ts";
-import { CELL_WIDTH, ResizeDirection } from "@/utils/planTableUtils.ts";
-import GhostBar, { type GhostBooking } from "@/components/PlanTable/GhostBar.vue";
-import { useHighlighting } from "@/components/PlanTable/composables/useHighlighting.ts";
+import { type Booking, type BookingWithFlags } from "@/types/Booking.ts";
+import { CELL_WIDTH } from "@/utils/planTableUtils.ts";
 import { rooms } from "@/queries/roomQueries.ts";
 import { useMouseEvents } from "@/components/PlanTable/composables/useMouseEvents.ts";
 import { useBookingStore } from "@/stores/bookingStore.ts";
+import dayjs from "dayjs";
+import { useHighlightStore } from "@/stores/highlightStore.ts";
 
-const columns = computed(() => {
-  const daysCols: TableColumnType[] = getAdjacentMonthDates().map((day) => ({
+const planTable = ref();
+
+const bookingStore = useBookingStore();
+const highlightStore = useHighlightStore();
+
+const { movementX, positionX, isMouseDown } = useMouseEvents(computed(() => planTable.value?.$el))
+
+const visibleStartDate = ref<dayjs.Dayjs>(dayjs().startOf('month'));
+const visibleEndDate = ref<dayjs.Dayjs>(dayjs().endOf('month'));
+
+const draggingBooking = ref<BookingWithFlags>();
+const dragStartDay = ref<string>();
+
+const isResizing = ref<boolean>(false);
+const isCreating = ref<boolean>(false);
+const isEditDialogOpen = ref<boolean>(false);
+const bookingToEdit = ref<Partial<Booking>>();
+
+const columns = computed<TableColumnType[]>(() => {
+  const daysCols: TableColumnType[] = getMonthDates(visibleStartDate.value).map((day) => ({
     title: day,
     dataIndex: day,
     key: 'cell',
@@ -109,189 +119,71 @@ const columns = computed(() => {
   return daysCols;
 });
 
-const planTable = ref();
-
-const bookingStore = useBookingStore();
-const { highlightedDays, highlightedRoomId, isColHighlighted, isRowHighlighted } = useHighlighting();
-const { movementX, isMouseDown } = useMouseEvents(computed(() => planTable.value?.$el))
-
-const draggedBooking = ref<Booking>();
-const draggedCellIndex = ref<number>(0);
-const ghostBooking = ref<GhostBooking>();
-const resizeDirection = ref<ResizeDirection>();
-const resizingBookingRange = ref<string[]>([]);
-const lastDraggedCell = ref<{ roomId: number; day: string }>();
-const isResizing = ref<boolean>(false);
-const isCreating = ref<boolean>(false);
-const isEditDialogOpen = ref<boolean>(false);
-const bookingToEdit = ref<Partial<Booking>>();
-
-const isGhostBarStart = (roomId: number, day: string): boolean => {
-  if (!ghostBooking.value) {
-    return false;
-  }
-  const isGhostStartCell = resizeDirection.value === ResizeDirection.LEFT
-    ? isSameDay(ghostBooking.value.end, day)
-    : isSameDay(ghostBooking.value.start, day);
-
-  return ghostBooking.value?.roomId === roomId && isGhostStartCell;
+const fetchBookings = () => {
+  bookingStore.fetchBookings(
+    dayjs(visibleStartDate.value).startOf('month').format('YYYY-MM-DD'),
+    dayjs(visibleStartDate.value).endOf('month').format('YYYY-MM-DD'),
+  ).catch(console.error);
 };
 
-const isGhostBarShown = computed((): boolean => {
-  return isCreating.value || isResizing.value;
-});
+const onPrevMonth = () => {
+  visibleStartDate.value = visibleStartDate.value.subtract(1, 'month');
+  visibleEndDate.value = visibleEndDate.value.subtract(1, 'month');
+  fetchBookings();
+};
 
-const getNewBooking = (roomId: number, day: string): GhostBooking => {
-  return {
-    roomId,
-    start: day,
-    end: day,
-  };
+const onNextMonth = () => {
+  visibleStartDate.value = visibleStartDate.value.add(1, 'month');
+  visibleEndDate.value = visibleEndDate.value.add(1, 'month');
+  fetchBookings();
+};
+
+const onDragStart = (data: { booking: BookingWithFlags, dragStartDay: string }): void => {
+  draggingBooking.value = data.booking;
+  dragStartDay.value = data.dragStartDay;
 }
 
-const onMouseEnterCell = (event: MouseEvent, roomId: number, day: string): void => {
-  const target = event.currentTarget as HTMLElement;
-  if (target.querySelector('.draggable-bar') || target.querySelector('.ghost-bar')) {
-    return;
-  }
-  highlightedDays.value = [day];
-  highlightedRoomId.value = roomId;
-};
-
-const onMouseLeaveCell = (roomId: number, dayIndex: string): void => {
-  if (ghostBooking.value) {
+const onDrop = async (targetRoomId: number, targetDay: string): Promise<void> => {
+  if (!draggingBooking.value || !dragStartDay.value) {
     return;
   }
 
-  highlightedDays.value = highlightedDays.value.filter(day => day !== dayIndex);
-  highlightedRoomId.value = undefined;
-};
+  const daysOffset = getDifferenceInDays(dragStartDay.value, targetDay);
 
-const onMouseEnterBar = (roomId: number, day: string): void => {
-  const booking = bookingStore.getByRoomAndDay(roomId, day);
-  if (booking) {
-    highlightedDays.value = getDaysRange(booking.start, booking.end);
-    highlightedRoomId.value = booking.roomId;
-  }
-};
+  await bookingStore.editBooking({
+    id: draggingBooking.value.id,
+    roomId: targetRoomId,
+    start: addDays(draggingBooking.value.start, daysOffset),
+    end: addDays(draggingBooking.value.end, daysOffset),
+  });
 
-const onMouseLeaveBar = (): void => {
-  if (ghostBooking.value) {
-    return;
-  }
-
-  highlightedDays.value = [];
+  draggingBooking.value = undefined;
+  dragStartDay.value = undefined;
 };
 
 const onDragEnterCell = (roomId: number, day: string): void => {
-  if (!draggedBooking.value) {
+  if (!draggingBooking.value || !dragStartDay.value) {
     return;
   }
 
-  highlightedRoomId.value = roomId;
-  const bookingDayAmount = getDifferenceInDays(draggedBooking.value.end, draggedBooking.value.start);
-  const startWithOffset = subtractDays(day, draggedCellIndex.value);
-  const endWithOffset = subtractDays(addDays(day, bookingDayAmount), draggedCellIndex.value);
-  highlightedDays.value = getDaysRange(startWithOffset, endWithOffset);
+  highlightStore.highlightedRoom = roomId;
+
+  const daysOffset = getDifferenceInDays(dragStartDay.value, day);
+  highlightStore.highlightedDays = getDaysRange(
+    addDays(draggingBooking.value.start, daysOffset),
+    addDays(draggingBooking.value.end, daysOffset),
+  );
 };
 
-const handleCellMouseDown = (roomId: number, dayIndex: string): void => {
-  if (!bookingStore.getByRoomAndDay(roomId, dayIndex)) {
-    ghostBooking.value = getNewBooking(roomId, dayIndex);
-  }
-};
-
-watch(movementX, () => {
-  if (movementX.value > 20 && ghostBooking.value && !isResizing.value) {
-    isCreating.value = true;
-  }
-})
-
-watch(isMouseDown, () => {
-  if (!isMouseDown.value) {
+const onResizeEnd = (booking: Booking) => {
+  if (isCreating.value) {
+    bookingStore.createBooking(booking);
     isCreating.value = false;
+  }
+  if (isResizing.value) {
+    bookingStore.editBooking(booking);
     isResizing.value = false;
   }
-})
-
-const handleDragStart = (data: { booking: Booking, clickedCellIndex: number }): void => {
-  if (ghostBooking.value) {
-    return;
-  }
-
-  lastDraggedCell.value = { roomId: data.booking.roomId, day: data.booking.start };
-  draggedCellIndex.value = data.clickedCellIndex;
-
-  draggedBooking.value = data.booking;
-};
-
-const handleDrop = async (targetRoomId: number, targetDay: string): Promise<void> => {
-  if (!draggedBooking.value) {
-    return;
-  }
-
-  const bookingLength = getDifferenceInDays(draggedBooking.value.end, draggedBooking.value.start);
-  const startTime = getTimeFromDate(draggedBooking.value.start);
-  const endTime = getTimeFromDate(draggedBooking.value.end);
-
-  await bookingStore.editBooking({
-    id: draggedBooking.value.id,
-    roomId: targetRoomId,
-    start: setTimeOnDate(subtractDays(targetDay, draggedCellIndex.value), startTime),
-    end: setTimeOnDate(addDays(targetDay, bookingLength - draggedCellIndex.value), endTime),
-  });
-
-  draggedBooking.value = undefined;
-};
-
-const handleDropOnBar = () => {
-  draggedBooking.value = undefined;
-};
-
-// Resizing handlers
-const handleResizeStart = (data: { booking: Booking; direction: ResizeDirection }) => {
-  isResizing.value = true;
-  ghostBooking.value = {
-    id: data.booking.id,
-    roomId: data.booking.roomId,
-    start: data.booking.start,
-    end: data.booking.end,
-  };
-  resizeDirection.value = data.direction;
-  // highlightedRoomId.value = data.booking.roomId;
-  // highlightedDays.value = getDaysRange(data.booking.start, data.booking.end);
-};
-
-const handleResizeEnd = () => {
-  if (!ghostBooking.value || !resizingBookingRange.value.length) {
-    return;
-  }
-
-  const start = resizingBookingRange.value[0];
-  const end = resizingBookingRange.value[resizingBookingRange.value.length - 1];
-
-  if (isCreating.value) {
-    showEditDialog({
-      start,
-      end,
-      roomId: ghostBooking.value.roomId,
-    })
-    bookingStore.createBooking({
-      start,
-      end,
-      roomId: ghostBooking.value.roomId,
-      guestId: 1,
-    });
-  } else {
-    bookingStore.editBooking({ ...ghostBooking.value, guestId: 1 })
-  }
-
-  ghostBooking.value = undefined;
-};
-
-const onGhostBarRangeChange = (range: string[]): void => {
-  highlightedDays.value = range;
-  resizingBookingRange.value = range;
 };
 
 const showEditDialog = (booking?: Partial<Booking>) => {
@@ -299,20 +191,24 @@ const showEditDialog = (booking?: Partial<Booking>) => {
   isEditDialogOpen.value = true;
 };
 
+// watch(movementX, () => {
+//   if (movementX.value > 20 && ghostBooking.value) {
+//     isCreating.value = true;
+//   }
+// })
+
+watch(isMouseDown, () => {
+  if (!isMouseDown.value) {
+    isCreating.value = false;
+  }
+})
+
 onMounted(() => {
-  bookingStore.fetchBookings();
+  fetchBookings();
 });
 </script>
 
 <style scoped>
-.cell {
-  min-height: 40px;
-  position: relative;
-  /* Prevents accidental text selection and dragging */
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
 .header-cell {
   min-height: 60px;
   display: flex;

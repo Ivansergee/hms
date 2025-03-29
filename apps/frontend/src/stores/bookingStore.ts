@@ -1,15 +1,24 @@
 import { defineStore } from "pinia";
-import { type Booking } from "@/types/Booking.ts";
-import { ref } from "vue";
+import { type Booking, type BookingsByDayByRoomId } from "@/types/Booking.ts";
+import { computed, ref } from "vue";
 import { bookingQueries } from "@/queries/bookingQueries.ts";
 import { isSameDay } from "@/utils/dateTimeUtils.ts";
+import { getBookingsMap } from "@/utils/planTableUtils.ts";
 
 export const useBookingStore = defineStore('bookings', () => {
   const bookings = ref<Booking[]>([]);
+  const rangeStart = ref<string>('');
+  const rangeEnd = ref<string>('');
 
-  const fetchBookings = async (): Promise<void> => {
-    bookings.value = await bookingQueries.fetchBookings();
+  const fetchBookings = async (from: string, to: string): Promise<void> => {
+    rangeStart.value = from;
+    rangeEnd.value = to;
+    bookings.value = await bookingQueries.fetchBookings(from, to);
   };
+
+  const bookingsMap = computed((): BookingsByDayByRoomId => {
+    return getBookingsMap(bookings.value, rangeStart.value, rangeEnd.value);
+  });
 
   const createBooking = async (createData: Omit<Booking, 'id'>): Promise<Booking> => {
     const newBooking = await bookingQueries.createBooking(createData);
@@ -53,6 +62,7 @@ export const useBookingStore = defineStore('bookings', () => {
 
   return {
     bookings,
+    bookingsMap,
     fetchBookings,
     createBooking,
     editBooking,

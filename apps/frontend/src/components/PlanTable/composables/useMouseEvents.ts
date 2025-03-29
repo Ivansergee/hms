@@ -4,6 +4,7 @@ import { useEventListener } from "@vueuse/core";
 export function useMouseEvents(elementRef: Ref<HTMLElement | undefined>) {
   const isMouseDown = ref<boolean>(false);
   const movementX = ref<number>(0);
+  const positionX = ref<number>(0);
 
   const handleMouseDown = () => {
     isMouseDown.value = true;
@@ -14,6 +15,7 @@ export function useMouseEvents(elementRef: Ref<HTMLElement | undefined>) {
     if (isMouseDown.value) {
       movementX.value += event.movementX;
     }
+    positionX.value = event.clientX;
   };
 
   const handleMouseUp = () => {
@@ -29,5 +31,5 @@ export function useMouseEvents(elementRef: Ref<HTMLElement | undefined>) {
     useEventListener(el, "mouseup", handleMouseUp);
   });
 
-  return { isMouseDown, movementX };
+  return { isMouseDown, movementX, positionX };
 }

@@ -24,6 +24,8 @@ declare module 'vue' {
     EditBookingDialog: typeof import('./src/components/EditBookingDialog.vue')['default']
     GhostBar: typeof import('./src/components/PlanTable/GhostBar.vue')['default']
     PlanTable: typeof import('./src/components/PlanTable/PlanTable.vue')['default']
+    PlanTable2: typeof import('./src/components/PlanTable/PlanTable2.vue')['default']
+    PlanTableCell: typeof import('./src/components/PlanTable/PlanTableCell.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
