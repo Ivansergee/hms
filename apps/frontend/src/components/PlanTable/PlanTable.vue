@@ -62,6 +62,12 @@
       :booking="bookingToEdit"
       @close="isEditDialogOpen = false"
     />
+    <ConfirmChangeDialog
+      :open="isConfirmDialogOpen"
+      :booking="currentBooking"
+      :changed-booking="changedBooking"
+      @close="onConfirmDialogClose"
+    />
   </div>
 </template>
 
@@ -99,8 +105,13 @@ const dragStartDay = ref<string>();
 
 const isResizing = ref<boolean>(false);
 const isCreating = ref<boolean>(false);
+
 const isEditDialogOpen = ref<boolean>(false);
 const bookingToEdit = ref<Partial<Booking>>();
+
+const isConfirmDialogOpen = ref<boolean>(false);
+const currentBooking = ref<Booking>();
+const changedBooking = ref<Booking>();
 
 const columns = computed<TableColumnType[]>(() => {
   const daysCols: TableColumnType[] = getMonthDates(visibleStartDate.value).map((day) => ({
@@ -150,15 +161,14 @@ const onDrop = async (targetRoomId: number, targetDay: string): Promise<void> =>
 
   const daysOffset = getDifferenceInDays(dragStartDay.value, targetDay);
 
-  await bookingStore.editBooking({
-    id: draggingBooking.value.id,
+  currentBooking.value = draggingBooking.value;
+  changedBooking.value = {
+    ...draggingBooking.value,
     roomId: targetRoomId,
     start: addDays(draggingBooking.value.start, daysOffset),
     end: addDays(draggingBooking.value.end, daysOffset),
-  });
-
-  draggingBooking.value = undefined;
-  dragStartDay.value = undefined;
+  };
+  isConfirmDialogOpen.value = true;
 };
 
 const onDragEnterCell = (roomId: number, day: string): void => {
@@ -175,15 +185,17 @@ const onDragEnterCell = (roomId: number, day: string): void => {
   );
 };
 
-const onResizeEnd = (booking: Booking) => {
-  if (isCreating.value) {
-    bookingStore.createBooking(booking);
-    isCreating.value = false;
-  }
-  if (isResizing.value) {
-    bookingStore.editBooking(booking);
-    isResizing.value = false;
-  }
+const onResizeEnd = (data: { booking: Booking | undefined, changedBooking: Booking | undefined }) => {
+  currentBooking.value = data.booking;
+  changedBooking.value = data.changedBooking;
+  isConfirmDialogOpen.value = true;
+};
+
+const onConfirmDialogClose = (): void => {
+  isResizing.value = false;
+  draggingBooking.value = undefined;
+  dragStartDay.value = undefined;
+  isConfirmDialogOpen.value = false;
 };
 
 const showEditDialog = (booking?: Partial<Booking>) => {

@@ -3,8 +3,8 @@
     :title="booking?.id ? 'Edit booking' : 'Create booking'"
     :open="open"
     :confirm-loading="isLoading"
-    @ok="handleOk"
-    @cancel="handleCancel"
+    @ok="onOk"
+    @cancel="onCancel"
   >
     Guest: {{ booking?.guestId }}
   </a-modal>
@@ -24,10 +24,10 @@ const emit = defineEmits(['close']);
 
 const isLoading = ref<boolean>(false);
 
-const handleOk = () => {
+const onOk = () => {
   emit('close');
 };
-const handleCancel = () => {
+const onCancel = () => {
   emit('close');
 };
 </script>

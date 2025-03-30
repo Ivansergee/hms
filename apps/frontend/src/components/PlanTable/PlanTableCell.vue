@@ -12,7 +12,7 @@
     class="draggable-bar"
     :class="{ hidden: isDraggingComputed || isResizingComputed }"
     :style="bookingBarStyle"
-    :draggable="!ghostBooking"
+    :draggable="!isResizingComputed"
     @click="onBarClick"
     @dragstart.stop="onDragStart"
     @mousedown="onBarMouseDown"
@@ -77,7 +77,7 @@ const emit = defineEmits<{
   (event: 'bar-clicked', booking: Booking): void;
   (event: 'drag-start', payload: { booking: BookingWithFlags, dragStartDay: string }): void;
   (event: 'resize-start'): void;
-  (event: 'resize-end', booking: Booking | undefined): void;
+  (event: 'resize-end', payload: { booking: Booking | undefined, changedBooking: Booking | undefined }): void;
 }>();
 
 const bookingStore = useBookingStore();
@@ -223,12 +223,6 @@ const onResizeStart = (direction: ResizeDirection) => {
 
   isResizingInner.value = true;
   resizeDirection.value = direction;
-  ghostBooking.value = {
-    id: booking.value.id,
-    roomId: booking.value.roomId,
-    start: booking.value.start,
-    end: booking.value.end,
-  };
 
   window.addEventListener("mouseup", onResizeEnd);
 
@@ -252,10 +246,8 @@ const getResizedBooking = (): Booking | undefined => {
 };
 
 const onResizeEnd = () => {
-  isResizingInner.value = false;
-  isDraggingInner.value = false;
+  emit('resize-end', { booking: booking.value, changedBooking: getResizedBooking() });
   window.removeEventListener("mouseup", onResizeEnd);
-  emit('resize-end', getResizedBooking());
 };
 
 const totalResizedWidth = computed(() => {
@@ -272,6 +264,13 @@ watch(resizedCellCount, (newCount, oldCount) => {
     if (resizedBooking) {
       highlightStore.highlightedDays = getDaysRange(resizedBooking?.start, resizedBooking?.end);
     }
+  }
+});
+
+watch(() => props.isResizing, (isResizing) => {
+  if (!isResizing) {
+    isResizingInner.value = false;
+    isDraggingInner.value = false;
   }
 });
 
