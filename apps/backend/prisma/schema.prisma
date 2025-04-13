@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator typegen {
+  provider = "node ./prisma/generators/dist/typeGenerator.js"
+  output   = "../../shared/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String
+  rooms Room[]
+}
+
+model Room {
+  id         Int        @id @default(autoincrement())
+  name       String
+  status     RoomStatus @default(CLEAN)
+  category   Category   @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  bookings   Booking[]
+}
+
+model DocumentType {
+  id        Int                @id @default(autoincrement())
+  name      String
+  documents IdentityDocument[]
+}
+
+model IdentityDocument {
+  id           Int          @id @default(autoincrement())
+  type         DocumentType @relation(fields: [typeId], references: [id])
+  typeId       Int
+  firstName    String
+  lastName     String
+  parentName   String?
+  birthdate    DateTime
+  number       String
+  issuedBy     String?
+  issuedByCode String?
+  issuedAt     DateTime?
+  expiresAt    DateTime?
+  guest        Guest?
+}
+
+model Guest {
+  id                 Int               @id @default(autoincrement())
+  firstName          String
+  lastName           String
+  parentName         String?
+  birthdate          DateTime
+  phone              String?
+  email              String?
+  citizenship        String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  bookings           Booking[]
+  identityDocument   IdentityDocument? @relation(fields: [identityDocumentId], references: [id])
+  identityDocumentId Int?              @unique
+}
+
+model Booking {
+  id        Int           @id @default(autoincrement())
+  start     DateTime
+  end       DateTime
+  status    BookingStatus @default(ACTIVE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  room      Room          @relation(fields: [roomId], references: [id])
+  roomId    Int
+  guest     Guest         @relation(fields: [guestId], references: [id])
+  guestId   Int
+}
+
+enum BookingStatus {
+  CHECKED_IN
+  CHECKED_OUT
+  ACTIVE
+  CANCELED
+}
+
+enum RoomStatus {
+  CLEAN
+  DIRTY
+}

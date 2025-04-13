@@ -1,27 +1,21 @@
 {
   "name": "backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "dist/src/main",
+  "version": "1.0.50",
   "scripts": {
-    "build": "nest build",
-    "start:dev": "nest start --watch",
-    "start:prod": "node ."
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts",
+    "build:generator": "bun build ./prisma/generators/typeGenerator.ts --outdir ./prisma/generators/dist --target=node"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@hms/shared": "workspace:*",
-    "@nestjs/common": "^11.0.9",
-    "@nestjs/core": "^11.0.9",
-    "@nestjs/platform-express": "^11.0.9",
-    "reflect-metadata": "0.2"
+    "@elysiajs/swagger": "^1.2.2",
+    "@prisma/client": "6.5.0",
+    "@rasla/logify": "^4.0.0",
+    "elysia": "latest"
   },
   "devDependencies": {
-    "@nestjs/cli": "^11.0.2",
-    "@nestjs/schematics": "^11.0.0",
-    "@types/node": "^22.13.1",
-    "typescript": "^5"
-  }
+    "bun-types": "latest",
+    "prisma": "^6.5.0",
+    "prismabox": "^1.1.24"
+  },
+  "module": "src/index.js"
 }
