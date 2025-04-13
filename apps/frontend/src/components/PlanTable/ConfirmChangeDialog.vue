@@ -4,7 +4,6 @@
     :open="open"
     :confirm-loading="isLoading"
     :mask-closable="false"
-    centered
     @ok="onOk"
     @cancel="onCancel"
   >

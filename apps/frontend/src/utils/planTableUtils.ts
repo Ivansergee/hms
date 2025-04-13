@@ -1,12 +1,6 @@
 import type { Booking, BookingsByDayByRoomId } from "@/types/Booking.ts";
 import { getDaysRange } from "@/utils/dateTimeUtils.ts";
 import dayjs from "dayjs";
-import type { GhostBooking } from "@/components/PlanTable/GhostBar.vue";
-
-export interface RoomData {
-  id: number;
-  name: string;
-}
 
 export enum ResizeDirection {
   LEFT = 'left',
@@ -39,7 +33,7 @@ export function getBookingsMap(bookings: Booking[], start: string, end: string):
   return map;
 }
 
-export function getNewBooking(roomId: number, day: string): GhostBooking {
+export function getNewBooking(roomId: number, day: string): Partial<Booking> {
   return {
     roomId,
     start: day,

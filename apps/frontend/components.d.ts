@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     ABreadcrumb: typeof import('ant-design-vue/es')['Breadcrumb']
     ABreadcrumbItem: typeof import('ant-design-vue/es')['BreadcrumbItem']
+    AConfigProvider: typeof import('ant-design-vue/es')['ConfigProvider']
     ALayout: typeof import('ant-design-vue/es')['Layout']
     ALayoutContent: typeof import('ant-design-vue/es')['LayoutContent']
     ALayoutFooter: typeof import('ant-design-vue/es')['LayoutFooter']
@@ -21,6 +22,8 @@ declare module 'vue' {
     ASpace: typeof import('ant-design-vue/es')['Space']
     ASubMenu: typeof import('ant-design-vue/es')['SubMenu']
     ATable: typeof import('ant-design-vue/es')['Table']
+    ATabPane: typeof import('ant-design-vue/es')['TabPane']
+    ATabs: typeof import('ant-design-vue/es')['Tabs']
     ATypographyText: typeof import('ant-design-vue/es')['TypographyText']
     ChangeView: typeof import('./src/components/ChangeView.vue')['default']
     ConfirmChangeDialog: typeof import('./src/components/PlanTable/ConfirmChangeDialog.vue')['default']

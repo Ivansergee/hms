@@ -1,4 +1,10 @@
 export interface Guest {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
+  parentName: string;
+  phone: string;
+  email: string;
+  citizenship: string;
+  documentId: number;
 }

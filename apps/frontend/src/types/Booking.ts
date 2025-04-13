@@ -1,9 +1,12 @@
+import type { BookingStatus } from "../../../shared/enums/BookingStatus.ts";
+
 export interface Booking {
   id: number;
   roomId: number;
   start: string;
   end: string;
   guestId: number;
+  status: BookingStatus;
 }
 
 export interface BookingWithFlags extends Booking {
