@@ -1,6 +1,6 @@
 import { t } from 'elysia';
-import { enumToTypebox } from "../utils/enumUtils";
-import { RoomStatus } from "../../../shared/generated/enums";
+import { enumToTypebox } from "@/utils/enumUtils";
+import { RoomStatus } from "@shared/generated/enums";
 
 const create = t.Object({
     name: t.String(),

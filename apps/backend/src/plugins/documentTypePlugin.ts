@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 
-import { DocumentTypeService } from "../services/DocumentTypeService";
-import { documentTypeModel } from "../models/documentTypeModel";
+import { DocumentTypeService } from "@/services/DocumentTypeService";
+import { documentTypeModel } from "@/models/documentTypeModel";
 
 
 export const documentType = new Elysia({ prefix: '/documentType', tags: ['DocumentType'] })

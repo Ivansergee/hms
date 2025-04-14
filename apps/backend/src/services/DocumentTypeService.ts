@@ -1,6 +1,6 @@
 import type { DocumentType, Prisma } from "@prisma/client";
-import { prisma } from "../../prisma/prisma";
-import { BaseService } from "./BaseService";
+import { prisma } from "@/../prisma/prisma";
+import { BaseService } from "@/services/BaseService";
 
 export class DocumentTypeService extends BaseService<
     DocumentType,

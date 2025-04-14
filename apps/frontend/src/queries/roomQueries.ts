@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import type { Room } from "@/types/Room.ts";
-import { RoomStatus } from "../../../shared/enums/RoomStatus.ts";
+import { RoomStatus } from "@shared/generated/enums.ts"
 
 export const rooms = ref<Room[]>([
   { id: 1, name: 'Room 1', category: 'DBL', status: RoomStatus.CLEAN },

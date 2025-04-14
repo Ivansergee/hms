@@ -1,6 +1,6 @@
 import { Static, t } from 'elysia';
-import { enumToTypebox } from "../utils/enumUtils";
-import { BookingStatus } from "../../../shared/generated/enums";
+import { enumToTypebox } from "@/utils/enumUtils";
+import { BookingStatus } from "@shared/generated/enums";
 
 const create = t.Object({
     start: t.String({ format: 'date-time' }),

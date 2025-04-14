@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 
-import { guestModel } from "../models/guestModel";
-import { GuestService } from "../services/GuestService";
+import { guestModel } from "@/models/guestModel";
+import { GuestService } from "@/services/GuestService";
 
 
 export const guest = new Elysia({ prefix: '/guest', tags: ['Guest'] })

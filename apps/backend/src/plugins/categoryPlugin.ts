@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 
-import { CategoryService } from "../services/CategoryService";
-import { categoryModel } from "../models/categoryModel";
+import { CategoryService } from "@/services/CategoryService";
+import { categoryModel } from "@/models/categoryModel";
 
 export const category = new Elysia({ prefix: '/category', tags: ['RoomCategory'] })
     .decorate('categoryService', new CategoryService())

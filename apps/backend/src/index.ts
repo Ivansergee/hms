@@ -1,12 +1,13 @@
 import { Elysia } from "elysia";
 import swagger from "@elysiajs/swagger";
+import { cors } from '@elysiajs/cors';
 import { logger } from "@rasla/logify";
-import { guest } from "./plugins/guestPlugin";
-import { room } from "./plugins/roomPlugin";
-import { category } from "./plugins/categoryPlugin";
-import { documentType } from "./plugins/documentTypePlugin";
-import { booking } from "./plugins/bookingPlugin";
-import { identityDocument } from "./plugins/identityDocumentPlugin";
+import { guest } from "@/plugins/guestPlugin";
+import { room } from "@/plugins/roomPlugin";
+import { category } from "@/plugins/categoryPlugin";
+import { documentType } from "@/plugins/documentTypePlugin";
+import { booking } from "@/plugins/bookingPlugin";
+import { identityDocument } from "@/plugins/identityDocumentPlugin";
 
 const app = new Elysia()
     .get("/", () => "Hello Elysia")
@@ -18,6 +19,9 @@ const app = new Elysia()
     .use(category)
     .use(room)
     .use(booking)
+    .use(cors({
+        origin: 'http://localhost:5173',
+    }))
     .listen(3000);
 
 console.log(

@@ -1,4 +1,4 @@
-import type { RoomStatus } from "../../../shared/enums/RoomStatus.ts";
+import type { RoomStatus } from "@shared/generated/enums.ts";
 
 export interface Room {
   id: number;

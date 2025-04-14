@@ -1,4 +1,4 @@
-import type { BookingStatus } from "../../../shared/enums/BookingStatus.ts";
+import type { BookingStatus } from "@shared/generated/enums.ts";
 
 export interface Booking {
   id: number;

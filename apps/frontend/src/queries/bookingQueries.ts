@@ -1,6 +1,7 @@
-import { type Booking } from "@/types/Booking.ts";
 import dayjs from "dayjs";
-import { BookingStatus } from "../../../shared/enums/BookingStatus.ts";
+
+import { BookingStatus } from "@shared/generated/enums.ts";
+import { type Booking } from "@/types/Booking.ts";
 
 export const bookings: Booking[] = [
   { id: 1, roomId: 1, start: '2025-02-25 08:00', end: '2025-03-05 20:00', guestId: 1, status: BookingStatus.ACTIVE },
