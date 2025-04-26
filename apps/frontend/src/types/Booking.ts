@@ -1,13 +1,4 @@
-import type { BookingStatus } from "@shared/generated/enums.ts";
-
-export interface Booking {
-  id: number;
-  roomId: number;
-  start: string;
-  end: string;
-  guestId: number;
-  status: BookingStatus;
-}
+import type { Booking } from "@shared/types/booking.ts";
 
 export interface BookingWithFlags extends Booking {
   isStartDay: boolean;
