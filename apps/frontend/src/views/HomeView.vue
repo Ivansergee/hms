@@ -4,15 +4,14 @@ import {
   SettingOutlined,
 } from '@ant-design/icons-vue';
 import { ref } from 'vue';
-const collapsed = ref<boolean>(false);
 const selectedKeys = ref<string[]>(['1']);
 </script>
 
 <template>
-  <a-layout style="min-height: 100vh">
-    <a-layout-sider v-model:collapsed="collapsed" collapsible>
+  <a-layout class="layout">
+    <a-layout-header class="header">
       <div class="logo" />
-      <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
+      <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="horizontal">
         <a-menu-item key="1">
           <span class="anticon anticon-setting">
             <svg focusable="false" width="1em" height="1em" fill="currentColor" aria-hidden="true"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -29,30 +28,22 @@ const selectedKeys = ref<string[]>(['1']);
           <span>Settings</span>
         </a-menu-item>
       </a-menu>
-    </a-layout-sider>
-    <a-layout>
-      <a-layout-header style="background: #fff; padding: 0" />
-      <a-layout-content style="margin: 0 16px">
-        <PlanTable/>
-      </a-layout-content>
-      <a-layout-footer style="text-align: center">
-        HMS
-      </a-layout-footer>
-    </a-layout>
+    </a-layout-header>
+    <a-layout-content class="content">
+      <PlanTable/>
+    </a-layout-content>
   </a-layout>
 </template>
 
 <style scoped>
-.logo {
-  height: 32px;
-  margin: 16px;
-  background: rgba(255, 255, 255, 0.3);
+.header {
+  position: fixed;
+  width: 100%;
+  height: 45px;
+  line-height: 45px;
 }
 
-.site-layout .site-layout-background {
-  background: #fff;
-}
-[data-theme='dark'] .site-layout .site-layout-background {
-  background: #141414;
+.content {
+  margin-top: 45px;
 }
 </style>

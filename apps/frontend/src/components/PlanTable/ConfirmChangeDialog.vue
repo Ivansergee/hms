@@ -18,10 +18,10 @@
   </a-modal>
 </template>
 <script setup lang="ts">
-import type { Booking } from "@/types/Booking.ts";
 import { ref } from "vue";
 import { BookingProperty } from "@/enums/BookingProperty.ts";
 import { useBookingStore } from "@/stores/bookingStore.ts";
+import type { Booking } from "@shared/types/booking.ts";
 
 interface Props {
   open: boolean;

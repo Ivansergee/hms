@@ -1,7 +1,5 @@
 import type { BookingStatus } from "../generated/enums";
-import { type Guest } from "./guest";
-
-export type PartialExcept<T, K extends keyof T> = Partial<T> & Pick<T, K>;
+import { type Guest, type GuestCreate } from "./guest";
 
 export interface Booking {
     id: number;
@@ -10,6 +8,12 @@ export interface Booking {
     end: string;
     guestId: number;
     status: BookingStatus;
+    mainGuest: {
+        firstName: string;
+        lastName: string;
+    };
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface BookingDetails {
@@ -22,4 +26,15 @@ export interface BookingDetails {
     guests: Guest[];
 }
 
-export type PartialBookingDetails = PartialExcept<BookingDetails, 'id'>;
+export interface BookingCreate {
+    roomId: number;
+    start: string;
+    end: string;
+    guests: GuestCreate[];
+}
+
+export type BookingFormState = Partial<Omit<BookingDetails, 'id' | 'guests'>> & {
+    id: number;
+    guests: Partial<GuestCreate>[];
+    currentStep?: number;
+}

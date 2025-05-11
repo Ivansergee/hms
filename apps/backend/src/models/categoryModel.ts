@@ -1,12 +1,14 @@
 import { t } from 'elysia';
 
+const create = t.Object({
+    name: t.String(),
+    tag: t.String(),
+    capacity: t.Number(),
+});
+
 export const categoryModel = {
-    create: t.Object({
-        name: t.String(),
-    }),
-    update: t.Object({
-        name: t.String(),
-    }),
+    create,
+    update: t.Partial(create),
     params: t.Object({
         id: t.Numeric(),
     }),

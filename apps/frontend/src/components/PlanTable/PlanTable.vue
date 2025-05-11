@@ -2,17 +2,16 @@
   <div>
     <button @click="onPrevMonth()">Prev</button>
     <button @click="onNextMonth()">Next</button>
-    <span>{{ movementX }} {{ positionX }}</span>
+    <button @click="onCreate()">Create</button>
   </div>
   <div>
     {{ visibleStartDate.format('MMMM') }}
   </div>
   <div>
     <a-table
-      ref="planTable"
       class="plan-table"
       :columns="columns"
-      :dataSource="rooms"
+      :dataSource="roomStore.rooms"
       :pagination="false"
       :scroll="{ x: 1700 }"
       rowKey="id"
@@ -23,18 +22,13 @@
           v-if="column.dataIndex !== 'name'"
           :room-id="record.id"
           :day="column.dataIndex"
-          :visible-start-date="visibleStartDate"
-          :visible-end-date="visibleEndDate"
-          :xOffset="movementX"
-          :is-dragging="!!draggingBooking"
-          :is-creating="isCreating"
-          :is-resizing="isResizing"
+          :on-create="showCreateDialog"
+          :on-confirm="showConfirmDialog"
           @dragenter="onDragEnterCell(record.id, column.dataIndex)"
-          @drop="onDrop(record.id, column.dataIndex)"
           @drag-start="onDragStart"
+          @drop="onDragEnd(record.id, column.dataIndex)"
           @bar-clicked="showEditDialog"
-          @resize-start="isResizing = true"
-          @resize-end="onResizeEnd"
+          @restore="onRestoreFromTray"
         />
         <div
           v-else
@@ -57,10 +51,11 @@
         </div>
       </template>
     </a-table>
-    <EditBookingDialog
-      :open="isEditDialogOpen"
-      :booking="bookingToEdit"
-      @close="isEditDialogOpen = false"
+    <CreateBookingDialog
+      :open="isCreateDialogOpen"
+      :state="createFormState"
+      @close="onCreateDialogClose"
+      @minimize="onCreateDialogMinimize"
     />
     <ConfirmChangeDialog
       :open="isConfirmDialogOpen"
@@ -68,53 +63,53 @@
       :changed-booking="changedBooking"
       @close="onConfirmDialogClose"
     />
+    <Tray
+      @restore="onRestoreFromTray"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue';
-import { type TableColumnType } from 'ant-design-vue';
+import { computed, onMounted, ref } from 'vue';
 import {
-  getDaysRange,
-  getDayFromDate,
-  getDifferenceInDays,
-  getWeekdayFromDate,
   addDays,
+  getDayFromDate,
+  getDaysRange,
+  getDifferenceInDays,
   getMonthDates,
+  getWeekdayFromDate,
 } from "@/utils/dateTimeUtils.ts";
-import { type Booking, type BookingWithFlags } from "@/types/Booking.ts";
+import { type BookingWithFlags } from "@/types/Booking.ts";
 import { CELL_WIDTH } from "@/utils/planTableUtils.ts";
-import { rooms } from "@/queries/roomQueries.ts";
-import { useMouseEvents } from "@/components/PlanTable/composables/useMouseEvents.ts";
 import { useBookingStore } from "@/stores/bookingStore.ts";
 import dayjs from "dayjs";
 import { useHighlightStore } from "@/stores/highlightStore.ts";
-
-const planTable = ref();
+import { useRoomStore } from "@/stores/roomStore.ts";
+import { type Booking, type BookingFormState } from "@shared/types/booking.ts";
+import type { ColumnType } from "ant-design-vue/es/table";
+import { bookingQueries } from "@/queries/bookingQueries.ts";
+import { TrayItemType, useTrayStore } from "@/stores/trayStore.ts";
 
 const bookingStore = useBookingStore();
 const highlightStore = useHighlightStore();
-
-const { movementX, positionX, isMouseDown } = useMouseEvents(computed(() => planTable.value?.$el))
+const roomStore = useRoomStore();
+const trayStore = useTrayStore();
 
 const visibleStartDate = ref<dayjs.Dayjs>(dayjs().startOf('month'));
 const visibleEndDate = ref<dayjs.Dayjs>(dayjs().endOf('month'));
 
-const draggingBooking = ref<BookingWithFlags>();
 const dragStartDay = ref<string>();
 
-const isResizing = ref<boolean>(false);
-const isCreating = ref<boolean>(false);
-
-const isEditDialogOpen = ref<boolean>(false);
-const bookingToEdit = ref<Partial<Booking>>();
+const isCreateDialogOpen = ref<boolean>(false);
+const createFormState = ref<BookingFormState>();
 
 const isConfirmDialogOpen = ref<boolean>(false);
+const createDialogResolver = ref<(() => void) | undefined>();
 const currentBooking = ref<Booking>();
 const changedBooking = ref<Booking>();
 
-const columns = computed<TableColumnType[]>(() => {
-  const daysCols: TableColumnType[] = getMonthDates(visibleStartDate.value).map((day) => ({
+const columns = computed<ColumnType[]>(() => {
+  const daysCols: ColumnType[] = getMonthDates(visibleStartDate.value).map((day) => ({
     title: day,
     dataIndex: day,
     key: 'cell',
@@ -131,7 +126,7 @@ const columns = computed<TableColumnType[]>(() => {
 });
 
 const fetchBookings = () => {
-  bookingStore.fetchBookings(
+  bookingStore.fetch(
     dayjs(visibleStartDate.value).startOf('month').format('YYYY-MM-DD'),
     dayjs(visibleStartDate.value).endOf('month').format('YYYY-MM-DD'),
   ).catch(console.error);
@@ -149,30 +144,38 @@ const onNextMonth = () => {
   fetchBookings();
 };
 
+const onCreate = () => {
+  createFormState.value = {
+    id: Date.now(),
+    guests: [],
+  };
+  isCreateDialogOpen.value = true;
+};
+
 const onDragStart = (data: { booking: BookingWithFlags, dragStartDay: string }): void => {
-  draggingBooking.value = data.booking;
+  currentBooking.value = data.booking;
   dragStartDay.value = data.dragStartDay;
 }
 
-const onDrop = async (targetRoomId: number, targetDay: string): Promise<void> => {
-  if (!draggingBooking.value || !dragStartDay.value) {
+const onDragEnd = async (targetRoomId: number, targetDay: string): Promise<void> => {
+  if (!currentBooking.value || !dragStartDay.value) {
     return;
   }
 
   const daysOffset = getDifferenceInDays(dragStartDay.value, targetDay);
 
-  currentBooking.value = draggingBooking.value;
+  currentBooking.value = currentBooking.value;
   changedBooking.value = {
-    ...draggingBooking.value,
+    ...currentBooking.value,
     roomId: targetRoomId,
-    start: addDays(draggingBooking.value.start, daysOffset),
-    end: addDays(draggingBooking.value.end, daysOffset),
+    start: addDays(currentBooking.value.start, daysOffset),
+    end: addDays(currentBooking.value.end, daysOffset),
   };
   isConfirmDialogOpen.value = true;
 };
 
 const onDragEnterCell = (roomId: number, day: string): void => {
-  if (!draggingBooking.value || !dragStartDay.value) {
+  if (!currentBooking.value || !dragStartDay.value) {
     return;
   }
 
@@ -180,40 +183,75 @@ const onDragEnterCell = (roomId: number, day: string): void => {
 
   const daysOffset = getDifferenceInDays(dragStartDay.value, day);
   highlightStore.highlightedDays = getDaysRange(
-    addDays(draggingBooking.value.start, daysOffset),
-    addDays(draggingBooking.value.end, daysOffset),
+    addDays(currentBooking.value.start, daysOffset),
+    addDays(currentBooking.value.end, daysOffset),
   );
 };
 
-const onResizeEnd = (data: { booking: Booking | undefined, changedBooking: Booking | undefined }) => {
-  currentBooking.value = data.booking;
-  changedBooking.value = data.changedBooking;
+const showEditDialog = async (bookingId?: number): Promise<void> => {
+  if (bookingId) {
+    const trayData = trayStore.pop(bookingId);
+    createFormState.value = trayData ?? await bookingQueries.getDetails(bookingId);
+  }
+  isCreateDialogOpen.value = true;
+};
+
+const onRestoreFromTray = (bookingId: number): void => {
+  const trayItem = trayStore.pop(bookingId);
+  if (!trayItem) {
+    return;
+  }
+  const { isUnsaved, type, resolver, ...bookingData } = trayItem;
+  createDialogResolver.value = resolver;
+  createFormState.value = bookingData;
+  isCreateDialogOpen.value = true;
+};
+
+let confirmDialogResolver: ((value: (void | PromiseLike<void>)) => void) | undefined;
+
+const showConfirmDialog = async (after: Booking | undefined, before: Booking | undefined): Promise<void> => {
+  currentBooking.value = before;
+  changedBooking.value = after;
   isConfirmDialogOpen.value = true;
+  return new Promise((resolve) => {
+    confirmDialogResolver = resolve;
+  });
 };
 
 const onConfirmDialogClose = (): void => {
-  isResizing.value = false;
-  draggingBooking.value = undefined;
-  dragStartDay.value = undefined;
   isConfirmDialogOpen.value = false;
+  currentBooking.value = undefined;
+  changedBooking.value = undefined;
+  confirmDialogResolver?.();
+  confirmDialogResolver = undefined;
+}
+
+const showCreateDialog = async (bookingState: BookingFormState): Promise<void> => {
+  createFormState.value = bookingState;
+  isCreateDialogOpen.value = true;
+  return new Promise((resolve) => {
+    createDialogResolver.value = resolve;
+  });
 };
 
-const showEditDialog = (booking?: Partial<Booking>) => {
-  bookingToEdit.value = booking;
-  isEditDialogOpen.value = true;
-};
-
-// watch(movementX, () => {
-//   if (movementX.value > 20 && ghostBooking.value) {
-//     isCreating.value = true;
-//   }
-// })
-
-watch(isMouseDown, () => {
-  if (!isMouseDown.value) {
-    isCreating.value = false;
+const onCreateDialogClose = (resolve: boolean = true): void => {
+  isCreateDialogOpen.value = false;
+  createFormState.value = undefined;
+  if (resolve) {
+    createDialogResolver.value?.();
   }
-})
+  createDialogResolver.value = undefined;
+}
+
+const onCreateDialogMinimize = (dialogState: BookingFormState): void => {
+  trayStore.add(
+    dialogState,
+    TrayItemType.CREATE,
+    true,
+    createDialogResolver.value,
+  );
+  onCreateDialogClose(false);
+};
 
 onMounted(() => {
   fetchBookings();

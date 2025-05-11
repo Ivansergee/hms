@@ -1,27 +1,37 @@
 import { defineStore } from "pinia";
-import { type Booking, type BookingsByDayByRoomId } from "@/types/Booking.ts";
+import {  type BookingsByDayByRoomId } from "@/types/Booking.ts";
 import { computed, ref } from "vue";
 import { bookingQueries } from "@/queries/bookingQueries.ts";
-import { isSameDay } from "@/utils/dateTimeUtils.ts";
+import { fromISOString, isSameDay, toISOString } from "@/utils/dateTimeUtils.ts";
 import { getBookingsMap } from "@/utils/planTableUtils.ts";
+import type { Booking, BookingCreate } from "@shared/types/booking.ts";
 
 export const useBookingStore = defineStore('bookings', () => {
   const bookings = ref<Booking[]>([]);
   const rangeStart = ref<string>('');
   const rangeEnd = ref<string>('');
 
-  const fetchBookings = async (from: string, to: string): Promise<void> => {
+  const fetch = async (from: string, to: string): Promise<void> => {
     rangeStart.value = from;
     rangeEnd.value = to;
-    bookings.value = await bookingQueries.fetchBookings(from, to);
+    const bookingsData = await bookingQueries.fetch(from, to);
+    bookings.value = bookingsData.map(booking => ({
+      ...booking,
+      start: fromISOString(booking.start),
+      end: fromISOString(booking.end),
+    }));
   };
 
   const bookingsMap = computed((): BookingsByDayByRoomId => {
     return getBookingsMap(bookings.value, rangeStart.value, rangeEnd.value);
   });
 
-  const createBooking = async (createData: Omit<Booking, 'id'>): Promise<Booking> => {
-    const newBooking = await bookingQueries.createBooking(createData);
+  const createBooking = async (createData: BookingCreate): Promise<Booking> => {
+    const newBooking = await bookingQueries.createBooking({
+      ...createData,
+      start: toISOString( createData.start),
+      end: toISOString(createData.end),
+    });
     bookings.value.push(newBooking);
     return newBooking;
   };
@@ -63,7 +73,7 @@ export const useBookingStore = defineStore('bookings', () => {
   return {
     bookings,
     bookingsMap,
-    fetchBookings,
+    fetch,
     createBooking,
     editBooking,
     deleteBooking,

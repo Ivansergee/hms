@@ -4,10 +4,15 @@ CREATE TYPE "BookingStatus" AS ENUM ('CHECKED_IN', 'CHECKED_OUT', 'ACTIVE', 'CAN
 -- CreateEnum
 CREATE TYPE "RoomStatus" AS ENUM ('CLEAN', 'DIRTY');
 
+-- CreateEnum
+CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
+
 -- CreateTable
 CREATE TABLE "Category" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "tag" TEXT NOT NULL,
+    "capacity" INTEGER NOT NULL,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
@@ -37,6 +42,7 @@ CREATE TABLE "IdentityDocument" (
     "firstName" TEXT NOT NULL,
     "lastName" TEXT NOT NULL,
     "parentName" TEXT,
+    "gender" "Gender" NOT NULL,
     "birthdate" TIMESTAMP(3) NOT NULL,
     "number" TEXT NOT NULL,
     "issuedBy" TEXT,
@@ -53,7 +59,8 @@ CREATE TABLE "Guest" (
     "firstName" TEXT NOT NULL,
     "lastName" TEXT NOT NULL,
     "parentName" TEXT,
-    "birthdate" TIMESTAMP(3) NOT NULL,
+    "gender" "Gender" NOT NULL,
+    "birthdate" TIMESTAMP(3),
     "phone" TEXT,
     "email" TEXT,
     "citizenship" TEXT,
@@ -78,8 +85,19 @@ CREATE TABLE "Booking" (
     CONSTRAINT "Booking_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "_BookingGuests" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
+
+    CONSTRAINT "_BookingGuests_AB_pkey" PRIMARY KEY ("A","B")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Guest_identityDocumentId_key" ON "Guest"("identityDocumentId");
+
+-- CreateIndex
+CREATE INDEX "_BookingGuests_B_index" ON "_BookingGuests"("B");
 
 -- AddForeignKey
 ALTER TABLE "Room" ADD CONSTRAINT "Room_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -95,3 +113,9 @@ ALTER TABLE "Booking" ADD CONSTRAINT "Booking_roomId_fkey" FOREIGN KEY ("roomId"
 
 -- AddForeignKey
 ALTER TABLE "Booking" ADD CONSTRAINT "Booking_guestId_fkey" FOREIGN KEY ("guestId") REFERENCES "Guest"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_BookingGuests" ADD CONSTRAINT "_BookingGuests_A_fkey" FOREIGN KEY ("A") REFERENCES "Booking"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_BookingGuests" ADD CONSTRAINT "_BookingGuests_B_fkey" FOREIGN KEY ("B") REFERENCES "Guest"("id") ON DELETE CASCADE ON UPDATE CASCADE;

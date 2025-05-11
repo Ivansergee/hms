@@ -1,7 +1,7 @@
 import { Static, t } from 'elysia'
 
 const create = t.Object({
-    typeId: t.Numeric(),
+    typeId: t.Integer(),
     firstName: t.String(),
     lastName: t.String(),
     parentName: t.Optional(t.String()),

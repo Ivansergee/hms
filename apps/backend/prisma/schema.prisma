@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 generator typegen {
@@ -13,9 +14,11 @@ datasource db {
 }
 
 model Category {
-  id    Int    @id @default(autoincrement())
-  name  String
-  rooms Room[]
+  id       Int    @id @default(autoincrement())
+  name     String
+  tag      String
+  capacity Int
+  rooms    Room[]
 }
 
 model Room {
@@ -40,6 +43,7 @@ model IdentityDocument {
   firstName    String
   lastName     String
   parentName   String?
+  gender  Gender
   birthdate    DateTime
   number       String
   issuedBy     String?
@@ -50,19 +54,23 @@ model IdentityDocument {
 }
 
 model Guest {
-  id                 Int               @id @default(autoincrement())
-  firstName          String
-  lastName           String
-  parentName         String?
-  birthdate          DateTime
-  phone              String?
-  email              String?
-  citizenship        String?
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
-  bookings           Booking[]
+  id          Int      @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  parentName  String?
+  gender  Gender?
+  birthdate   DateTime?
+  phone       String?
+  email       String?
+  citizenship String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
   identityDocument   IdentityDocument? @relation(fields: [identityDocumentId], references: [id])
   identityDocumentId Int?              @unique
+
+  bookings  Booking[] @relation("BookingGuests")
+  mainBookings   Booking[]       @relation("MainGuest")
 }
 
 model Booking {
@@ -72,9 +80,13 @@ model Booking {
   status    BookingStatus @default(ACTIVE)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  room      Room          @relation(fields: [roomId], references: [id])
-  roomId    Int
-  guest     Guest         @relation(fields: [guestId], references: [id])
+
+  room   Room @relation(fields: [roomId], references: [id])
+  roomId Int
+
+  guests Guest[] @relation("BookingGuests")
+
+  mainGuest Guest @relation("MainGuest", fields: [guestId], references: [id])
   guestId   Int
 }
 
@@ -88,4 +100,9 @@ enum BookingStatus {
 enum RoomStatus {
   CLEAN
   DIRTY
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }

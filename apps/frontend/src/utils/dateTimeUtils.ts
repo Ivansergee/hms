@@ -24,23 +24,6 @@ export function getDaysRange(from: string, to: string): string[] {
   return dates;
 }
 
-export function getAdjacentMonthDates(): string[] {
-  const currentDate = dayjs();
-
-  const startDate = currentDate.subtract(1, 'month').date(currentDate.date());
-  const endDate = currentDate.add(1, 'month').date(currentDate.date());
-
-  const dates = [];
-
-  let date = startDate.startOf('day');
-  while (date.isBefore(endDate.add(1, 'day'), 'day')) {
-    dates.push(date.format('YYYY-MM-DD HH:mm'));
-    date = date.add(1, 'day');
-  }
-
-  return dates;
-}
-
 export function getMonthDates(initDate: dayjs.Dayjs): string[] {
   const endDate = initDate.startOf('month').add(1, 'month');
   const dates = [];
@@ -75,6 +58,14 @@ export function getDifferenceInDays(date1: string, date2: string): number {
   return dayjs(date2).startOf('day').diff(dayjs(date1).startOf('day'), 'd');
 }
 
+export function getDifferenceInMinutes(date1: string | Dayjs, date2: string): number {
+  return dayjs(date2).diff(dayjs(date1), 'minutes');
+}
+
+export function getMinutesFromDayStart(date: string): number {
+  return getDifferenceInMinutes(dayjs(date).startOf('day'), date);
+}
+
 export function getMinDateByDay(date1: dayjs.Dayjs | string, date2: dayjs.Dayjs | string): string {
   return dayjs.min(dayjs(date1), dayjs(date2)).format('YYYY-MM-DD HH:mm');
 }
@@ -101,4 +92,12 @@ export function timeToPercentOfDay(time: string): number {
   const totalMinutes = hours * 60 + minutes;
   const percent = totalMinutes / MINUTES_IN_DAY;
   return Number(percent.toFixed(2));
+}
+
+export function toISOString(date: string): string {
+  return dayjs( date, "YYYY-MM-DD HH:mm").toISOString();
+}
+
+export function fromISOString(date: string): string {
+  return dayjs(date).format('YYYY-MM-DD HH:mm');
 }

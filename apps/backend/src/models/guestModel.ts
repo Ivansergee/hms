@@ -4,7 +4,7 @@ const create = t.Object({
     firstName: t.String(),
     lastName: t.String(),
     parentName: t.Optional(t.String()),
-    birthdate: t.String({ format: 'date-time' }),
+    birthdate: t.Optional(t.String({ format: 'date-time' })),
     phone: t.Optional(t.String()),
     email: t.Optional(t.String({ format: 'email' })),
     citizenship: t.Optional(t.String())

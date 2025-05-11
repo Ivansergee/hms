@@ -11,4 +11,11 @@ const create = t.Object({
 export const roomModel = {
     create,
     update: t.Partial(create),
+    params: t.Object({
+        id: t.Numeric(),
+    }),
+    available: t.Object({
+        start: t.String({ format: 'date' }),
+        end: t.String({ format: 'date' }),
+    }),
 };

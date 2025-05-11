@@ -31,14 +31,14 @@
   </a-badge>
 </template>
 <script setup lang="ts">
-import type { BookingDetails, PartialBookingDetails } from "@shared/types/booking.ts";
+import type { BookingFormState } from "@shared/types/booking.ts";
 import { computed, h } from "vue";
 import { CloseOutlined } from "@ant-design/icons-vue";
 import { useTrayStore } from "@/stores/trayStore.ts";
 import { useRoomStore } from "@/stores/roomStore.ts";
 
 interface Props {
-  data: PartialBookingDetails;
+  data: BookingFormState;
   isUnsaved: boolean;
 }
 
@@ -52,11 +52,15 @@ const trayStore = useTrayStore();
 const roomStore = useRoomStore();
 
 const title = computed<string>(() => {
-  const mainGuest = props.data.guests?.find(guest => guest.id === props.data.mainGuestId);
+  const mainGuest = props.data.guests?.find((guest) => {
+    if ('mainGuestId' in guest) {
+      return guest.id === props.data.mainGuestId
+    }
+  });
   const mainGuestLastName = mainGuest?.lastName;
   const mainGuestFirstName = mainGuest?.firstName;
   const mainGuestName = `${mainGuestLastName} ${mainGuestFirstName}`;
-  const roomName =  props.data.roomId ? roomStore.getById(props.data.roomId)?.name : undefined;
+  const roomName = props.data.roomId ? roomStore.getById(props.data.roomId)?.name : undefined;
 
   if (!mainGuestName.trim() && !roomName) {
     return `Uncompleted booking`;

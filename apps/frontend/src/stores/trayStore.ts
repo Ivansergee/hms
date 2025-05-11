@@ -1,19 +1,33 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { PartialBookingDetails } from "@shared/types/booking.ts";
+import type { BookingFormState } from "@shared/types/booking.ts";
 
-type TrayItem = PartialBookingDetails & { isUnsaved: boolean };
+export enum TrayItemType {
+  CREATE = "CREATE",
+  EDIT = "EDIT",
+}
+
+type TrayItem = BookingFormState & {
+  isUnsaved: boolean;
+  type: TrayItemType;
+  resolver?: () => void;
+};
 
 export const useTrayStore = defineStore(
   'tray',
   () => {
     const trayItems = ref<TrayItem[]>([]);
 
-    const add = (data: PartialBookingDetails, isUnsaved: boolean): void => {
+    const add = (
+      data: BookingFormState,
+      type: TrayItemType,
+      isUnsaved: boolean,
+      resolver?: () => void,
+    ): void => {
       if (trayItems.value.find(item => item.id === data.id)) {
         return;
       }
-      trayItems.value.unshift({ ...data, isUnsaved });
+      trayItems.value.unshift({ ...data, type, isUnsaved, resolver });
     };
 
     const remove = (id: number): void => {

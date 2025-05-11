@@ -17,23 +17,36 @@ export const booking = new Elysia({ prefix: '/booking', tags: ['Booking'] })
         },
         { body: bookingModel.create },
     )
+    .post(
+        '/filter',
+        async ({ bookingService, body }) => {
+            return bookingService.filter(body);
+        },
+        { body: bookingModel.filter }
+    )
     .guard({ params: bookingModel.params })
     .get(
         '/:id',
-        async ({ bookingService, params: { id }, error }) => {
+        async ({ bookingService, params: { id } }) => {
             return bookingService.getById(id);
         },
     )
-    .put(
-        '/:id',
-        async ({ bookingService, params: { id }, body, error }) => {
-            return bookingService.update(id, body);
-        },
-        { body: bookingModel.update },
-    )
+    // .put(
+    //     '/:id',
+    //     async ({ bookingService, params: { id }, body }) => {
+    //         return bookingService.update(id, body);
+    //     },
+    //     { body: bookingModel.update },
+    // )
     .delete(
         '/:id',
-        async ({ bookingService, params: { id }, error }) => {
+        async ({ bookingService, params: { id } }) => {
             return bookingService.delete(id);
+        },
+    )
+    .get(
+        '/details/:id',
+        async ({ bookingService, params: { id } }) => {
+            return bookingService.getDetails(id);
         },
     )

@@ -20,7 +20,11 @@ const emit = defineEmits<{
 const trayStore = useTrayStore();
 
 const onRemove = (id: number): void => {
-  trayStore.remove(id);
+  const trayItem = trayStore.pop(id);
+
+  if (trayItem?.resolver) {
+    trayItem.resolver();
+  }
 };
 const onRestore = (id: number): void => {
   emit('restore', id);
