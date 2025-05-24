@@ -39,6 +39,7 @@ declare module 'vue' {
     ATabPane: typeof import('ant-design-vue/es')['TabPane']
     ATabs: typeof import('ant-design-vue/es')['Tabs']
     ATimePicker: typeof import('ant-design-vue/es')['TimePicker']
+    ATooltip: typeof import('ant-design-vue/es')['Tooltip']
     ATypographyText: typeof import('ant-design-vue/es')['TypographyText']
     ATypographyTitle: typeof import('ant-design-vue/es')['TypographyTitle']
     BookingBar: typeof import('./src/components/PlanTable/BookingBar.vue')['default']

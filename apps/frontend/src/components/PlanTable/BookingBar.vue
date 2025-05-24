@@ -1,39 +1,49 @@
 <template>
-<div
-  class="booking-bar"
-  :class="{
-    hidden: isDragging,
-    creating: isCreating,
-  }"
-  :style="{
-    '--bar-width': `${barWidthResized}px`,
-    '--min-bar-width': `${MIN_BAR_WIDTH}px`,
-    '--start-offset': `${startOffsetResized}px`,
-    '--max-start-offset': `${maxStartOffset}px`,
-  }"
-  :draggable="!isResizing && !isCreating"
-  @click="onBarClick"
-  @mouseenter="onMouseEnterBar"
-  @dragstart.stop="onDragStart"
+<a-tooltip
+  :open="isTooltipShown"
+  placement="topLeft"
+  title="Prompt Text"
 >
   <div
-    v-if="!isCreating"
-    class="resize-handle left"
-    @dragstart.stop
-    @mousedown="onResizeStart(ResizeDirection.LEFT)"
-  ></div>
-  {{ barTitle }}
-  <div
-    v-if="!isCreating"
-    class="resize-handle right"
-    @dragstart.stop
-    @mousedown="onResizeStart(ResizeDirection.RIGHT)"
-  ></div>
-</div>
+    class="booking-bar"
+    :class="{
+      hidden: isDragging,
+      creating: isCreating,
+    }"
+    :style="{
+      '--bar-width': `${barWidthResized}px`,
+      '--min-bar-width': `${MIN_BAR_WIDTH}px`,
+      '--start-offset': `${startOffsetResized}px`,
+      '--max-start-offset': `${maxStartOffset}px`,
+    }"
+    :draggable="!isResizing && !isCreating"
+    @click="onBarClick"
+    @mouseenter="onMouseEnterBar"
+    @dragstart.stop="onDragStart"
+  >
+    <div
+      v-if="!isCreating"
+      class="resize-handle left"
+      @dragstart.stop
+      @mousedown="onResizeStart(ResizeDirection.LEFT)"
+    ></div>
+    <a-typography-text
+      :content="barTitle"
+      :style="{color: isCreating ? 'black' : 'white'}"
+      ellipsis
+    />
+    <div
+      v-if="!isCreating"
+      class="resize-handle right"
+      @dragstart.stop
+      @mousedown="onResizeStart(ResizeDirection.RIGHT)"
+    ></div>
+  </div>
+</a-tooltip>
 </template>
 <script setup lang="ts">
 import { CELL_WIDTH, ResizeDirection } from "@/utils/planTableUtils.ts";
-import type { Booking, BookingFormState } from "@shared/types/booking.ts";
+import type { BookingShort, BookingFormState } from "@shared/types/booking.ts";
 import { computed, ref, watch } from "vue";
 import {
   addDays,
@@ -44,37 +54,47 @@ import {
 import { useHighlightStore } from "@/stores/highlightStore.ts";
 import { useEventListener } from "@vueuse/core";
 import dayjs from "dayjs";
+import { useScopedI18n } from "@/composables/useScopedI18n.ts";
+import { useBookingStore } from "@/stores/bookingStore.ts";
 
 interface Props {
-  booking: Booking;
+  booking: BookingShort;
   isCreating: boolean;
   onCreate: (createFormState: BookingFormState) => Promise<void>;
-  onConfirm: (after: Booking | undefined, before: Booking | undefined) => Promise<void>;
+  onConfirm: (after: BookingShort, before: BookingShort) => Promise<void>;
 }
 
 const MINUTES_IN_DAY = 1440;
 const MINUTES_PER_PIXEL = MINUTES_IN_DAY / CELL_WIDTH;
 const MIN_BAR_WIDTH = Math.round(CELL_WIDTH / 2);
 
+defineOptions({ name: 'BookingBar' });
+const { t } = useScopedI18n();
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
-  (event: 'drag-start', clickedDate: string): void;
   (event: 'bar-clicked'): void;
   (event: 'created'): void;
   (event: 'restore'): void;
 }>();
 
+const bookingStore = useBookingStore();
 const highlightStore = useHighlightStore();
 
 const resizeDirection = ref<ResizeDirection>(ResizeDirection.RIGHT);
 const isResizing = ref<boolean>(false);
-const isDragging = ref<boolean>(false);
+const isTooltipShown = ref<boolean>(false);
 
 const barTitle = computed<string | undefined>(() => {
-  return props.isCreating
-    ? 'New booking'
-    :`${props.booking.mainGuest.firstName} ${props.booking.mainGuest.lastName}`;
+  if (props.isCreating) {
+    return t('newBooking');
+  }
+
+  const mainGuest = props.booking.guests.find(guest => guest.id === props.booking.mainGuestId);
+  if (!mainGuest) {
+    return;
+  }
+  return `${mainGuest.firstName} ${mainGuest.lastName}`;
 });
 
 const barWidthInitial = computed<number>(() => {
@@ -114,7 +134,7 @@ const daysCountChange = computed<number>(() => {
   return resizeDaysCount.value - initialDaysCount.value;
 });
 
-const resizedBooking = computed<Booking>(() => {
+const resizedBooking = computed<BookingShort>(() => {
   return {
     ...props.booking,
     start: resizeDirection.value === ResizeDirection.RIGHT
@@ -134,6 +154,10 @@ const resizedBookingRange = computed<string[]>(() => {
   return getDaysRange(resizedBooking.value.start, resizedBooking.value.end);
 });
 
+const isDragging = computed<boolean>(() => {
+  return props.booking.id === bookingStore.draggedBooking?.id;
+});
+
 let mouseupCleanup: (() => void) | undefined;
 let mousemoveCleanup: (() => void) | undefined;
 
@@ -146,9 +170,6 @@ const onMouseUp = async (): Promise<void> => {
   }
 
   document.body.style.cursor = '';
-  highlightStore.isEditMode = false;
-  isDragging.value = false;
-  isResizing.value = false;
 
   if (props.isCreating) {
     const { start, end, roomId } = resizedBooking.value;
@@ -160,11 +181,14 @@ const onMouseUp = async (): Promise<void> => {
       guests: [],
       currentStep: 2,
     });
+    isResizing.value = false;
+    highlightStore.isEditMode = false;
     emit('created');
   } else if (isResizing.value) {
     await props.onConfirm(resizedBooking.value, props.booking);
+    isResizing.value = false;
+    highlightStore.isEditMode = false;
   }
-
   barWidthChange.value = 0;
   startOffsetChange.value = 0;
 };
@@ -195,10 +219,9 @@ const onDragStart = (e: DragEvent): void => {
   const clickedDay = dayjs(props.booking.start).startOf('day').add(offsetInMinutes, 'minute')
     .format('YYYY-MM-DD');
 
-  isDragging.value = true;
+  bookingStore.draggedBooking = { clickedDay, ...props.booking };
 
   mouseupCleanup = useEventListener(window, 'mouseup', onMouseUp);
-  emit('drag-start', clickedDay);
 };
 
 const onMouseEnterBar = (): void => {
@@ -238,7 +261,6 @@ watch(() => props.isCreating, (isCreating) => {
   position: absolute;
   top: 0;
   height: 100%;
-  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -255,7 +277,6 @@ watch(() => props.isCreating, (isCreating) => {
 }
 
 .booking-bar.creating {
-  color: black;
   border-style: dashed;
   border-color: #1890ff;
   background-color: #2995f96b;

@@ -18,7 +18,7 @@ api.interceptors.response.use(
 const fetcher = {
   async get<TRes = undefined>(
     url: string,
-    params?: Record<string, string>,
+    params?: Record<string, string | number>,
   ): Promise<TRes> {
     const { data } = await api.get<TRes>(url, { params });
     return data;
@@ -35,7 +35,7 @@ const fetcher = {
   async put<TRes = undefined, TBody = any>(
     url: string,
     body: TBody,
-    params?: Record<string, string>,
+    params?: Record<string, string | number>,
   ): Promise<TRes> {
     const { data } = await api.put<TRes>(url, body, { params });
     return data;
@@ -43,7 +43,7 @@ const fetcher = {
 
   async delete<TRes = undefined>(
     url: string,
-    params?: Record<string, string>,
+    params?: Record<string, string | number>,
   ): Promise<TRes> {
     const { data } = await api.delete<TRes>(url, { params });
     return data;
@@ -51,9 +51,10 @@ const fetcher = {
 
   async patch<TRes = undefined, TBody = any>(
     url: string,
-    body: TBody
+    body: TBody,
+    params?: Record<string, string | number>,
   ): Promise<TRes> {
-    const { data } = await api.patch<TRes>(url, body);
+    const { data } = await api.patch<TRes>(url, body, { params });
     return data;
   }
 };

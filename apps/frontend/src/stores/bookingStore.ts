@@ -1,15 +1,20 @@
 import { defineStore } from "pinia";
-import {  type BookingsByDayByRoomId } from "@/types/Booking.ts";
+import { type BookingsByDayByRoomId } from "@/types/Booking.ts";
 import { computed, ref } from "vue";
 import { bookingQueries } from "@/queries/bookingQueries.ts";
 import { fromISOString, isSameDay, toISOString } from "@/utils/dateTimeUtils.ts";
 import { getBookingsMap } from "@/utils/planTableUtils.ts";
-import type { Booking, BookingCreate } from "@shared/types/booking.ts";
+import { type BookingShort, type BookingCreate } from "@shared/types/booking.ts";
+
+interface DraggedBooking extends BookingShort {
+  clickedDay: string;
+}
 
 export const useBookingStore = defineStore('bookings', () => {
-  const bookings = ref<Booking[]>([]);
+  const bookings = ref<BookingShort[]>([]);
   const rangeStart = ref<string>('');
   const rangeEnd = ref<string>('');
+  const draggedBooking = ref<DraggedBooking>();
 
   const fetch = async (from: string, to: string): Promise<void> => {
     rangeStart.value = from;
@@ -22,11 +27,11 @@ export const useBookingStore = defineStore('bookings', () => {
     }));
   };
 
-  const bookingsMap = computed((): BookingsByDayByRoomId => {
+  const bookingsMap = computed<BookingsByDayByRoomId>(() => {
     return getBookingsMap(bookings.value, rangeStart.value, rangeEnd.value);
   });
 
-  const createBooking = async (createData: BookingCreate): Promise<Booking> => {
+  const createBooking = async (createData: BookingCreate): Promise<BookingShort> => {
     const newBooking = await bookingQueries.createBooking({
       ...createData,
       start: toISOString( createData.start),
@@ -36,16 +41,15 @@ export const useBookingStore = defineStore('bookings', () => {
     return newBooking;
   };
 
-  const editBooking = async (editData: Partial<Booking>): Promise<Booking | undefined> => {
-    if (!editData.id) {
-      return;
-    }
-    const booking = getById(editData.id);
-    const payload = {
-      ...booking,
-      ...editData,
-    } as Booking;
-    const editedBooking = await bookingQueries.editBooking(payload);
+  const editPlacement = async (editData: BookingShort): Promise<BookingShort | undefined> => {
+    const editedBooking = await bookingQueries.editPlacement(
+      editData.id,
+      {
+        start: toISOString(editData.start),
+        end: toISOString(editData.end),
+        roomId: editData.roomId,
+      }
+    );
     const index = bookings.value.findIndex(booking => booking.id === editedBooking.id);
     if (index !== -1) {
       bookings.value[index] = editedBooking;
@@ -57,15 +61,15 @@ export const useBookingStore = defineStore('bookings', () => {
     await bookingQueries.deleteBooking(id);
   }
 
-  const getById = (id?: number): Booking | undefined => {
+  const getById = (id?: number): BookingShort | undefined => {
     return bookings.value.find(booking => booking.id === id);
   };
 
-  const getRoomBookings = (roomId: number): Booking[] => {
+  const getRoomBookings = (roomId: number): BookingShort[] => {
     return bookings.value.filter(booking => booking.roomId === roomId);
   };
 
-  const getByRoomAndDay = (roomId: number, day: string): Booking | undefined => {
+  const getByRoomAndDay = (roomId: number, day: string): BookingShort | undefined => {
     const roomBookings = getRoomBookings(roomId);
     return roomBookings?.find(booking => isSameDay(booking.start, day));
   };
@@ -73,9 +77,10 @@ export const useBookingStore = defineStore('bookings', () => {
   return {
     bookings,
     bookingsMap,
+    draggedBooking,
     fetch,
     createBooking,
-    editBooking,
+    editPlacement,
     deleteBooking,
     getById,
     getRoomBookings,

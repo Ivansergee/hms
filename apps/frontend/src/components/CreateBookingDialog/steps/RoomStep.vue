@@ -6,7 +6,7 @@
     :hideRequiredMark="true"
     :colon="false"
   >
-    <a-form-item label="Room" name="roomId">
+    <a-form-item :label="t('room')" name="roomId">
       <a-select
         v-model:value="formModel.roomId"
         :options="roomOptions"
@@ -21,6 +21,7 @@ import { onMounted, ref } from "vue";
 import type { RuleObject } from "ant-design-vue/es/form";
 import type { SelectProps } from "ant-design-vue";
 import { useRoomStore } from "@/stores/roomStore.ts";
+import { useScopedI18n } from "@/composables/useScopedI18n.ts";
 
 interface Props {
   state: BookingFormState;
@@ -29,6 +30,9 @@ interface Props {
 interface FormModel {
   roomId?: number;
 }
+
+defineOptions({ name: 'RoomStep' });
+const { t } = useScopedI18n();
 
 const roomStore = useRoomStore();
 
@@ -56,7 +60,7 @@ const rules: { [key: string]: RuleObject[] } = {
   roomId: [
     {
       required: true,
-      message: 'Select a room',
+      message: t('roomRequiredError'),
     },
   ],
 }

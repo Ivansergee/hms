@@ -11,6 +11,7 @@
 </template>
 <script setup lang="ts">
 import { ArrowRightOutlined } from '@ant-design/icons-vue';
+import { useScopedI18n } from "@/composables/useScopedI18n.ts";
 
 interface Props {
   title: string;

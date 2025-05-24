@@ -86,18 +86,18 @@ export function isSameDay(date1: string, date2: string): boolean {
   return dayjs(date1).isSame(dayjs(date2), 'd');
 }
 
-export function timeToPercentOfDay(time: string): number {
-  const MINUTES_IN_DAY = 1440;
-  const [hours, minutes] = time.split(':').map(Number);
-  const totalMinutes = hours * 60 + minutes;
-  const percent = totalMinutes / MINUTES_IN_DAY;
-  return Number(percent.toFixed(2));
-}
-
 export function toISOString(date: string): string {
   return dayjs( date, "YYYY-MM-DD HH:mm").toISOString();
 }
 
 export function fromISOString(date: string): string {
   return dayjs(date).format('YYYY-MM-DD HH:mm');
+}
+
+export function getFormattedDate(date: string, withTime: boolean = false): string {
+  if (withTime) {
+    return dayjs(date).format('DD.MM.YYYY HH:mm');
+  } else {
+    return dayjs(date).format('DD.MM.YYYY');
+  }
 }

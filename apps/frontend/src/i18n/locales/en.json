@@ -1,0 +1,53 @@
+{
+  "BookingBar": {
+    "newBooking": "New booking"
+  },
+  "ConfirmChangeDialog": {
+    "confirmChange": "Confirm change",
+    "guest": "Main guest",
+    "save": "Save"
+  },
+  "CreateBookingDialog": {
+    "back": "Back",
+    "close": "Close",
+    "create": "Save",
+    "dates": "Dates",
+    "guests": "Guests",
+    "minimize": "Minimize",
+    "newBooking": "New booking",
+    "next": "Next",
+    "room": "Room"
+  },
+  "DateStep": {
+    "checkInTime": "Check-in time",
+    "checkInTimeRequiredError": "Enter check in time",
+    "checkOutTime": "Check-out time",
+    "checkOutTimeRequiredError": "Enter check out time",
+    "endDate": "Check-out",
+    "rangeRequiredError": "Select a date range",
+    "startDate": "Check-in"
+  },
+  "GuestsStep": {
+    "addGuest": "Add guest",
+    "email": "Email",
+    "errorNotValidEmail": "This is not a valid email address",
+    "errorRequiredField": "This field is required",
+    "firstName": "First name",
+    "guest": "Guest",
+    "lastName": "Last name",
+    "mainGuest": "Main guest",
+    "parentName": "Parent name",
+    "phone": "Phone"
+  },
+  "RoomStep": {
+    "room": "Room",
+    "roomRequiredError": "Select a room"
+  },
+  "ENUMS": {
+    "BookingPropertyForChange": {
+      "start": "Check-in",
+      "end": "Check-out",
+      "room": "Room"
+    }
+  }
+}

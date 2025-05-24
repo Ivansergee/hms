@@ -24,9 +24,6 @@
           :day="column.dataIndex"
           :on-create="showCreateDialog"
           :on-confirm="showConfirmDialog"
-          @dragenter="onDragEnterCell(record.id, column.dataIndex)"
-          @drag-start="onDragStart"
-          @drop="onDragEnd(record.id, column.dataIndex)"
           @bar-clicked="showEditDialog"
           @restore="onRestoreFromTray"
         />
@@ -58,6 +55,7 @@
       @minimize="onCreateDialogMinimize"
     />
     <ConfirmChangeDialog
+      v-if="currentBooking && changedBooking"
       :open="isConfirmDialogOpen"
       :booking="currentBooking"
       :changed-booking="changedBooking"
@@ -72,20 +70,16 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
 import {
-  addDays,
   getDayFromDate,
-  getDaysRange,
-  getDifferenceInDays,
   getMonthDates,
   getWeekdayFromDate,
 } from "@/utils/dateTimeUtils.ts";
-import { type BookingWithFlags } from "@/types/Booking.ts";
 import { CELL_WIDTH } from "@/utils/planTableUtils.ts";
 import { useBookingStore } from "@/stores/bookingStore.ts";
 import dayjs from "dayjs";
 import { useHighlightStore } from "@/stores/highlightStore.ts";
 import { useRoomStore } from "@/stores/roomStore.ts";
-import { type Booking, type BookingFormState } from "@shared/types/booking.ts";
+import type { BookingShort, BookingFormState } from "@shared/types/booking.ts";
 import type { ColumnType } from "ant-design-vue/es/table";
 import { bookingQueries } from "@/queries/bookingQueries.ts";
 import { TrayItemType, useTrayStore } from "@/stores/trayStore.ts";
@@ -98,15 +92,13 @@ const trayStore = useTrayStore();
 const visibleStartDate = ref<dayjs.Dayjs>(dayjs().startOf('month'));
 const visibleEndDate = ref<dayjs.Dayjs>(dayjs().endOf('month'));
 
-const dragStartDay = ref<string>();
-
 const isCreateDialogOpen = ref<boolean>(false);
 const createFormState = ref<BookingFormState>();
 
 const isConfirmDialogOpen = ref<boolean>(false);
 const createDialogResolver = ref<(() => void) | undefined>();
-const currentBooking = ref<Booking>();
-const changedBooking = ref<Booking>();
+const currentBooking = ref<BookingShort>();
+const changedBooking = ref<BookingShort>();
 
 const columns = computed<ColumnType[]>(() => {
   const daysCols: ColumnType[] = getMonthDates(visibleStartDate.value).map((day) => ({
@@ -152,42 +144,6 @@ const onCreate = () => {
   isCreateDialogOpen.value = true;
 };
 
-const onDragStart = (data: { booking: BookingWithFlags, dragStartDay: string }): void => {
-  currentBooking.value = data.booking;
-  dragStartDay.value = data.dragStartDay;
-}
-
-const onDragEnd = async (targetRoomId: number, targetDay: string): Promise<void> => {
-  if (!currentBooking.value || !dragStartDay.value) {
-    return;
-  }
-
-  const daysOffset = getDifferenceInDays(dragStartDay.value, targetDay);
-
-  currentBooking.value = currentBooking.value;
-  changedBooking.value = {
-    ...currentBooking.value,
-    roomId: targetRoomId,
-    start: addDays(currentBooking.value.start, daysOffset),
-    end: addDays(currentBooking.value.end, daysOffset),
-  };
-  isConfirmDialogOpen.value = true;
-};
-
-const onDragEnterCell = (roomId: number, day: string): void => {
-  if (!currentBooking.value || !dragStartDay.value) {
-    return;
-  }
-
-  highlightStore.highlightedRoom = roomId;
-
-  const daysOffset = getDifferenceInDays(dragStartDay.value, day);
-  highlightStore.highlightedDays = getDaysRange(
-    addDays(currentBooking.value.start, daysOffset),
-    addDays(currentBooking.value.end, daysOffset),
-  );
-};
-
 const showEditDialog = async (bookingId?: number): Promise<void> => {
   if (bookingId) {
     const trayData = trayStore.pop(bookingId);
@@ -209,7 +165,7 @@ const onRestoreFromTray = (bookingId: number): void => {
 
 let confirmDialogResolver: ((value: (void | PromiseLike<void>)) => void) | undefined;
 
-const showConfirmDialog = async (after: Booking | undefined, before: Booking | undefined): Promise<void> => {
+const showConfirmDialog = async (after: BookingShort, before: BookingShort): Promise<void> => {
   currentBooking.value = before;
   changedBooking.value = after;
   isConfirmDialogOpen.value = true;

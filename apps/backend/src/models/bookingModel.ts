@@ -11,6 +11,15 @@ const create = t.Object({
     guests: t.Array(guestModel.create),
 });
 
+const update = t.Object({
+    start: t.String({ format: 'date-time' }),
+    end: t.String({ format: 'date-time' }),
+    roomId: t.Integer(),
+    guestIds: t.Array(t.Integer()),
+    mainGuestId: t.Integer(),
+    status: t.Enum(enumToTypebox(BookingStatus)),
+});
+
 const filter = t.Object({
     start: t.Optional(t.String({ format: 'date-time' })),
     end: t.Optional(t.String({ format: 'date-time' })),
@@ -19,10 +28,17 @@ const filter = t.Object({
     status: t.Optional(t.Enum(enumToTypebox(BookingStatus))),
 });
 
+const editPlacement = t.Object({
+    start: t.String({ format: 'date-time' }),
+    end: t.String({ format: 'date-time' }),
+    roomId: t.Integer(),
+})
+
 export const bookingModel = {
     create,
-    update: t.Partial(create),
+    update,
     filter,
+    editPlacement,
     params: t.Object({
         id: t.Numeric(),
     }),

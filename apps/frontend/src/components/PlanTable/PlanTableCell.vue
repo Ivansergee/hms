@@ -4,6 +4,8 @@
   @mousedown="onCellMouseDown"
   @dragover.prevent
   @dragstart.prevent
+  @dragenter="onDragEnterCell"
+  @drop="onDragEnd"
   @mouseenter="onMouseEnterCell"
   @mouseleave="onMouseLeaveCell"
 >
@@ -13,7 +15,6 @@
     :is-creating="isCreating"
     :on-confirm="onConfirm"
     :on-create="onCreate"
-    @drag-start="onDragStart(booking, $event)"
     @bar-clicked="$emit('bar-clicked', booking.id)"
     @restore="$emit('restore', booking.id)"
     @created="onBookingCreated"
@@ -26,21 +27,21 @@ import { useBookingStore } from "@/stores/bookingStore.ts";
 import { type BookingWithFlags } from "@/types/Booking.ts";
 import { getInitialBookingData } from "@/utils/planTableUtils.ts";
 import { useHighlightStore } from "@/stores/highlightStore.ts";
-import type { Booking, BookingFormState } from "@shared/types/booking.ts";
+import type { BookingShort, BookingFormState } from "@shared/types/booking.ts";
 import { useEventListener } from "@vueuse/core";
+import { addDays, getDaysRange, getDifferenceInDays } from "@/utils/dateTimeUtils.ts";
 
 interface Props {
   roomId: number;
   day: string;
   onCreate: (createFormState: BookingFormState) => Promise<void>;
-  onConfirm: (after: Booking | undefined, before: Booking | undefined) => Promise<void>;
+  onConfirm: (after: BookingShort, before: BookingShort) => Promise<void>;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
   (event: 'bar-clicked', bookingId: number): void;
   (event: 'restore', bookingId: number): void;
-  (event: 'drag-start', payload: { booking: BookingWithFlags, dragStartDay: string }): void;
 }>();
 
 const bookingStore = useBookingStore();
@@ -108,10 +109,40 @@ const onMouseUp = async (): Promise<void> => {
   }
 };
 
-const onDragStart = (booking: BookingWithFlags, dragStartDay: string): void => {
-  emit('drag-start', { booking, dragStartDay });
+const onDragEnterCell = (): void => {
+  if (!bookingStore.draggedBooking) {
+    return;
+  }
+  const { clickedDay, ...sourceBooking } = bookingStore.draggedBooking;
+
+  highlightStore.highlightedRoom = props.roomId;
+
+  const daysOffset = getDifferenceInDays(clickedDay, props.day);
+  highlightStore.highlightedDays = getDaysRange(
+    addDays(sourceBooking.start, daysOffset),
+    addDays(sourceBooking.end, daysOffset),
+  );
 };
 
+const onDragEnd = async (): Promise<void> => {
+  if (!bookingStore.draggedBooking) {
+    return;
+  }
+
+  const { clickedDay, ...sourceBooking } = bookingStore.draggedBooking;
+  const daysOffset = getDifferenceInDays(clickedDay, props.day);
+
+  const changedBooking = {
+    ...sourceBooking,
+    roomId: props.roomId,
+    start: addDays(sourceBooking.start, daysOffset),
+    end: addDays(sourceBooking.end, daysOffset),
+  };
+
+  await props.onConfirm(changedBooking, sourceBooking);
+
+  bookingStore.draggedBooking = undefined;
+};
 </script>
 <style scoped>
 .cell {

@@ -12,12 +12,12 @@
       :key="guest.id"
     >
       <a-space size="small">
-        <span>Guest {{ index + 1 }}</span>
+        <span>{{ t('guest') }} {{ index + 1 }}</span>
         <a-typography-text
           v-if="index === 0"
           type="secondary"
         >
-          Main guest
+          {{ t('mainGuest') }}
         </a-typography-text>
         <MinusCircleOutlined
           v-if="formModel.guests.length > 1"
@@ -26,37 +26,37 @@
         />
       </a-space>
       <a-form-item
-        label="Last name"
+        :label="t('lastName')"
         :name="['guests', index, 'lastName']"
-        :rules="{ required: true, message: 'This field is required' }"
+        :rules="{ required: true, message: t('errorRequiredField') }"
       >
         <a-input v-model:value="guest.lastName" />
       </a-form-item>
       <a-form-item
-        label="First name"
+        :label="t('firstName')"
         :name="['guests', index, 'firstName']"
-        :rules="{ required: true, message: 'This field is required' }"
+        :rules="{ required: true, message: t('errorRequiredField') }"
       >
         <a-input v-model:value="guest.firstName" />
       </a-form-item>
       <a-form-item
-        label="Parent name"
+        :label="t('parentName')"
         :name="['guests', index, 'parentName']"
       >
         <a-input v-model:value="guest.parentName" />
       </a-form-item>
       <a-form-item
-        label="Phone"
+        :label="t('phone')"
         :name="['guests', index, 'phone']"
       >
         <a-input v-model:value="guest.phone" />
       </a-form-item>
       <a-form-item
-        label="Email"
+        :label="t('email')"
         :name="['guests', index, 'email']"
         :rules="{
           type: 'email',
-          message: 'This is not a valid email address',
+          message: t('errorNotValidEmail'),
           trigger: 'blur',
         }"
       >
@@ -70,7 +70,7 @@
       @click="addGuest"
     >
       <PlusOutlined />
-      Add guest
+      {{ t('addGuest') }}
     </a-button>
   </a-form>
 </template>
@@ -82,6 +82,7 @@ import {
   PlusOutlined,
   MinusCircleOutlined,
 } from "@ant-design/icons-vue";
+import { useScopedI18n } from "@/composables/useScopedI18n.ts";
 
 interface Props {
   state: BookingFormState;
@@ -90,6 +91,9 @@ interface Props {
 interface FormModel {
   guests: Array<Partial<GuestCreate>>;
 }
+
+defineOptions({ name: 'GuestsStep' });
+const { t } = useScopedI18n();
 
 const props = defineProps<Props>();
 const emit = defineEmits<{

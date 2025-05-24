@@ -1,47 +1,72 @@
 <template>
   <a-modal
-    title="Confirm change"
+    :title="t('confirmChange')"
     :open="open"
     :confirm-loading="isLoading"
     :mask-closable="false"
+    :ok-text="t('save')"
     @ok="onOk"
     @cancel="onCancel"
   >
-    <strong>Guest: </strong> <span>{{ booking?.guestId }}</span>
+    <strong>{{ t('guest') }}: </strong>
+    <span>{{ mainGuestName }}</span>
     <div v-for="property in propertiesToShow">
       <ChangeView
-        :title="property"
-        :old-value="booking?.[property]"
-        :new-value="changedBooking?.[property]"
+        :title="translateEnum(BookingPropertyForChange, property)"
+        :old-value="getFormattedValue(booking, property)"
+        :new-value="getFormattedValue(changedBooking, property)"
       />
     </div>
   </a-modal>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
-import { BookingProperty } from "@/enums/BookingProperty.ts";
+import { computed, ref } from "vue";
+import { BookingPropertyForChange } from "@/enums/BookingPropertyForChange.ts";
 import { useBookingStore } from "@/stores/bookingStore.ts";
-import type { Booking } from "@shared/types/booking.ts";
+import type { BookingShort } from "@shared/types/booking.ts";
+import { useScopedI18n } from "@/composables/useScopedI18n.ts";
+import { useRoomStore } from "@/stores/roomStore.ts";
+import { getFormattedDate } from "@/utils/dateTimeUtils.ts";
 
 interface Props {
   open: boolean;
-  booking?: Booking;
-  changedBooking?: Booking;
+  booking: BookingShort;
+  changedBooking: BookingShort;
 }
 
-const propertiesToShow = Object.values(BookingProperty);
+defineOptions({ name: 'ConfirmChangeDialog' });
+const { t, translateEnum } = useScopedI18n();
+
+const propertiesToShow = Object.values(BookingPropertyForChange);
 
 const bookingStore = useBookingStore();
+const roomStore = useRoomStore();
 
 const props = defineProps<Props>();
 const emit = defineEmits(['close']);
 
 const isLoading = ref<boolean>(false);
 
+const mainGuestName = computed<string>(() => {
+  const mainGuest = props.booking.guests.find(guest => guest.id === props.booking.mainGuestId);
+  return mainGuest ? `${mainGuest.firstName} ${mainGuest.lastName}` : '';
+});
+
+const getFormattedValue = (booking: BookingShort, property: BookingPropertyForChange) => {
+  switch (property) {
+    case BookingPropertyForChange.START:
+      return getFormattedDate(booking.start);
+    case BookingPropertyForChange.END:
+      return getFormattedDate(booking.end);
+    case BookingPropertyForChange.ROOM:
+      return roomStore.getById(booking.roomId)?.name;
+  }
+};
+
 const onOk = () => {
   if (props.changedBooking) {
     isLoading.value = true;
-    bookingStore.editBooking(props.changedBooking)
+    bookingStore.editPlacement(props.changedBooking)
       .then(() => {
         emit('close');
       })

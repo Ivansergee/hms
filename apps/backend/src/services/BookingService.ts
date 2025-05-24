@@ -1,7 +1,8 @@
 import { Booking, Prisma } from "@prisma/client";
 import { prisma } from "@/../prisma/prisma";
-import type { BookingFilterDTO } from "@/models/bookingModel";
-import { BookingCreate } from "@shared/types/booking";
+import { BookingFilterDTO, BookingUpdateDTO } from "@/models/bookingModel";
+import { BookingCreate, BookingEditPlacement, BookingShort } from "@shared/types/booking";
+import { BookingStatus } from "@shared/generated/enums";
 
 export class BookingService {
     getAll(): Promise<Booking[]> {
@@ -15,6 +16,11 @@ export class BookingService {
     delete(id: number): Promise<Booking> {
         return prisma.booking.delete({ where: { id } });
     }
+
+    // update(id: number, data: Partial<BookingUpdate>): Promise<Booking> {
+    //     return prisma.booking.update({ where: { id }, data });
+    // }
+
     create(bookingData: BookingCreate): Promise<Booking> {
         return prisma.$transaction(async (tx) => {
             const createdGuests = await Promise.all(
@@ -47,11 +53,12 @@ export class BookingService {
                     },
                 },
                 include: {
-                    mainGuest: {
+                    guests: {
                         select: {
+                            id: true,
                             firstName: true,
                             lastName: true,
-                        },
+                        }
                     },
                 },
             });
@@ -62,9 +69,6 @@ export class BookingService {
         return prisma.booking.findUnique({
             relationLoadStrategy: 'join',
             where: { id },
-            omit: {
-                guestId: true,
-            },
             include: {
                 guests: true,
                 mainGuest: {
@@ -83,7 +87,7 @@ export class BookingService {
         });
     }
 
-    filter(filter: BookingFilterDTO) {
+    async filter(filter: BookingFilterDTO) {
         const where: Prisma.BookingWhereInput = {};
 
         if (filter.start && filter.end) {
@@ -113,14 +117,41 @@ export class BookingService {
 
         return prisma.booking.findMany({
             where,
+            omit: {
+                createdAt: true,
+                updatedAt: true,
+            },
             include: {
-                mainGuest: {
+                guests: {
                     select: {
+                        id: true,
                         firstName: true,
                         lastName: true,
-                    },
+                    }
                 },
             },
         });
+    }
+
+    async editPlacement(id: number, data: BookingEditPlacement): Promise<BookingShort> {
+        const updatedBooking = await prisma.booking.update({
+            where: { id },
+            data,
+            include: {
+                guests: {
+                    select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                    }
+                },
+            },
+        });
+        return {
+            ...updatedBooking,
+            status: updatedBooking.status as BookingStatus,
+            start: updatedBooking.start.toISOString(),
+            end: updatedBooking.end.toISOString(),
+        };
     }
 }

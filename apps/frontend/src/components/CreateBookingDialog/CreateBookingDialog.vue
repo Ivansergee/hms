@@ -5,7 +5,7 @@
     :confirm-loading="isLoading"
     :closable="false"
     :mask-closable="false"
-    :title="'CreateBooking'"
+    :title="t('newBooking')"
     :body-style="{
       'overflow-y': 'auto',
       'min-height': '55vh',
@@ -24,7 +24,7 @@
             @click="goBack"
           >
             <LeftOutlined />
-            Back
+            {{ t('back') }}
           </a-button>
         </div>
         <div>
@@ -33,14 +33,15 @@
             type="primary"
             @click="goNext"
           >
-              Next <RightOutlined />
+            {{ t('next') }}
+            <RightOutlined />
           </a-button>
           <a-button
             v-else
             type="primary"
             @click="onCreate"
           >
-            Create
+            {{ t('create') }}
           </a-button>
         </div>
       </div>
@@ -48,13 +49,13 @@
     <a-button-group class="control-buttons">
       <a-button
         type="text"
-        title="Minimize"
+        :title="t('minimize')"
         :icon="h(DownOutlined)"
         @click="onMinimize"
       />
       <a-button
         type="text"
-        title="Close"
+        :title="t('close')"
         :icon="h(CloseOutlined)"
         @click="onCancel"
       />
@@ -66,13 +67,15 @@
       :style="stepStyle"
     >
       <a-step
-        :title="'Dates'"
+        :title="t('dates')"
+        :description="bookingDates"
       />
       <a-step
-        :title="'Room'"
+        :title="t('room')"
+        :description="bookingRoom"
       />
       <a-step
-        :title="'Guests'"
+        :title="t('guests')"
       />
     </a-steps>
 
@@ -100,12 +103,18 @@ import DateStep from "@/components/CreateBookingDialog/steps/DateStep.vue";
 import RoomStep from "@/components/CreateBookingDialog/steps/RoomStep.vue";
 import GuestsStep from "@/components/CreateBookingDialog/steps/GuestsStep.vue";
 import type { GuestCreate } from "@shared/types/guest.ts";
+import { useScopedI18n } from "@/composables/useScopedI18n.ts";
+import { getFormattedDate } from "@/utils/dateTimeUtils.ts";
+import { useRoomStore } from "@/stores/roomStore.ts";
 
 
 interface Props {
   open: boolean;
   state?: BookingFormState;
 }
+
+defineOptions({ name: 'CreateBookingDialog' });
+const { t } = useScopedI18n();
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
@@ -115,6 +124,7 @@ const emit = defineEmits<{
 
 const trayStore = useTrayStore();
 const bookingStore = useBookingStore();
+const roomStore = useRoomStore();
 
 const stepComponents = [
   DateStep,
@@ -126,6 +136,18 @@ const innerData = ref<BookingFormState>(props.state ?? { id: Date.now(), guests:
 const currentStep = ref<number>(props.state?.currentStep ?? 0);
 const isLoading = ref<boolean>(false);
 const stepRef = ref();
+
+const bookingDates = computed<string | undefined>(() => {
+  if (innerData.value.start && innerData.value.end) {
+    return `${getFormattedDate(innerData.value.start)} - ${getFormattedDate(innerData.value.end)}`;
+  }
+});
+
+const bookingRoom = computed<string | undefined>(() => {
+  if (innerData.value.roomId) {
+    return roomStore.getById(innerData.value.roomId)?.name;
+  }
+});
 
 const goNext = async () => {
   const isValid = await stepRef.value?.validate?.();
@@ -207,6 +229,10 @@ watch(() => props.open, (isOpen: boolean) => {
 
 .create-booking-dialog .ant-tabs .ant-tabs-tab .anticon {
   margin-right: 0;
+}
+
+.create-booking-dialog .ant-steps-item-description {
+  white-space: nowrap !important;
 }
 </style>
 

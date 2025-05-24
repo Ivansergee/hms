@@ -6,6 +6,6 @@ export const roomQueries = {
     return fetcher.get<Room[]>('/room');
   },
   getAvailableIds(start: string, end: string): Promise<number[]> {
-    return fetcher.get<number[]>('/room/availableIds', {start, end});
+    return fetcher.get<number[]>('/room/availableIds', { start, end });
   }
 };

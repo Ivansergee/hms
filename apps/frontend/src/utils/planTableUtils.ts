@@ -1,7 +1,7 @@
 import type { BookingsByDayByRoomId, BookingWithFlags } from "@/types/Booking.ts";
 import { addDays, getDaysRange, setTimeOnDate } from "@/utils/dateTimeUtils.ts";
 import dayjs from "dayjs";
-import type { Booking } from "@shared/types/booking.ts";
+import type { BookingShort } from "@shared/types/booking.ts";
 import { BookingStatus } from "@shared/generated/enums.ts";
 
 export enum ResizeDirection {
@@ -11,7 +11,11 @@ export enum ResizeDirection {
 
 export const CELL_WIDTH = 100;
 
-export function getBookingsMap(bookings: Booking[], start: string, end: string): BookingsByDayByRoomId {
+export function getBookingsMap(
+  bookings: BookingShort[],
+  start: string,
+  end: string,
+): BookingsByDayByRoomId {
   const map: BookingsByDayByRoomId = {};
 
   bookings.forEach(booking => {
@@ -40,10 +44,8 @@ export function getInitialBookingData(day: string, roomId: number): BookingWithF
     roomId: roomId,
     start: `${day} 14:00`,
     end: setTimeOnDate(addDays(day, 1), '12:00'),
-    guestId: Date.now(),
+    mainGuestId: Date.now(),
     status: BookingStatus.ACTIVE,
-    mainGuest: { firstName: '', lastName: '' },
-    createdAt: '',
-    updatedAt: '',
+    guests: [],
   };
 }

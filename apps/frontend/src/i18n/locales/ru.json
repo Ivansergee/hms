@@ -1,0 +1,53 @@
+{
+  "BookingBar": {
+    "newBooking": "Новое бронирование"
+  },
+  "ConfirmChangeDialog": {
+    "confirmChange": "Подтверждение изменений",
+    "guest": "Основной гость",
+    "save": "Сохранить"
+  },
+  "CreateBookingDialog": {
+    "back": "Назад",
+    "close": "Закрыть",
+    "create": "Сохранить",
+    "dates": "Даты",
+    "guests": "Гости",
+    "minimize": "Свернуть",
+    "newBooking": "Новое бронирование",
+    "next": "Далее",
+    "room": "Комната"
+  },
+  "DateStep": {
+    "checkInTime": "Время заезда",
+    "checkInTimeRequiredError": "Укажите время заезда",
+    "checkOutTime": "Время выезда",
+    "checkOutTimeRequiredError": "Укажите время выезда",
+    "endDate": "Выезд",
+    "rangeRequiredError": "Укажите период бронирования",
+    "startDate": "Заезд"
+  },
+  "GuestsStep": {
+    "addGuest": "Добавить гостя",
+    "email": "Email",
+    "errorNotValidEmail": "Неправильный email",
+    "errorRequiredField": "Обязательное поле",
+    "firstName": "Имя",
+    "guest": "Гость",
+    "lastName": "Фамилия",
+    "mainGuest": "Основной гость",
+    "parentName": "Отчество",
+    "phone": "Телефон"
+  },
+  "RoomStep": {
+    "room": "Комната",
+    "roomRequiredError": "Укажите комнату"
+  },
+  "ENUMS": {
+    "BookingPropertyForChange": {
+      "start": "Заезд",
+      "end": "Выезд",
+      "room": "Комната"
+    }
+  }
+}

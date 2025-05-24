@@ -10,6 +10,7 @@
       <a-range-picker
         class="range-picker"
         v-model:value="formModel.range"
+        :placeholder="[t('startDate'), t('endDate')]"
         :format="['DD.MM.YYYY', 'DD.MM.YYYY']"
         value-format="YYYY-MM-DD"
         @change="emitChange"
@@ -28,6 +29,7 @@
           v-model:value="formModel.checkInTime"
           format="HH:mm"
           value-format="HH:mm"
+          :placeholder="t('checkInTime')"
           :allowClear="false"
           :showNow="false"
           @select="onCheckInTimeChange"
@@ -45,6 +47,7 @@
           v-model:value="formModel.checkOutTime"
           format="HH:mm"
           value-format="HH:mm"
+          :placeholder="t('checkOutTime')"
           :allowClear="false"
           :showNow="false"
           @select="onCheckOutTimeChange"
@@ -58,6 +61,7 @@ import type { BookingFormState } from "@shared/types/booking.ts";
 import { ref } from "vue";
 import type { Dayjs } from "dayjs";
 import type { RuleObject } from "ant-design-vue/es/form";
+import { useScopedI18n } from "@/composables/useScopedI18n.ts";
 
 interface Props {
   state: BookingFormState;
@@ -68,6 +72,9 @@ interface FormModel {
   checkInTime: string;
   checkOutTime: string;
 }
+
+defineOptions({ name: 'DateStep' });
+const { t } = useScopedI18n();
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
@@ -105,16 +112,16 @@ const emitChange = (): void => {
 const rules: { [key: string]: RuleObject[] } = {
   range: [{
     required: true,
-    message: 'Select a date range',
+    message: t('rangeRequiredError'),
     type: 'array',
   }],
   checkInTime:[{
     required: true,
-    message: 'Enter check in time',
+    message: t('checkInTimeRequiredError'),
   }],
   checkOutTime:[{
     required: true,
-    message: 'Enter check out time',
+    message: t('checkOutTimeRequiredError'),
   }],
 }
 

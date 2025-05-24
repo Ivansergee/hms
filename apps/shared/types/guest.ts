@@ -15,4 +15,10 @@ export interface Guest {
     identityDocumentId?: number;
 }
 
+export interface GuestShort {
+    id: number;
+    firstName: string;
+    lastName: string;
+}
+
 export type GuestCreate = Omit<Guest, 'id' | 'createdAt' | 'updatedAt'> & { id?: number };

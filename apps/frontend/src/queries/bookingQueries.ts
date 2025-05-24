@@ -1,10 +1,15 @@
 import fetcher from "@/queries/fetcher.ts";
-import type { Booking, BookingCreate, BookingDetails } from "@shared/types/booking.ts";
+import type {
+  BookingShort,
+  BookingCreate,
+  BookingDetails,
+  BookingEditPlacement,
+} from "@shared/types/booking.ts";
 
 export const bookingQueries = {
-  async fetch(from: string, to: string): Promise<Booking[]> {
+  async fetch(from: string, to: string): Promise<BookingShort[]> {
 
-    return fetcher.post<Booking[]>('/booking/filter', {
+    return fetcher.post<BookingShort[]>('/booking/filter', {
       start: from,
       end: to,
     });
@@ -14,14 +19,23 @@ export const bookingQueries = {
       return fetcher.get<BookingDetails>(`/booking/details/${id}`);
   },
 
-  async createBooking(createData: BookingCreate): Promise<Booking> {
-    return fetcher.post<Booking>('/booking', createData);
+  async createBooking(createData: BookingCreate): Promise<BookingShort> {
+    return fetcher.post<BookingShort>('/booking', createData);
   },
 
-  async editBooking (editData: Booking): Promise<Booking> {
-    await new Promise(r => setTimeout(r, 100));
+  // async editBooking (editData: BookingShort): Promise<BookingShort> {
+  //   return fetcher.put<BookingShort>(`/booking`, editData, { id: editData.id });
+  // },
 
-    return editData;
+  async editPlacement(id: number, editData: BookingEditPlacement): Promise<BookingShort> {
+    return fetcher.patch<BookingShort>(
+      `/booking/${id}/placement`,
+      {
+        start: editData.start,
+        end: editData.end,
+        roomId: editData.roomId,
+      }
+    );
   },
 
   async deleteBooking(id: number): Promise<boolean> {

@@ -38,6 +38,13 @@ export const booking = new Elysia({ prefix: '/booking', tags: ['Booking'] })
     //     },
     //     { body: bookingModel.update },
     // )
+    .patch(
+        '/:id/placement',
+        async ({ bookingService, params: { id }, body }) => {
+            return bookingService.editPlacement(id, body);
+        },
+        { body: bookingModel.editPlacement}
+    )
     .delete(
         '/:id',
         async ({ bookingService, params: { id } }) => {
