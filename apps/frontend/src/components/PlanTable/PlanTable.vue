@@ -24,7 +24,7 @@
           :day="column.dataIndex"
           :on-create="showCreateDialog"
           :on-confirm="showConfirmDialog"
-          @bar-clicked="showEditDialog"
+          @bar-clicked="showDetailsDialog"
           @restore="onRestoreFromTray"
         />
         <div
@@ -53,6 +53,10 @@
       :state="createFormState"
       @close="onCreateDialogClose"
       @minimize="onCreateDialogMinimize"
+    />
+    <BookingDetailsDialog
+      :open="isDetailsDialogOpen"
+      @close="isDetailsDialogOpen = false"
     />
     <ConfirmChangeDialog
       v-if="currentBooking && changedBooking"
@@ -93,6 +97,7 @@ const visibleStartDate = ref<dayjs.Dayjs>(dayjs().startOf('month'));
 const visibleEndDate = ref<dayjs.Dayjs>(dayjs().endOf('month'));
 
 const isCreateDialogOpen = ref<boolean>(false);
+const isDetailsDialogOpen = ref<boolean>(false);
 const createFormState = ref<BookingFormState>();
 
 const isConfirmDialogOpen = ref<boolean>(false);
@@ -144,12 +149,12 @@ const onCreate = () => {
   isCreateDialogOpen.value = true;
 };
 
-const showEditDialog = async (bookingId?: number): Promise<void> => {
+const showDetailsDialog = async (bookingId?: number): Promise<void> => {
   if (bookingId) {
     const trayData = trayStore.pop(bookingId);
     createFormState.value = trayData ?? await bookingQueries.getDetails(bookingId);
   }
-  isCreateDialogOpen.value = true;
+  isDetailsDialogOpen.value = true;
 };
 
 const onRestoreFromTray = (bookingId: number): void => {
