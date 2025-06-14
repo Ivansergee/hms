@@ -1,8 +1,10 @@
 import { Booking, Prisma } from "@prisma/client";
 import { prisma } from "@/../prisma/prisma";
-import { BookingFilterDTO, BookingUpdateDTO } from "@/models/bookingModel";
-import { BookingCreate, BookingEditPlacement, BookingShort } from "@shared/types/booking";
+import { BookingFilterDTO } from "@/models/bookingModel";
+import { BookingCreate, BookingDetails, BookingEditPlacement, BookingShort } from "@shared/types/booking";
 import { BookingStatus } from "@shared/generated/enums";
+import { bookingDbQueries } from "@/dbQueries/bookingDbQueries";
+import { bookingFormatter } from "@/formatters/bookingFormatter";
 
 export class BookingService {
     getAll(): Promise<Booking[]> {
@@ -51,6 +53,9 @@ export class BookingService {
                     guests: {
                         connect: createdGuests.map(g => ({ id: g.id })),
                     },
+                    folios: {
+                        create: [{}],
+                    },
                 },
                 include: {
                     guests: {
@@ -65,26 +70,18 @@ export class BookingService {
         });
     }
 
-    getDetails(id: number) {
-        return prisma.booking.findUnique({
+    async getDetails(id: number): Promise<BookingDetails> {
+        const bookingDetailsRaw = await prisma.booking.findUnique({
             relationLoadStrategy: 'join',
             where: { id },
-            include: {
-                guests: true,
-                mainGuest: {
-                    select: { id: true},
-                },
-            },
-        }).then((booking) => {
-            if (!booking) {
-                throw new Error('Booking not found.');
-            }
-            const { mainGuest, ...result } = {
-                ...booking,
-                mainGuestId: booking.mainGuest.id,
-            };
-            return result;
-        });
+            ...bookingDbQueries.details,
+        })
+
+        if (!bookingDetailsRaw) {
+            throw new Error('Booking not found.');
+        }
+
+        return bookingFormatter.formatDetails(bookingDetailsRaw);
     }
 
     async filter(filter: BookingFilterDTO) {

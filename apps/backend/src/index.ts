@@ -8,6 +8,8 @@ import { category } from "@/plugins/categoryPlugin";
 import { documentType } from "@/plugins/documentTypePlugin";
 import { booking } from "@/plugins/bookingPlugin";
 import { identityDocument } from "@/plugins/identityDocumentPlugin";
+import { folio } from "@/plugins/folioPlugin";
+import { service } from "@/plugins/servicePlugin";
 
 const app = new Elysia()
     .get("/", () => "Hello Elysia")
@@ -19,6 +21,8 @@ const app = new Elysia()
     .use(category)
     .use(room)
     .use(booking)
+    .use(folio)
+    .use(service)
     .use(cors({
         origin: 'http://localhost:5173',
     }))

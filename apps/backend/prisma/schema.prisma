@@ -15,15 +15,15 @@ datasource db {
 
 model Category {
   id       Int    @id @default(autoincrement())
-  name     String
-  tag      String
+  name     String @unique
+  tag      String @unique
   capacity Int
   rooms    Room[]
 }
 
 model Room {
   id         Int        @id @default(autoincrement())
-  name       String
+  name       String     @unique
   status     RoomStatus @default(CLEAN)
   category   Category   @relation(fields: [categoryId], references: [id])
   categoryId Int
@@ -32,7 +32,7 @@ model Room {
 
 model DocumentType {
   id        Int                @id @default(autoincrement())
-  name      String
+  name      String             @unique
   documents IdentityDocument[]
 }
 
@@ -84,10 +84,59 @@ model Booking {
   room   Room @relation(fields: [roomId], references: [id])
   roomId Int
 
-  guests Guest[] @relation("BookingGuests")
-
-  mainGuest   Guest @relation("MainGuest", fields: [mainGuestId], references: [id])
+  guests      Guest[] @relation("BookingGuests")
+  mainGuest   Guest   @relation("MainGuest", fields: [mainGuestId], references: [id])
   mainGuestId Int
+
+  folios Folio[]
+}
+
+model Folio {
+  id        Int         @id @default(autoincrement())
+  booking   Booking     @relation(fields: [bookingId], references: [id])
+  bookingId Int
+  items     FolioItem[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model FolioItem {
+  id            Int      @id @default(autoincrement())
+  folio         Folio    @relation(fields: [folioId], references: [id])
+  folioId       Int
+  service       Service  @relation(fields: [serviceId], references: [id])
+  serviceId     Int
+  payment       Payment? @relation(fields: [paymentId], references: [id])
+  paymentId     Int?
+  quantity      Int
+  unitPrice     Decimal
+  totalPrice    Decimal
+  dateOfService DateTime
+  createdAt     DateTime @default(now())
+}
+
+model Service {
+  id         Int           @id @default(autoincrement())
+  name       String        @unique
+  price      Decimal
+  isActive   Boolean       @default(true)
+  group      ServiceGroup? @relation(fields: [groupId], references: [id])
+  groupId    Int?
+  folioItems FolioItem[]
+}
+
+model ServiceGroup {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  services Service[]
+}
+
+model Payment {
+  id        Int           @id @default(autoincrement())
+  method    PaymentMethod
+  amount    Decimal
+  createdAt DateTime      @default(now())
+  items     FolioItem[]
 }
 
 enum BookingStatus {
@@ -105,4 +154,10 @@ enum RoomStatus {
 enum Gender {
   MALE
   FEMALE
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  EXTERNAL
 }

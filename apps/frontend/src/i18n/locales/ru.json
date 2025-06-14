@@ -1,6 +1,24 @@
 {
+  "AddFolioItemDialog": {
+    "add": "Добавить",
+    "addService": "Добавление услуги",
+    "all": "Все",
+    "dateOfService": "Дата предоставления",
+    "errorRequiredField": "Обязательное поле",
+    "group": "Категория",
+    "name": "Название",
+    "price": "Цена",
+    "quantity": "Количество"
+  },
   "BookingBar": {
     "newBooking": "Новое бронирование"
+  },
+  "BookingDetailsDialog": {
+    "booking": "Бронирование",
+    "guests": "Гости",
+    "history": "История",
+    "info": "Информация",
+    "payment": "Оплата"
   },
   "ConfirmChangeDialog": {
     "confirmChange": "Подтверждение изменений",
@@ -27,6 +45,17 @@
     "rangeRequiredError": "Укажите период бронирования",
     "startDate": "Заезд"
   },
+  "FolioTab": {
+    "add": "Добавить",
+    "balance": "Баланс",
+    "date": "Дата",
+    "delete": "Удалить",
+    "name": "Название",
+    "payment": "Оплата",
+    "price": "Цена",
+    "quantity": "Количество",
+    "totalPrice": "Сумма"
+  },
   "GuestsStep": {
     "addGuest": "Добавить гостя",
     "email": "Email",
@@ -39,15 +68,38 @@
     "parentName": "Отчество",
     "phone": "Телефон"
   },
+  "Navbar": {
+    "bookings": "Бронирования",
+    "plan": "План",
+    "settings": "Настройки"
+  },
+  "PaymentDialog": {
+    "all": "Все неоплаченные",
+    "chooseMethod": "Выберите метод оплаты",
+    "confirm": "Подтвердить",
+    "noUnpaidItemsSelected": "Не выбрано неоплаченных услуг",
+    "payment": "Оплата",
+    "paymentMethod": "Способ оплаты",
+    "selected": "Только выбранные",
+    "total": "Сумма"
+  },
   "RoomStep": {
     "room": "Комната",
     "roomRequiredError": "Укажите комнату"
+  },
+  "SettingsView": {
+    "templates": "Шаблоны"
   },
   "ENUMS": {
     "BookingPropertyForChange": {
       "start": "Заезд",
       "end": "Выезд",
       "room": "Комната"
+    },
+    "PaymentMethod": {
+      "CASH": "Наличные",
+      "CARD": "Карта",
+      "EXTERNAL": "Внешний"
     }
   }
 }

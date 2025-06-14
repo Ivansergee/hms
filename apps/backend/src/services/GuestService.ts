@@ -11,3 +11,5 @@ export class GuestService extends BaseService<
         super(prisma.guest);
     }
 }
+
+export type GuestRaw = Prisma.GuestGetPayload<{}>;

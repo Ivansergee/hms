@@ -11,6 +11,7 @@
     "@elysiajs/swagger": "^1.2.2",
     "@prisma/client": "6.5.0",
     "@rasla/logify": "^4.0.0",
+    "dayjs": "^1.11.13",
     "elysia": "latest"
   },
   "devDependencies": {

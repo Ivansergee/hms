@@ -115,11 +115,11 @@ const rules: { [key: string]: RuleObject[] } = {
     message: t('rangeRequiredError'),
     type: 'array',
   }],
-  checkInTime:[{
+  checkInTime: [{
     required: true,
     message: t('checkInTimeRequiredError'),
   }],
-  checkOutTime:[{
+  checkOutTime: [{
     required: true,
     message: t('checkOutTimeRequiredError'),
   }],
@@ -129,7 +129,7 @@ const validate = async (): Promise<boolean> => {
   try {
     await formRef.value?.validate();
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

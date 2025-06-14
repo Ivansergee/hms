@@ -16,7 +16,7 @@ export const bookingQueries = {
   },
 
   async getDetails(id: number): Promise<BookingDetails> {
-      return fetcher.get<BookingDetails>(`/booking/details/${id}`);
+      return fetcher.get<BookingDetails>(`/booking/${id}/details`);
   },
 
   async createBooking(createData: BookingCreate): Promise<BookingShort> {

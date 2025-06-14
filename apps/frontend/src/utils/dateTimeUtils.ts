@@ -86,7 +86,7 @@ export function isSameDay(date1: string, date2: string): boolean {
   return dayjs(date1).isSame(dayjs(date2), 'd');
 }
 
-export function toISOString(date: string): string {
+export function toISOString(date: string | Dayjs): string {
   return dayjs( date, "YYYY-MM-DD HH:mm").toISOString();
 }
 
@@ -94,7 +94,7 @@ export function fromISOString(date: string): string {
   return dayjs(date).format('YYYY-MM-DD HH:mm');
 }
 
-export function getFormattedDate(date: string, withTime: boolean = false): string {
+export function getFormattedDate(date: string | number, withTime: boolean = false): string {
   if (withTime) {
     return dayjs(date).format('DD.MM.YYYY HH:mm');
   } else {

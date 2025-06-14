@@ -8,12 +8,27 @@ theme.useToken();
 </script>
 
 <template>
-  <a-config-provider
-    :locale="ruRU"
-  >
-    <RouterView />
+  <a-config-provider :locale="ruRU">
+    <a-layout class="layout">
+      <a-layout-header class="header">
+        <Navbar/>
+      </a-layout-header>
+      <a-layout-content class="content">
+        <RouterView />
+      </a-layout-content>
+    </a-layout>
   </a-config-provider>
 </template>
 
 <style scoped>
+.header {
+  position: fixed;
+  width: 100%;
+  height: 45px;
+  line-height: 45px;
+}
+
+.content {
+  margin-top: 45px;
+}
 </style>

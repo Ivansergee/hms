@@ -52,7 +52,7 @@ export const booking = new Elysia({ prefix: '/booking', tags: ['Booking'] })
         },
     )
     .get(
-        '/details/:id',
+        '/:id/details',
         async ({ bookingService, params: { id } }) => {
             return bookingService.getDetails(id);
         },

@@ -1,6 +1,24 @@
 {
+  "AddFolioItemDialog": {
+    "add": "Add",
+    "addService": "Add service",
+    "all": "All",
+    "dateOfService": "Date of service",
+    "errorRequiredField": "This field is required",
+    "group": "Category",
+    "name": "Name",
+    "price": "Price",
+    "quantity": "Quantity"
+  },
   "BookingBar": {
     "newBooking": "New booking"
+  },
+  "BookingDetailsDialog": {
+    "booking": "Booking",
+    "guests": "Guests",
+    "history": "History",
+    "info": "Info",
+    "payment": "Payment"
   },
   "ConfirmChangeDialog": {
     "confirmChange": "Confirm change",
@@ -27,6 +45,17 @@
     "rangeRequiredError": "Select a date range",
     "startDate": "Check-in"
   },
+  "FolioTab": {
+    "add": "Add",
+    "balance": "Balance",
+    "date": "Date",
+    "delete": "Delete",
+    "name": "Name",
+    "payment": "Payment",
+    "price": "Price",
+    "quantity": "Quantity",
+    "totalPrice": "Total"
+  },
   "GuestsStep": {
     "addGuest": "Add guest",
     "email": "Email",
@@ -39,15 +68,38 @@
     "parentName": "Parent name",
     "phone": "Phone"
   },
+  "Navbar": {
+    "bookings": "Bookings",
+    "plan": "Plan",
+    "settings": "Settings"
+  },
+  "PaymentDialog": {
+    "all": "All unpaid",
+    "chooseMethod": "Choose payment method",
+    "confirm": "Confirm",
+    "noUnpaidItemsSelected": "No unpaid items selected",
+    "payment": "Payment",
+    "paymentMethod": "Payment method",
+    "selected": "Only selected",
+    "total": "Total"
+  },
   "RoomStep": {
     "room": "Room",
     "roomRequiredError": "Select a room"
+  },
+  "SettingsView": {
+    "templates": "Templates"
   },
   "ENUMS": {
     "BookingPropertyForChange": {
       "start": "Check-in",
       "end": "Check-out",
       "room": "Room"
+    },
+    "PaymentMethod": {
+      "CASH": "Cash",
+      "CARD": "Card",
+      "EXTERNAL": "External"
     }
   }
 }

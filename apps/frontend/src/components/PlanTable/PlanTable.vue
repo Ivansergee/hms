@@ -55,7 +55,9 @@
       @minimize="onCreateDialogMinimize"
     />
     <BookingDetailsDialog
+      v-if="bookingDetails"
       :open="isDetailsDialogOpen"
+      :bookingDetails="bookingDetails"
       @close="isDetailsDialogOpen = false"
     />
     <ConfirmChangeDialog
@@ -83,7 +85,7 @@ import { useBookingStore } from "@/stores/bookingStore.ts";
 import dayjs from "dayjs";
 import { useHighlightStore } from "@/stores/highlightStore.ts";
 import { useRoomStore } from "@/stores/roomStore.ts";
-import type { BookingShort, BookingFormState } from "@shared/types/booking.ts";
+import type { BookingShort, BookingFormState, BookingDetails } from "@shared/types/booking.ts";
 import type { ColumnType } from "ant-design-vue/es/table";
 import { bookingQueries } from "@/queries/bookingQueries.ts";
 import { TrayItemType, useTrayStore } from "@/stores/trayStore.ts";
@@ -99,6 +101,7 @@ const visibleEndDate = ref<dayjs.Dayjs>(dayjs().endOf('month'));
 const isCreateDialogOpen = ref<boolean>(false);
 const isDetailsDialogOpen = ref<boolean>(false);
 const createFormState = ref<BookingFormState>();
+const bookingDetails = ref<BookingDetails>();
 
 const isConfirmDialogOpen = ref<boolean>(false);
 const createDialogResolver = ref<(() => void) | undefined>();
@@ -149,11 +152,8 @@ const onCreate = () => {
   isCreateDialogOpen.value = true;
 };
 
-const showDetailsDialog = async (bookingId?: number): Promise<void> => {
-  if (bookingId) {
-    const trayData = trayStore.pop(bookingId);
-    createFormState.value = trayData ?? await bookingQueries.getDetails(bookingId);
-  }
+const showDetailsDialog = async (bookingId: number): Promise<void> => {
+  bookingDetails.value = await bookingQueries.getDetails(bookingId);
   isDetailsDialogOpen.value = true;
 };
 

@@ -1,5 +1,6 @@
 import type { BookingStatus } from "../generated/enums";
 import type { Guest, GuestCreate, GuestShort } from "./guest";
+import type { Folio } from "./folio";
 
 export interface BookingShort {
     id: number;
@@ -19,6 +20,7 @@ export interface BookingDetails {
     status: BookingStatus;
     mainGuestId: number;
     guests: Guest[];
+    folios: Folio[];
 }
 
 export interface BookingCreate {

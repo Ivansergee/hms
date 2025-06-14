@@ -6,7 +6,7 @@ import { roomQueries } from "@/queries/roomQueries.ts";
 export const useRoomStore = defineStore('rooms', () => {
   const rooms = ref<Room[]>([]);
 
-  const fetchRooms = async () => {
+  const fetch = async () => {
     rooms.value = await roomQueries.getAll();
   };
 
@@ -21,7 +21,7 @@ export const useRoomStore = defineStore('rooms', () => {
 
   return {
     rooms,
-    fetchRooms,
+    fetch,
     getById,
     getAvailableRooms,
   };
