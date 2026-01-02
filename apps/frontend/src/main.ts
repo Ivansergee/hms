@@ -9,9 +9,9 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import App from './App.vue';
 import router from './router';
 import { i18n } from '@/i18n/i18n';
-import { useRoomStore } from "@/stores/roomStore.ts";
-import { setupDayjsLocale } from "@/i18n/dayjsLocale.ts";
-import { useServiceStore } from "@/stores/serviceStore.ts";
+import { useRoomStore } from "@/stores/roomStore";
+import { setupDayjsLocale } from "@/i18n/dayjsLocale";
+import { useServiceStore } from "@/stores/serviceStore";
 
 setupDayjsLocale();
 const app = createApp(App);

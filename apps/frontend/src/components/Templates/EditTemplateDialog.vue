@@ -10,7 +10,7 @@
       'min-height': '55vh',
       'max-height': '78vh'
     }"
-    width="80vw"
+    width="90vw"
   >
     <template #footer>
       <a-button
@@ -36,17 +36,66 @@
         Upload
       </a-button>
     </a-upload>
-    <div contenteditable="true" v-html="fileContent" />
-    <iframe v-if="pdfUrl" :src="pdfUrl" style="width: 100%; height: 600px;" />
+<!--    <DocumentEditor-->
+<!--      v-if="uploadedFileUrl"-->
+<!--      documentServerUrl="http://192.168.3.2:8765"-->
+<!--      id="docEditor"-->
+<!--      height="500px"-->
+<!--      :config="{-->
+<!--        document: {-->
+<!--          fileType: 'docx',-->
+<!--          title: 'Template.docx',-->
+<!--          url: uploadedFileUrl,-->
+<!--          key: String(Date.now()),-->
+<!--        },-->
+<!--        editorConfig: {-->
+<!--          mode: 'edit',-->
+<!--          customization: {-->
+<!--            compactHeader: true,-->
+<!--            compactToolbar: true,-->
+<!--            toolbarNoTabs: true,-->
+<!--            hideRightMenu: true,-->
+<!--            hideRulers: true,-->
+<!--            comments: false,-->
+<!--            chat: false,-->
+<!--            feedback: false,-->
+<!--            help: false,-->
+<!--            autosave: false,-->
+<!--            plugins: false,-->
+<!--            macros: false,-->
+<!--            forcesave: false,-->
+<!--            review: {-->
+<!--              showReviewChanges: false,-->
+<!--              trackChanges: false,-->
+<!--              hideReviewDisplay: true,-->
+<!--            },-->
+<!--            logo: {-->
+<!--              visible: false,-->
+<!--            },-->
+<!--            goback: false,-->
+<!--            close: {-->
+<!--              visible: false,-->
+<!--              text: '',-->
+<!--            },-->
+<!--            pointerMode: 'select',-->
+<!--          }-->
+<!--        },-->
+<!--      }"-->
+<!--    />-->
   </a-modal>
 </template>
 <script setup lang="ts">
-
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
+import { useScopedI18n } from "@/composables/useScopedI18n";
 import { ref } from "vue";
 import type { FileType } from "ant-design-vue/es/upload/interface";
 import { UploadOutlined } from '@ant-design/icons-vue';
-import PizZip from "pizzip";
+import fetcher from "@/queries/fetcher";
+import { DocumentEditor } from "@onlyoffice/document-editor-vue";
+
+interface DocParagraph {
+  text: string;
+  nodes: Element[];
+}
 
 interface Props {
   isOpen: boolean;
@@ -61,8 +110,7 @@ const emit = defineEmits<{
 }>();
 
 const isLoading = ref<boolean>(false);
-const fileContent = ref<string>();
-const pdfUrl = ref<string>();
+const uploadedFileUrl = ref<string>();
 
 const onClose = (): void => {
   emit('close');
@@ -73,29 +121,14 @@ const handleBeforeUpload = async (file: FileType) => {
     return false
   }
 
-  const reader = new FileReader()
-  reader.onload = async (e) => {
-    const arrayBuffer = e.target?.result as ArrayBuffer;
-    if (!arrayBuffer) {
-      return;
-    }
-    const zip = new PizZip(arrayBuffer); // fileBuffer = ArrayBuffer from file
-    const docXml = zip.file("word/document.xml")?.asText();
-    if (docXml) {
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(docXml, "application/xml");
-      console.log(xmlDoc)
+  const formData = new FormData();
+  formData.append('file', file);
 
-      const texts = xmlDoc.getElementsByTagName("w:t");
+  uploadedFileUrl.value = await fetcher.post<string>('/template/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 
-      for (let i = 0; i < texts.length; i++) {
-        console.log(`Text ${i}: ${texts[i].textContent}`);
-      }
-    }
-  }
-  reader.readAsArrayBuffer(file)
-
-  return false // prevent default upload
+  return false;
 }
 </script>
 <style scoped>

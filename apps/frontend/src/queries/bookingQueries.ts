@@ -1,10 +1,10 @@
-import fetcher from "@/queries/fetcher.ts";
+import fetcher from "@/queries/fetcher";
 import type {
   BookingShort,
   BookingCreate,
   BookingDetails,
   BookingEditPlacement,
-} from "@shared/types/booking.ts";
+} from "@shared/types/booking";
 
 export const bookingQueries = {
   async fetch(from: string, to: string): Promise<BookingShort[]> {

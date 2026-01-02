@@ -75,14 +75,14 @@
   </a-form>
 </template>
 <script setup lang="ts">
-import type { BookingFormState } from "@shared/types/booking.ts";
-import type { GuestCreate } from "@shared/types/guest.ts";
+import type { BookingFormState } from "@shared/types/booking";
+import type { GuestCreate } from "@shared/types/guest";
 import { ref, watch } from "vue";
 import {
   PlusOutlined,
   MinusCircleOutlined,
 } from "@ant-design/icons-vue";
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
+import { useScopedI18n } from "@/composables/useScopedI18n";
 
 interface Props {
   state: BookingFormState;

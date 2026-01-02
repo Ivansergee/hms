@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { Room } from "@/types/Room.ts";
-import { roomQueries } from "@/queries/roomQueries.ts";
+import type { Room } from "@/types/Room";
+import { roomQueries } from "@/queries/roomQueries";
 
 export const useRoomStore = defineStore('rooms', () => {
   const rooms = ref<Room[]>([]);

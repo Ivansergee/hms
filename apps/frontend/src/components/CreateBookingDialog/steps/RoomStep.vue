@@ -16,12 +16,12 @@
   </a-form>
 </template>
 <script setup lang="ts">
-import type { BookingFormState } from "@shared/types/booking.ts";
+import type { BookingFormState } from "@shared/types/booking";
 import { onMounted, ref } from "vue";
 import type { RuleObject } from "ant-design-vue/es/form";
 import type { SelectProps } from "ant-design-vue";
-import { useRoomStore } from "@/stores/roomStore.ts";
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
+import { useRoomStore } from "@/stores/roomStore";
+import { useScopedI18n } from "@/composables/useScopedI18n";
 
 interface Props {
   state: BookingFormState;

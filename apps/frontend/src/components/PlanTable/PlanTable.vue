@@ -79,16 +79,16 @@ import {
   getDayFromDate,
   getMonthDates,
   getWeekdayFromDate,
-} from "@/utils/dateTimeUtils.ts";
-import { CELL_WIDTH } from "@/utils/planTableUtils.ts";
-import { useBookingStore } from "@/stores/bookingStore.ts";
+} from "@/utils/dateTimeUtils";
+import { CELL_WIDTH } from "@/utils/planTableUtils";
+import { useBookingStore } from "@/stores/bookingStore";
 import dayjs from "dayjs";
-import { useHighlightStore } from "@/stores/highlightStore.ts";
-import { useRoomStore } from "@/stores/roomStore.ts";
-import type { BookingShort, BookingFormState, BookingDetails } from "@shared/types/booking.ts";
+import { useHighlightStore } from "@/stores/highlightStore";
+import { useRoomStore } from "@/stores/roomStore";
+import type { BookingShort, BookingFormState, BookingDetails } from "@shared/types/booking";
 import type { ColumnType } from "ant-design-vue/es/table";
-import { bookingQueries } from "@/queries/bookingQueries.ts";
-import { TrayItemType, useTrayStore } from "@/stores/trayStore.ts";
+import { bookingQueries } from "@/queries/bookingQueries";
+import { TrayItemType, useTrayStore } from "@/stores/trayStore";
 
 const bookingStore = useBookingStore();
 const highlightStore = useHighlightStore();

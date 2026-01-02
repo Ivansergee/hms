@@ -1,10 +1,10 @@
 import { defineStore } from "pinia";
-import { type BookingsByDayByRoomId } from "@/types/Booking.ts";
+import { type BookingsByDayByRoomId } from "@/types/Booking";
 import { computed, ref } from "vue";
-import { bookingQueries } from "@/queries/bookingQueries.ts";
-import { fromISOString, isSameDay, toISOString } from "@/utils/dateTimeUtils.ts";
-import { getBookingsMap } from "@/utils/planTableUtils.ts";
-import { type BookingShort, type BookingCreate } from "@shared/types/booking.ts";
+import { bookingQueries } from "@/queries/bookingQueries";
+import { fromISOString, isSameDay, toISOString } from "@/utils/dateTimeUtils";
+import { getBookingsMap } from "@/utils/planTableUtils";
+import { type BookingShort, type BookingCreate } from "@shared/types/booking";
 
 interface DraggedBooking extends BookingShort {
   clickedDay: string;

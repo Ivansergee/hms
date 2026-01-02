@@ -21,20 +21,20 @@ export const category = new Elysia({ prefix: '/category', tags: ['RoomCategory']
     .guard({ params: categoryModel.params })
     .get(
         '/:id',
-        async ({ categoryService, params: { id }, error }) => {
+        async ({ categoryService, params: { id } }) => {
             return categoryService.getById(id);
         },
     )
     .put(
         '/:id',
-        async ({ categoryService, params: { id }, body, error }) => {
+        async ({ categoryService, params: { id }, body }) => {
             return categoryService.update(id, body);
         },
         { body: categoryModel.update },
     )
     .delete(
         '/:id',
-        async ({ categoryService, params: { id }, error }) => {
+        async ({ categoryService, params: { id } }) => {
             return categoryService.delete(id);
         },
     )

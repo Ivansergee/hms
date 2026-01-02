@@ -1,7 +1,7 @@
 import { BookingDetails } from "@shared/types/booking";
 import type { BookingDetailsRaw } from "@/dbQueries/bookingDbQueries";
 import { formatDate } from "@/utils/dateUtils";
-import { BookingStatus } from "@shared/generated/enums";
+import { BookingStatus } from "@shared/enums/BookingStatus";
 import { guestFormatter } from "@/formatters/guestFormatter";
 import { folioFormatter } from "@/formatters/folioFormatter";
 

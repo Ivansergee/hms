@@ -1,4 +1,4 @@
-import type { BookingStatus } from "../generated/enums";
+import type { BookingStatus } from "../enums/BookingStatus";
 import type { Guest, GuestCreate, GuestShort } from "./guest";
 import type { Folio } from "./folio";
 

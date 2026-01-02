@@ -1,5 +1,5 @@
-import fetcher from "@/queries/fetcher.ts";
-import type { Service, ServiceGroup } from "@shared/types/service.ts";
+import fetcher from "@/queries/fetcher";
+import type { Service, ServiceGroup } from "@shared/types/service";
 
 export const serviceQueries = {
   getAll(): Promise<Service[]> {

@@ -1,6 +1,6 @@
 import { GuestRaw } from "@/services/GuestService";
 import { Guest } from "@shared/types/guest";
-import { Gender } from "@shared/generated/enums";
+import { Gender } from "@shared/enums/Gender";
 import { formatDate } from "@/utils/dateUtils";
 import { nullToUndefined } from "@/utils/formatUtils";
 

@@ -98,7 +98,7 @@ interface FormModel {
   quantity: number;
 }
 
-defineOptions({ name: 'AddFolioItemDialog' });
+defineOptions({ name: 'AddServiceItemDialog' });
 const { t } = useScopedI18n();
 
 const props = defineProps<Props>();

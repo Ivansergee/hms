@@ -1,4 +1,4 @@
-import { RoomStatus } from "../generated/enums";
+import { RoomStatus } from "../enums/RoomStatus";
 
 export interface RoomCreatePayload{
     name: string;

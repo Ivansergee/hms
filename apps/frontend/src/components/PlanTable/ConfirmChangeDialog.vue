@@ -21,12 +21,12 @@
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { BookingPropertyForChange } from "@/enums/BookingPropertyForChange.ts";
-import { useBookingStore } from "@/stores/bookingStore.ts";
-import type { BookingShort } from "@shared/types/booking.ts";
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
-import { useRoomStore } from "@/stores/roomStore.ts";
-import { getFormattedDate } from "@/utils/dateTimeUtils.ts";
+import { BookingPropertyForChange } from "@/enums/BookingPropertyForChange";
+import { useBookingStore } from "@/stores/bookingStore";
+import type { BookingShort } from "@shared/types/booking";
+import { useScopedI18n } from "@/composables/useScopedI18n";
+import { useRoomStore } from "@/stores/roomStore";
+import { getFormattedDate } from "@/utils/dateTimeUtils";
 
 interface Props {
   open: boolean;

@@ -1,19 +1,21 @@
 import { formatDate } from "@/utils/dateUtils";
-import { Folio, FolioItem, Payment } from "@shared/types/folio";
+import { Folio, FolioItem, Transaction } from "@shared/types/folio";
 import { FolioItemRaw, FolioRaw } from "@/dbQueries/folioDbQueries";
-import { PaymentMethod } from "@shared/generated/enums";
+import { PaymentMethod } from "@shared/enums/PaymentMethod";
+import { TransactionType } from "@shared/enums/TransactionType";
 
-function getPaymentsFromItems(items: FolioItemRaw[]): Payment[] {
-    const paymentById = new Map<number, Payment>();
+function getTransactionsFromItems(items: FolioItemRaw[]): Transaction[] {
+    const paymentById = new Map<number, Transaction>();
     items.forEach((item) => {
-        if (item.paymentId && item.payment && !paymentById.has(item.paymentId)) {
+        if (item.transactionId && item.transaction && !paymentById.has(item.transactionId)) {
             paymentById.set(
-                item.paymentId,
+                item.transactionId,
                 {
-                    id: item.payment.id,
-                    method: item.payment.method as PaymentMethod,
-                    amount: item.payment.amount.toFixed(2),
-                    createdAt: item.payment.createdAt.getTime(),
+                    id: item.transaction.id,
+                    type: item.transaction.type as TransactionType,
+                    method: item.transaction.method as PaymentMethod,
+                    amount: item.transaction.amount.toFixed(2),
+                    createdAt: item.transaction.createdAt.getTime(),
                 },
             );
         }
@@ -27,7 +29,7 @@ function formatFolio(folioData: FolioRaw): Folio {
         createdAt: formatDate(folioData.createdAt),
         updatedAt: formatDate(folioData.updatedAt),
         items: folioData.items.map(folioItem => formatFolioItem(folioItem)),
-        payments: getPaymentsFromItems(folioData.items),
+        transactions: getTransactionsFromItems(folioData.items),
     };
 }
 
@@ -35,7 +37,7 @@ function formatFolioItem(item: FolioItemRaw): FolioItem {
     return {
         id: item.id,
         serviceId: item.serviceId,
-        paymentId: item.paymentId ?? undefined,
+        paymentId: item.transactionId ?? undefined,
         quantity: item.quantity,
         unitPrice: item.unitPrice.toFixed(2),
         totalPrice: item.totalPrice.toFixed(2),

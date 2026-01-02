@@ -1,5 +1,5 @@
 {
-  "AddFolioItemDialog": {
+  "AddServiceItemDialog": {
     "add": "Добавить",
     "addService": "Добавление услуги",
     "all": "Все",
@@ -10,15 +10,26 @@
     "price": "Цена",
     "quantity": "Количество"
   },
+  "BillingTab": {
+    "addService": "Добавить услугу",
+    "balance": "Баланс",
+    "date": "Дата",
+    "delete": "Удалить",
+    "payment": "Оплата",
+    "price": "Цена",
+    "quantity": "Количество",
+    "service": "Услуга",
+    "totalPrice": "Сумма"
+  },
   "BookingBar": {
     "newBooking": "Новое бронирование"
   },
   "BookingDetailsDialog": {
+    "billing": "Счет",
     "booking": "Бронирование",
     "guests": "Гости",
     "history": "История",
-    "info": "Информация",
-    "payment": "Оплата"
+    "info": "Информация"
   },
   "ConfirmChangeDialog": {
     "confirmChange": "Подтверждение изменений",
@@ -44,17 +55,6 @@
     "endDate": "Выезд",
     "rangeRequiredError": "Укажите период бронирования",
     "startDate": "Заезд"
-  },
-  "FolioTab": {
-    "add": "Добавить",
-    "balance": "Баланс",
-    "date": "Дата",
-    "delete": "Удалить",
-    "name": "Название",
-    "payment": "Оплата",
-    "price": "Цена",
-    "quantity": "Количество",
-    "totalPrice": "Сумма"
   },
   "GuestsStep": {
     "addGuest": "Добавить гостя",
@@ -87,10 +87,24 @@
     "room": "Комната",
     "roomRequiredError": "Укажите комнату"
   },
+  "ServicesTable": {
+    "addService": "Добавить услугу",
+    "date": "Дата",
+    "delete": "Удалить",
+    "price": "Цена",
+    "quantity": "Количество",
+    "service": "Услуга",
+    "totalPrice": "Сумма"
+  },
   "SettingsView": {
     "templates": "Шаблоны"
   },
   "ENUMS": {
+    "BillingTabTableType": {
+      "SERVICE": "Услуги",
+      "PAYMENT": "Оплаты",
+      "FOLIO": "Фолио"
+    },
     "BookingPropertyForChange": {
       "start": "Заезд",
       "end": "Выезд",

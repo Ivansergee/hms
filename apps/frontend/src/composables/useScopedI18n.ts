@@ -1,6 +1,6 @@
 import { useI18n } from 'vue-i18n';
 import { getCurrentInstance } from 'vue';
-import { getEnumName } from "@/i18n/enumRegistry.ts";
+import { getEnumName } from "@/i18n/enumRegistry";
 
 export function useScopedI18n() {
   const { t: globalT } = useI18n();

@@ -1,5 +1,6 @@
 <template>
-  <PlanTable/>
+<!--  <PlanTable/>-->
+  <TestPlan/>
 </template>
 <script setup lang="ts">
 </script>

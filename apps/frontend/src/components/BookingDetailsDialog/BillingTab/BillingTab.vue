@@ -1,53 +1,77 @@
 <template>
-  <a-flex
-    class="mb-10"
-    justify="space-between"
-  >
-    <a-space>
+  <a-tabs v-model:activeKey="activeKey" type="card">
+    <template #rightExtra>
       <a-button
+        class="payment-button"
         type="primary"
-        @click="isServiceDialogOpen = true"
+        @click="isPaymentDialogOpen = true"
       >
-        {{ t('add') }}
+        {{ t('payment') }}
       </a-button>
-      <a-button
-        type="primary"
-        :icon="h(DeleteOutlined)"
-        :title="t('delete')"
-        :disabled="!selectedItems.length"
-        danger
-        @click="onDeleteItems"
-      />
-    </a-space>
-    <a-button
-      class="payment-button"
-      type="primary"
-      @click="isPaymentDialogOpen = true"
-    >
-      {{ t('payment') }}
-    </a-button>
-  </a-flex>
-  <a-table
-    class="folio-items scroll-table"
-    :columns="columns"
-    :data-source="tableRows"
-    :pagination="false"
-    :row-class-name="getRowClassName"
-    :custom-row="customRow"
-    size="small"
-    bordered
-    :scroll="{ y: '390px' }"
-  >
-    <template #bodyCell="{ column, record }">
-      <template v-if="column.key === 'name'">
-        <CheckCircleFilled
-          v-if="isItemRecord(record as FolioTableRecord) && isItemPaid(record as FolioItemRecord)"
-          :style="{ color: '#52c41a' }"
-        />
-        {{ getRecordName(record as FolioTableRecord) }}
-      </template>
     </template>
-  </a-table>
+    <a-tab-pane
+      :key="BillingTabTableType.SERVICE"
+      :tab="translateEnum(BillingTabTableType, BillingTabTableType.SERVICE)"
+    >
+      <ServicesTable
+        :folio-id="activeFolio.id"
+        :items="serviceItems"
+        @change="reloadFolio"
+      />
+    </a-tab-pane>
+    <a-tab-pane
+      :key="BillingTabTableType.PAYMENT"
+      :tab="translateEnum(BillingTabTableType, BillingTabTableType.PAYMENT)"
+    >
+      <TransactionsTable
+        :folio-id="activeFolio.id"
+        :items="transactionItems"
+        @change="reloadFolio"
+      />
+    </a-tab-pane>
+    <a-tab-pane
+      :key="BillingTabTableType.FOLIO"
+      :tab="translateEnum(BillingTabTableType, BillingTabTableType.FOLIO)"
+    >
+      <a-button-group class="mb-5">
+        <a-button
+          type="primary"
+          :icon="h(PlusOutlined)"
+          :title="t('addService')"
+          @click="isServiceDialogOpen = true"
+        />
+        <a-button
+          type="primary"
+          :icon="h(DeleteOutlined)"
+          :title="t('delete')"
+          :disabled="!selectedItems.length"
+          danger
+          @click="onDeleteItems"
+        />
+      </a-button-group>
+      <a-table
+        class="folio-items scroll-table"
+        :columns="columns"
+        :data-source="folioItems"
+        :pagination="false"
+        :row-class-name="getRowClassName"
+        :custom-row="customRow"
+        size="small"
+        bordered
+        :scroll="{ y: '390px' }"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'name'">
+            <CheckCircleFilled
+              v-if="isServiceRecord(record as FolioTableRecord) && isItemPaid(record as FolioServiceRecord)"
+              :style="{ color: '#52c41a' }"
+            />
+            {{ getRecordName(record as FolioTableRecord) }}
+          </template>
+        </template>
+      </a-table>
+    </a-tab-pane>
+  </a-tabs>
   <AddFolioItemDialog
     :is-open="isServiceDialogOpen"
     :folio-id="activeFolio.id"
@@ -63,38 +87,39 @@
   />
 </template>
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from "vue";
+import { computed, h, ref } from "vue";
 import type { ColumnType } from "ant-design-vue/es/table";
 import { useScopedI18n } from "@/composables/useScopedI18n.ts";
-import type { Folio, FolioItem, Payment } from "@shared/types/folio.ts";
+import type { Folio, FolioItem, Transaction } from "@shared/types/folio.ts";
 import { useServiceStore } from "@/stores/serviceStore.ts";
 import { getFormattedDate } from "@/utils/dateTimeUtils.ts";
 import { folioQueries } from "@/queries/folioQueries.ts";
-import { CheckCircleFilled, DeleteOutlined } from '@ant-design/icons-vue';
+import {
+  CheckCircleFilled,
+  DeleteOutlined,
+  PlusOutlined
+} from '@ant-design/icons-vue';
 import { PaymentMethod } from "@/enums/PaymentMethod.ts";
 import Decimal from "decimal.js";
-
-interface FolioItemRecord extends FolioItem {
-  type: 'item';
-}
-
-interface FolioPaymentRecord extends Payment {
-  type: 'payment';
-}
-
-type FolioTableRecord =  FolioItemRecord | FolioPaymentRecord;
+import { BillingTabTableType } from "@/enums/BillingTabTableType.ts";
+import {
+  FolioItemType,
+  type FolioTransactionRecord, type FolioServiceRecord,
+  type FolioTableRecord
+} from "@/types/Folio.ts";
 
 interface Props {
   folios: Folio[],
 }
 
-defineOptions({ name: 'FolioTab' });
+defineOptions({ name: 'BillingTab' });
 const { t, translateEnum } = useScopedI18n();
 
 const props = defineProps<Props>();
 
 const serviceStore = useServiceStore();
 
+const activeKey = ref<BillingTabTableType>(BillingTabTableType.SERVICE);
 const innerFolios = ref<Folio[]>(props.folios);
 const activeFolio = ref<Folio>(innerFolios.value[0]);
 const isServiceDialogOpen = ref(false);
@@ -108,16 +133,16 @@ const columns: ColumnType<FolioTableRecord>[] = [
       key: 'dateOfService',
       width: 120,
       customRender({ record }) {
-        return getFormattedDate(isItemRecord(record) ? record.dateOfService : record.createdAt);
+        return getFormattedDate(isServiceRecord(record) ? record.dateOfService : record.createdAt);
       },
     },
     {
-      title: t('name'),
+      title: t('service'),
       dataIndex: 'serviceId',
       key: 'name',
       ellipsis: { showTitle: false },
       customCell: (record) => {
-        return { colSpan: isItemRecord(record) ? 1 : 3 };
+        return { colSpan: isServiceRecord(record) ? 1 : 3 };
       }
     },
     {
@@ -127,7 +152,7 @@ const columns: ColumnType<FolioTableRecord>[] = [
       width: 100,
       align: 'center',
       customCell: (record) => {
-        return { colSpan: isItemRecord(record) ? 1 : 0 };
+        return { colSpan: isServiceRecord(record) ? 1 : 0 };
       }
     },
     {
@@ -136,7 +161,7 @@ const columns: ColumnType<FolioTableRecord>[] = [
       width: 120,
       align: 'center',
       customCell: (record) => {
-        return { colSpan: isItemRecord(record) ? 1 : 0 };
+        return { colSpan: isServiceRecord(record) ? 1 : 0 };
       }
     },
     {
@@ -145,7 +170,7 @@ const columns: ColumnType<FolioTableRecord>[] = [
       width: 120,
       align: 'center',
       customRender({ record }) {
-        return isItemRecord(record) ? record.totalPrice : record.amount;
+        return isServiceRecord(record) ? record.totalPrice : record.amount;
       },
     },
     {
@@ -170,22 +195,26 @@ const unpaidSelectedItems = computed<FolioItem[]>(() => {
   return selectedItems.value.filter((item) => !isItemPaid(item));
 });
 
-const tableRows = computed<FolioTableRecord[]>(() => {
-  const items = activeFolio.value.items.map(item => ({
+const serviceItems = computed<FolioServiceRecord[]>(() => {
+  return activeFolio.value.items.map(item => ({
     ...item,
-    type: 'item' as const,
+    itemType: FolioItemType.SERVICE,
   }));
+});
 
-  const payments = activeFolio.value.payments.map(payment => ({
-    ...payment,
-    type: 'payment' as const,
+const transactionItems = computed<FolioTransactionRecord[]>(() => {
+  return activeFolio.value.transactions.map(item => ({
+    ...item,
+    itemType: FolioItemType.TRANSACTION,
   }));
+});
 
-  return [...items, ...payments].sort((a, b) => a.createdAt - b.createdAt);
+const folioItems = computed<FolioTableRecord[]>(() => {
+  return [...serviceItems.value, ...transactionItems.value].sort((a, b) => a.createdAt - b.createdAt);
 });
 
 const balanceChanges = computed<string[]>(() => {
-  return tableRows.value.map(row => isItemRecord(row)
+  return folioItems.value.map(row => isServiceRecord(row)
     ? new Decimal(row.totalPrice).negated().toFixed(2)
     : row.amount
   );
@@ -194,7 +223,7 @@ const balanceChanges = computed<string[]>(() => {
 const customRow = (record: FolioTableRecord) => {
   return {
     onClick: (e: MouseEvent) => {
-      if (record.type !== 'item') {
+      if (record.itemType !== FolioItemType.SERVICE) {
         return;
       }
       const isSelected = selectedItems.value.some(item => item.id === record.id);
@@ -212,19 +241,19 @@ const customRow = (record: FolioTableRecord) => {
       } else {
         selectedItems.value = [record];
       }
-    }
+    },
   };
 }
 
 const getRowClassName = (record: FolioTableRecord): string | undefined => {
-  if (record.type !== 'item') {
+  if (record.itemType !== FolioItemType.SERVICE) {
     return;
   }
   return selectedItems.value.some(item => item.id === record.id) ? 'selected' : undefined;
 };
 
 const getRecordName = (record: FolioTableRecord): string => {
-  if (isItemRecord(record)) {
+  if (isServiceRecord(record)) {
     return serviceStore.getById(record.serviceId)?.name ?? '';
   } else {
     return `${t('payment')} (${translateEnum(PaymentMethod, record.method)})`;
@@ -245,13 +274,9 @@ const isItemPaid = (item: FolioItem): boolean => {
   return !!item.paymentId;
 };
 
-const isItemRecord = (record: FolioTableRecord): record is FolioItemRecord => {
-  return record.type === 'item';
+const isServiceRecord = (record: FolioTableRecord): record is FolioServiceRecord => {
+  return record.itemType === FolioItemType.SERVICE;
 }
-
-onMounted(() => {
-  console.log(tableRows.value)
-})
 </script>
 <style scoped>
 .payment-button {

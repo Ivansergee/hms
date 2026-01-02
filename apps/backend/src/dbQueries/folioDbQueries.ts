@@ -5,14 +5,14 @@ export const folioDbQueries = {
         include: {
             items: {
                 include: {
-                    payment: true,
+                    transaction: true,
                 }
             },
         },
     },
 };
 
-const itemQuery = { include: { payment: true } };
+const itemQuery = { include: { transaction: true } };
 
 export type FolioRaw = Prisma.FolioGetPayload<typeof folioDbQueries.get>;
 export type FolioItemRaw = Prisma.FolioItemGetPayload<typeof itemQuery>;

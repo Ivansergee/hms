@@ -1,4 +1,4 @@
-import { Gender } from "../generated/enums";
+import { Gender } from "../enums/Gender";
 
 export interface Guest {
     id: number;

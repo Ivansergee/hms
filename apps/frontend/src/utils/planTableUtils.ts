@@ -1,8 +1,8 @@
-import type { BookingsByDayByRoomId, BookingWithFlags } from "@/types/Booking.ts";
-import { addDays, getDaysRange, setTimeOnDate } from "@/utils/dateTimeUtils.ts";
+import type { BookingsByDayByRoomId, BookingWithFlags } from "@/types/Booking";
+import { addDays, getDaysRange, setTimeOnDate } from "@/utils/dateTimeUtils";
 import dayjs from "dayjs";
-import type { BookingShort } from "@shared/types/booking.ts";
-import { BookingStatus } from "@shared/generated/enums.ts";
+import type { BookingShort } from "@shared/types/booking";
+import { BookingStatus } from "@shared/enums/BookingStatus";
 
 export enum ResizeDirection {
   LEFT = 'left',

@@ -1,4 +1,4 @@
-import type { BookingShort } from "@shared/types/booking.ts";
+import type { BookingShort } from "@shared/types/booking";
 
 export interface BookingWithFlags extends BookingShort {
   isStartDay: boolean;

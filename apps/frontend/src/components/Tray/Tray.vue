@@ -11,7 +11,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useTrayStore } from "@/stores/trayStore.ts";
+import { useTrayStore } from "@/stores/trayStore";
 
 const emit = defineEmits<{
   (event: 'restore', bookingId: number): void;

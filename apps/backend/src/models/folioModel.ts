@@ -1,6 +1,7 @@
 import { t } from 'elysia';
 import { enumToTypebox } from "@/utils/enumUtils";
-import { PaymentMethod } from "@shared/generated/enums";
+import { PaymentMethod } from "@shared/enums/PaymentMethod";
+import { TransactionType } from "@shared/enums/TransactionType";
 
 const create = t.Object({
     bookingId: t.Number(),
@@ -16,8 +17,9 @@ const addItem = t.Object({
 
 const deleteItems = t.Array(t.Number());
 
-const addPayment = t.Object({
+const addTransaction = t.Object({
     method: t.Enum(enumToTypebox(PaymentMethod)),
+    type: t.Enum(enumToTypebox(TransactionType)),
     amount: t.String({ pattern: '^\\d+(\\.\\d{1,2})?$' }),
     folioItemIds: t.Array(t.Number()),
 });
@@ -26,7 +28,7 @@ export const folioModel = {
     create,
     addItem,
     deleteItems,
-    addPayment,
+    addTransaction,
     params: t.Object({
         id: t.Numeric(),
     }),

@@ -90,22 +90,22 @@
 
 <script setup lang="ts">
 import { computed, h, ref, watch } from "vue";
-import type { BookingFormState } from "@shared/types/booking.ts";
-import { useTrayStore } from "@/stores/trayStore.ts";
+import type { BookingFormState } from "@shared/types/booking";
+import { useTrayStore } from "@/stores/trayStore";
 import {
   CloseOutlined,
   DownOutlined,
   RightOutlined,
   LeftOutlined,
 } from "@ant-design/icons-vue";
-import { useBookingStore } from "@/stores/bookingStore.ts";
+import { useBookingStore } from "@/stores/bookingStore";
 import DateStep from "@/components/CreateBookingDialog/steps/DateStep.vue";
 import RoomStep from "@/components/CreateBookingDialog/steps/RoomStep.vue";
 import GuestsStep from "@/components/CreateBookingDialog/steps/GuestsStep.vue";
-import type { GuestCreate } from "@shared/types/guest.ts";
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
-import { getFormattedDate } from "@/utils/dateTimeUtils.ts";
-import { useRoomStore } from "@/stores/roomStore.ts";
+import type { GuestCreate } from "@shared/types/guest";
+import { useScopedI18n } from "@/composables/useScopedI18n";
+import { getFormattedDate } from "@/utils/dateTimeUtils";
+import { useRoomStore } from "@/stores/roomStore";
 
 
 interface Props {

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type AxiosRequestConfig } from 'axios';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000',
@@ -27,8 +27,9 @@ const fetcher = {
   async post<TRes = undefined, TBody = any>(
     url: string,
     body: TBody,
+    params?: AxiosRequestConfig,
   ): Promise<TRes> {
-    const { data } = await api.post<TRes>(url, body);
+    const { data } = await api.post<TRes>(url, body, params);
     return data;
   },
 

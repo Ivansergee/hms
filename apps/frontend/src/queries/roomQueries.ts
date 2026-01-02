@@ -1,5 +1,5 @@
-import type { Room } from "@/types/Room.ts";
-import fetcher from "@/queries/fetcher.ts";
+import type { Room } from "@/types/Room";
+import fetcher from "@/queries/fetcher";
 
 export const roomQueries = {
   getAll(): Promise<Room[]> {

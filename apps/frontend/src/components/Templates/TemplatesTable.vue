@@ -16,10 +16,10 @@
 <!--    :scroll="{ y: '390px' }"-->
 <!--  >-->
 <!--  </a-table>-->
-  <EditTemplateDialog
-    :is-open="isTemplateDialogVisible"
-    @close="isTemplateDialogVisible = false"
-  />
+<!--  <EditTemplateDialog-->
+<!--    :is-open="isTemplateDialogVisible"-->
+<!--    @close="isTemplateDialogVisible = false"-->
+<!--  />-->
 </template>
 <script setup lang="ts">
 import { ref } from "vue";

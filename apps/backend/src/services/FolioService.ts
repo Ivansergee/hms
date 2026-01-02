@@ -1,5 +1,5 @@
 import { prisma } from "@/../prisma/prisma";
-import { Folio, FolioItem, FolioItemCreate, Payment, PaymentCreate } from "@shared/types/folio";
+import { Folio, FolioItemCreate, TransactionCreate } from "@shared/types/folio";
 import { folioDbQueries } from "@/dbQueries/folioDbQueries";
 import { folioFormatter } from "@/formatters/folioFormatter";
 
@@ -39,9 +39,10 @@ export class FolioService {
         });
     }
 
-    addPayment(data: PaymentCreate) {
-        return prisma.payment.create({
+    createTransaction(data: TransactionCreate) {
+        return prisma.transaction.create({
             data: {
+                type: data.type,
                 method: data.method,
                 amount: data.amount,
                 items: {

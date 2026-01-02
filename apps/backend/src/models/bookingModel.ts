@@ -1,6 +1,6 @@
 import { Static, t } from 'elysia';
 import { enumToTypebox } from "@/utils/enumUtils";
-import { BookingStatus } from "@shared/generated/enums";
+import { BookingStatus } from "@shared/enums/BookingStatus";
 import { guestModel } from "@/models/guestModel";
 
 const create = t.Object({

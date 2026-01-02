@@ -49,6 +49,7 @@ import { computed, ref, watch } from "vue";
 import type { FolioItem } from "@shared/types/folio.ts";
 import Decimal from "decimal.js";
 import { folioQueries } from "@/queries/folioQueries.ts";
+import { TransactionType } from "@shared/enums/TransactionType.ts";
 
 type PaymentMethodRecord = { name: PaymentMethod };
 
@@ -138,7 +139,8 @@ const initPayment = async () => {
   if (!selectedMethod.value) {
     return;
   }
-  await folioQueries.addPayment({
+  await folioQueries.addTransaction({
+    type: TransactionType.PAYMENT,
     method: selectedMethod.value,
     amount: total.value,
     folioItemIds: items.value.map(item => item.id),

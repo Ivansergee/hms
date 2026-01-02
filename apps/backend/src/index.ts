@@ -10,11 +10,19 @@ import { booking } from "@/plugins/bookingPlugin";
 import { identityDocument } from "@/plugins/identityDocumentPlugin";
 import { folio } from "@/plugins/folioPlugin";
 import { service } from "@/plugins/servicePlugin";
+import { template } from "@/plugins/templatePlugin";
+import path from "path";
+import staticPlugin from "@elysiajs/static";
 
 const app = new Elysia()
-    .get("/", () => "Hello Elysia")
     .use(logger({ includeIp: true }))
     .use(swagger())
+    .use(
+        staticPlugin({
+            prefix: '/uploads',
+            assets: path.resolve('uploads'),
+        })
+    )
     .use(documentType)
     .use(identityDocument)
     .use(guest)
@@ -23,10 +31,11 @@ const app = new Elysia()
     .use(booking)
     .use(folio)
     .use(service)
+    .use(template)
     .use(cors({
         origin: 'http://localhost:5173',
     }))
-    .listen(3000);
+    .listen({ port: 3000, hostname: '0.0.0.0' });
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`

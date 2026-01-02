@@ -3,11 +3,6 @@ generator client {
   previewFeatures = ["relationJoins"]
 }
 
-generator typegen {
-  provider = "node ./prisma/generators/dist/typeGenerator.js"
-  output   = "../../shared/generated"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -101,18 +96,18 @@ model Folio {
 }
 
 model FolioItem {
-  id            Int      @id @default(autoincrement())
-  folio         Folio    @relation(fields: [folioId], references: [id])
+  id            Int          @id @default(autoincrement())
+  folio         Folio        @relation(fields: [folioId], references: [id])
   folioId       Int
-  service       Service  @relation(fields: [serviceId], references: [id])
+  service       Service      @relation(fields: [serviceId], references: [id])
   serviceId     Int
-  payment       Payment? @relation(fields: [paymentId], references: [id])
-  paymentId     Int?
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+  transactionId Int?
   quantity      Int
   unitPrice     Decimal
   totalPrice    Decimal
   dateOfService DateTime
-  createdAt     DateTime @default(now())
+  createdAt     DateTime     @default(now())
 }
 
 model Service {
@@ -131,11 +126,12 @@ model ServiceGroup {
   services Service[]
 }
 
-model Payment {
-  id        Int           @id @default(autoincrement())
+model Transaction {
+  id        Int             @id @default(autoincrement())
+  type      TransactionType
   method    PaymentMethod
   amount    Decimal
-  createdAt DateTime      @default(now())
+  createdAt DateTime        @default(now())
   items     FolioItem[]
 }
 
@@ -154,6 +150,11 @@ enum RoomStatus {
 enum Gender {
   MALE
   FEMALE
+}
+
+enum TransactionType {
+  PAYMENT
+  REFUND
 }
 
 enum PaymentMethod {

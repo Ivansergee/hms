@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { BookingFormState } from "@shared/types/booking.ts";
+import type { BookingFormState } from "@shared/types/booking";
 
 export enum TrayItemType {
   CREATE = "CREATE",

@@ -8,7 +8,7 @@ export const bookingDbQueries = {
             folios: {
                 include: {
                     items: {
-                        include: { payment: true },
+                        include: { transaction: true },
                     },
                 },
             },

@@ -57,11 +57,11 @@
   </a-form>
 </template>
 <script setup lang="ts">
-import type { BookingFormState } from "@shared/types/booking.ts";
+import type { BookingFormState } from "@shared/types/booking";
 import { ref } from "vue";
 import type { Dayjs } from "dayjs";
 import type { RuleObject } from "ant-design-vue/es/form";
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
+import { useScopedI18n } from "@/composables/useScopedI18n";
 
 interface Props {
   state: BookingFormState;

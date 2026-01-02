@@ -23,13 +23,13 @@
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { useBookingStore } from "@/stores/bookingStore.ts";
-import { type BookingWithFlags } from "@/types/Booking.ts";
-import { getInitialBookingData } from "@/utils/planTableUtils.ts";
-import { useHighlightStore } from "@/stores/highlightStore.ts";
-import type { BookingShort, BookingFormState } from "@shared/types/booking.ts";
+import { useBookingStore } from "@/stores/bookingStore";
+import { type BookingWithFlags } from "@/types/Booking";
+import { getInitialBookingData } from "@/utils/planTableUtils";
+import { useHighlightStore } from "@/stores/highlightStore";
+import type { BookingShort, BookingFormState } from "@shared/types/booking";
 import { useEventListener } from "@vueuse/core";
-import { addDays, getDaysRange, getDifferenceInDays } from "@/utils/dateTimeUtils.ts";
+import { addDays, getDaysRange, getDifferenceInDays } from "@/utils/dateTimeUtils";
 
 interface Props {
   roomId: number;

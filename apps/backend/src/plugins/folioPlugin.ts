@@ -19,11 +19,11 @@ export const folio = new Elysia({ prefix: '/folio', tags: ['Folio'] })
         { body: folioModel.deleteItems },
     )
     .post(
-        '/addPayment',
+        '/addTransaction',
         async ({ folioService, body }) => {
-            return folioService.addPayment(body);
+            return folioService.createTransaction(body);
         },
-        { body: folioModel.addPayment },
+        { body: folioModel.addTransaction },
     )
     .guard({ params: folioModel.params })
     .get(

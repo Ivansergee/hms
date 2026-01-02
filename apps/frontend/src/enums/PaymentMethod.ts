@@ -1,4 +1,4 @@
-import { registerEnum } from "@/i18n/enumRegistry.ts";
+import { registerEnum } from "@/i18n/enumRegistry";
 
 export enum PaymentMethod {
   CASH = 'CASH',

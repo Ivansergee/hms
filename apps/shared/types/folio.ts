@@ -1,10 +1,11 @@
-import { PaymentMethod } from "../generated/enums";
+import { PaymentMethod } from "../enums/PaymentMethod";
+import { TransactionType } from "../enums/TransactionType";
 
 export interface Folio {
     id: number;
     bookingId: number;
     items: FolioItem[];
-    payments: Payment[];
+    transactions: Transaction[];
     createdAt: string;
     updatedAt: string;
 }
@@ -22,14 +23,16 @@ export interface FolioItem {
 
 export type FolioItemCreate = Omit<FolioItem, 'id' | 'createdAt'>;
 
-export interface Payment {
+export interface Transaction {
     id: number;
+    type: TransactionType;
     method: PaymentMethod;
     amount: string;
     createdAt: number;
 }
 
-export interface PaymentCreate {
+export interface TransactionCreate {
+    type: TransactionType;
     method: PaymentMethod;
     amount: string;
     folioItemIds: number[];

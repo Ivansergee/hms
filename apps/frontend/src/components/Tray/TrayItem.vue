@@ -31,11 +31,11 @@
   </a-badge>
 </template>
 <script setup lang="ts">
-import type { BookingFormState } from "@shared/types/booking.ts";
+import type { BookingFormState } from "@shared/types/booking";
 import { computed, h } from "vue";
 import { CloseOutlined } from "@ant-design/icons-vue";
-import { useTrayStore } from "@/stores/trayStore.ts";
-import { useRoomStore } from "@/stores/roomStore.ts";
+import { useTrayStore } from "@/stores/trayStore";
+import { useRoomStore } from "@/stores/roomStore";
 
 interface Props {
   data: BookingFormState;

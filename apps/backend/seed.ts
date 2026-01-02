@@ -1,5 +1,5 @@
 import { prisma } from "./prisma/prisma";
-import { Gender } from "@shared/generated/enums";
+import { Gender } from "@shared/enums/Gender";
 
 async function main() {
     await prisma.guest.createMany({

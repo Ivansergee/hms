@@ -27,7 +27,7 @@
 import { ref, h } from 'vue';
 import { CopyOutlined } from '@ant-design/icons-vue';
 import type { MenuProps } from 'ant-design-vue';
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
+import { useScopedI18n } from "@/composables/useScopedI18n";
 
 defineOptions({ name: 'SettingsView' });
 const { t } = useScopedI18n();

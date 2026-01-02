@@ -2,7 +2,7 @@ import { Booking, Prisma } from "@prisma/client";
 import { prisma } from "@/../prisma/prisma";
 import { BookingFilterDTO } from "@/models/bookingModel";
 import { BookingCreate, BookingDetails, BookingEditPlacement, BookingShort } from "@shared/types/booking";
-import { BookingStatus } from "@shared/generated/enums";
+import { BookingStatus } from "@shared/enums/BookingStatus";
 import { bookingDbQueries } from "@/dbQueries/bookingDbQueries";
 import { bookingFormatter } from "@/formatters/bookingFormatter";
 

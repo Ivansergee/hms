@@ -30,7 +30,7 @@ import { SettingOutlined, TableOutlined } from "@ant-design/icons-vue";
 import { computed } from "vue";
 import type { MenuInfo } from "ant-design-vue/es/menu/src/interface";
 import { useRoute, useRouter } from "vue-router";
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
+import { useScopedI18n } from "@/composables/useScopedI18n";
 
 defineOptions({ name: 'Navbar' });
 const { t } = useScopedI18n();

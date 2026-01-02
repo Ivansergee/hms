@@ -42,8 +42,8 @@
 </a-tooltip>
 </template>
 <script setup lang="ts">
-import { CELL_WIDTH, ResizeDirection } from "@/utils/planTableUtils.ts";
-import type { BookingShort, BookingFormState } from "@shared/types/booking.ts";
+import { CELL_WIDTH, ResizeDirection } from "@/utils/planTableUtils";
+import type { BookingShort, BookingFormState } from "@shared/types/booking";
 import { computed, ref, watch } from "vue";
 import {
   addDays,
@@ -51,11 +51,11 @@ import {
   getDifferenceInMinutes,
   getMinutesFromDayStart, subtractDays
 } from "@/utils/dateTimeUtils.ts";
-import { useHighlightStore } from "@/stores/highlightStore.ts";
+import { useHighlightStore } from "@/stores/highlightStore";
 import { useEventListener } from "@vueuse/core";
 import dayjs from "dayjs";
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
-import { useBookingStore } from "@/stores/bookingStore.ts";
+import { useScopedI18n } from "@/composables/useScopedI18n";
+import { useBookingStore } from "@/stores/bookingStore";
 
 interface Props {
   booking: BookingShort;

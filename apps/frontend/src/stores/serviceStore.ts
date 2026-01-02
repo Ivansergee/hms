@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
-import type { Service, ServiceGroup } from "@shared/types/service.ts";
+import type { Service, ServiceGroup } from "@shared/types/service";
 import { ref } from "vue";
-import { serviceQueries } from "@/queries/serviceQueries.ts";
+import { serviceQueries } from "@/queries/serviceQueries";
 
 export const useServiceStore = defineStore('services', () => {
   const services = ref<Service[]>([]);
