@@ -24,17 +24,16 @@ export function getDaysRange(from: string, to: string): string[] {
   return dates;
 }
 
-export function getDaysRange2(from: Dayjs, to: Dayjs): string[] {
-  const dates = [];
-
-  let date = from.startOf('day');
-  while (date.isBefore(to.add(1, 'day'), 'day')) {
-    dates.push(date.format('YYYY-MM-DD'));
-    date = date.add(1, 'day');
+export function generateDays(start: dayjs.Dayjs, end: dayjs.Dayjs) {
+  const days = [];
+  let d = start.startOf("day");
+  while (d.isBefore(end)) {
+    days.push(d);
+    d = d.add(1, "day");
   }
-
-  return dates;
+  return days;
 }
+
 
 export function getMonthDates(initDate: dayjs.Dayjs): string[] {
   const endDate = initDate.startOf('month').add(1, 'month');

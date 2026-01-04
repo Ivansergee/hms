@@ -22,13 +22,7 @@ theme.useToken();
 
 <style scoped>
 .header {
-  position: fixed;
-  width: 100%;
   height: 45px;
   line-height: 45px;
-}
-
-.content {
-  margin-top: 45px;
 }
 </style>

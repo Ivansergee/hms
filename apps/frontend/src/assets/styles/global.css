@@ -1,3 +1,19 @@
+html,
+body,
+#app {
+    height: 100%;
+}
+
+.ant-layout,
+.ant-layout-content {
+    height: 100%;
+}
+
+.ant-layout-content {
+    min-height: 0 !important;
+    display: flex;
+}
+
 .ant-table-row.selected > td,
 .ant-table-row.selected:hover > td {
     background-color: #bae0ff !important;

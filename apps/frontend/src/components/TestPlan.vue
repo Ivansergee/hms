@@ -1,53 +1,68 @@
 <template>
-  <div class="calendar-container">
-    <div class="header-container" ref="header">
-      <div class="header-inner">
-        <div class="cell room-header"></div>
-        <div
-          class="cell day-header"
-          v-for="day in days"
-          :key="day.format()"
-        >
-          {{ day.format('MMM D') }}
+  <div class="calendar-root">
+    <div class="header-row">
+      <div class="corner-cell"></div>
+      <div
+        class="header-scroll"
+        ref="header"
+      >
+        <div class="header-inner">
+          <div
+            class="cell day-header"
+            v-for="day in days"
+            :key="day.format()"
+          >
+            {{ day.format('MMM D') }}
+          </div>
         </div>
       </div>
     </div>
 
-    <div
-      ref="scroll"
-      class="scroll-container"
-      @scroll="onScroll"
-    >
-      <div class="scroll-inner">
-        <div class="body-inner">
+    <div class="body-row">
+      <div
+        class="rooms-scroll"
+        ref="rooms"
+        :style="{ paddingBottom: `${scrollbarHeight}px` }"
+      >
+        <div
+          class="room-cell"
+          v-for="room in roomStore.rooms"
+          :key="room.id"
+        >
+          {{ room.name }}
+        </div>
+      </div>
+      <div
+        class="grid-scroll"
+        ref="grid"
+        @scroll="onScroll"
+      >
+        <div class="grid-inner">
           <div
             class="row"
-            v-for="room in rooms"
+            v-for="room in roomStore.rooms"
             :key="room.id"
           >
-            <div class="cell room-cell">
-              {{ room.name }}
-            </div>
             <div
               class="cell day-cell"
               v-for="day in days"
               :key="day.format()"
             ></div>
           </div>
-        </div>
 
-        <div class="overlay-container">
-          <div
-            class="booking-bar"
-            v-for="booking in bookings"
-            :key="booking.id"
-            :style="{
-              top: `${booking.rowIndex * CELL_HEIGHT}px`,
-              left: `${booking.colIndex * CELL_WIDTH}px`,
-              width: `${booking.length * CELL_WIDTH}px`,
-            }"
-          >
-            {{ booking.label }}
+          <div class="overlay-container">
+            <div
+              class="booking-bar"
+              v-for="booking in bookings"
+              :key="booking.id"
+              :style="{
+                top: `${booking.rowIndex * CELL_HEIGHT}px`,
+                left: `${booking.colIndex * CELL_WIDTH}px`,
+                width: `${booking.length * CELL_WIDTH}px`,
+              }"
+            >
+              {{ booking.label }}
+            </div>
           </div>
         </div>
       </div>
@@ -58,44 +73,14 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef } from "vue";
 import dayjs from "dayjs";
+import { useRoomStore } from "@/stores/roomStore.ts";
+import { useBookingStore } from "@/stores/bookingStore.ts";
+import { generateDays } from "@/utils/dateTimeUtils.ts";
 
 const CELL_WIDTH = 120;
 const CELL_HEIGHT = 40;
 const WINDOW_DAYS = 120;
 const SHIFT_DAYS = 30;
-
-const rangeStart = ref(dayjs().subtract(WINDOW_DAYS / 2, "day"));
-const rangeEnd = ref(dayjs().add(WINDOW_DAYS / 2, "day"));
-const isDraggingScrollbar = ref<boolean>(false);
-
-const today = dayjs().startOf("day");
-const startIndex = ref(0);
-
-const rooms = Array.from({ length: 30 }, (_, i) => ({
-  id: i + 1,
-  name: `Room ${i + 1}`,
-}));
-
-const bookings = [
-  { id: 1, rowIndex: 2, colIndex: 3, length: 5, label: "Booking A" },
-  { id: 2, rowIndex: 7, colIndex: 10, length: 3, label: "Booking B" },
-  { id: 3, rowIndex: 12, colIndex: 20, length: 8, label: "Booking C" },
-  { id: 4, rowIndex: 20, colIndex: 25, length: 4, label: "Booking D" },
-];
-
-const headerRef = useTemplateRef<HTMLElement>('header');
-const scrollRef = useTemplateRef<HTMLElement>('scroll');
-
-function generateDays(start: dayjs.Dayjs, end: dayjs.Dayjs) {
-  const days = [];
-  let d = start.startOf("day");
-  while (d.isBefore(end)) {
-    days.push(d);
-    d = d.add(1, "day");
-  }
-  console.log(days.length)
-  return days;
-}
 
 let scrollLock = 0;
 
@@ -107,15 +92,32 @@ function withScrollLock(fn: () => void) {
   });
 }
 
+const headerRef = useTemplateRef<HTMLElement>('header');
+const gridRef = useTemplateRef<HTMLElement>('grid');
+const roomsRef = useTemplateRef<HTMLElement>('rooms');
+
+const roomStore = useRoomStore();
+const bookingStore = useBookingStore();
+
+const rangeStart = ref<dayjs. Dayjs>(dayjs().subtract(WINDOW_DAYS / 2, "day"));
+const rangeEnd = ref<dayjs. Dayjs>(dayjs().add(WINDOW_DAYS / 2, "day"));
 const days = ref(generateDays(rangeStart.value, rangeEnd.value));
+
+const isDraggingScrollbar = ref<boolean>(false);
+const scrollbarHeight = ref<number>(0)
+
+const bookings = [
+  { id: 1, rowIndex: 2, colIndex: 3, length: 5, label: "Booking A" },
+  { id: 2, rowIndex: 7, colIndex: 10, length: 3, label: "Booking B" },
+  { id: 3, rowIndex: 12, colIndex: 20, length: 8, label: "Booking C" },
+  { id: 4, rowIndex: 20, colIndex: 25, length: 4, label: "Booking D" },
+];
 
 const shiftRight = () => {
   if (isDraggingScrollbar.value) {
     return;
   }
-  const body = scrollRef.value;
-  const header = headerRef.value;
-  if (!body || !header) {
+  if (!gridRef.value || !headerRef.value) {
     return;
   }
 
@@ -128,18 +130,15 @@ const shiftRight = () => {
 
   days.value = [...keptDays, ...newDays];
 
-  body.scrollLeft -= SHIFT_DAYS * CELL_WIDTH;
-  header.scrollLeft -= SHIFT_DAYS * CELL_WIDTH;
-  console.log(days.value.map(day => day.format('MMM D')).join(', '));
+  gridRef.value.scrollLeft -= SHIFT_DAYS * CELL_WIDTH;
+  headerRef.value.scrollLeft -= SHIFT_DAYS * CELL_WIDTH;
 }
 
 const shiftLeft = () => {
   if (isDraggingScrollbar.value) {
     return;
   }
-  const body = scrollRef.value;
-  const header = headerRef.value;
-  if (!body || !header) {
+  if (!gridRef.value || !headerRef.value) {
     return;
   }
 
@@ -153,9 +152,8 @@ const shiftLeft = () => {
 
   days.value = [...newDays, ...keptDays];
 
-  body.scrollLeft += SHIFT_DAYS * CELL_WIDTH;
-  header.scrollLeft += SHIFT_DAYS * CELL_WIDTH;
-  console.log(days.value.map(day => day.format('MMM D')).join(', '));
+  gridRef.value.scrollLeft += SHIFT_DAYS * CELL_WIDTH;
+  headerRef.value.scrollLeft += SHIFT_DAYS * CELL_WIDTH;
 }
 
 const onScroll = () => {
@@ -163,18 +161,16 @@ const onScroll = () => {
     return;
   }
 
-  const body = scrollRef.value;
-  const header = headerRef.value;
-  if (!body || !header) {
+  if (!headerRef.value || !gridRef.value || !roomsRef.value) {
     return;
   }
 
-  header.scrollLeft = body.scrollLeft;
+  headerRef.value.scrollLeft = gridRef.value.scrollLeft;
 
   const leftThreshold = 10 * CELL_WIDTH;
-  const rightThreshold = body.scrollWidth - body.clientWidth - leftThreshold;
+  const rightThreshold = gridRef.value.scrollWidth - gridRef.value.clientWidth - leftThreshold;
 
-  const scrollLeft = body.scrollLeft;
+  const scrollLeft = gridRef.value.scrollLeft;
 
   if (scrollLeft > rightThreshold) {
     withScrollLock(() => shiftRight());
@@ -186,8 +182,7 @@ const onScroll = () => {
 };
 
 const scrollToDate = (date: dayjs.Dayjs, center = true) => {
-  const body = scrollRef.value;
-  if (!body) {
+  if (!gridRef.value) {
     return;
   }
 
@@ -196,11 +191,11 @@ const scrollToDate = (date: dayjs.Dayjs, center = true) => {
     return;
   }
 
-  body.scrollLeft = index * CELL_WIDTH;
+  gridRef.value.scrollLeft = index * CELL_WIDTH;
 }
 
 const onMouseDown = (e: MouseEvent) => {
-  if (e.target === scrollRef.value) {
+  if (e.target === gridRef.value) {
     isDraggingScrollbar.value = true;
   }
 }
@@ -214,6 +209,11 @@ onMounted(async () => {
   window.addEventListener('mousedown', onMouseDown);
   window.addEventListener('mouseup', onMouseUp);
 
+  const grid = gridRef.value;
+  if (grid) {
+    scrollbarHeight.value = grid.offsetHeight - grid.clientHeight;
+  }
+
   await nextTick();
   scrollToDate(dayjs());
 });
@@ -225,22 +225,29 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.calendar-container {
-  position: relative;
+.calendar-root {
   width: 100%;
-  height: 80vh;
+  height: 100%;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 40px 1fr;
   border: 1px solid #ccc;
   overflow: hidden;
 }
 
-/* HEADER */
-.header-container {
-  position: sticky;
-  top: 0;
-  z-index: 20;
+/* ================= HEADER ================= */
+
+.header-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  border-bottom: 1px solid #ccc;
+}
+
+.corner-cell {
   background: white;
+  border-right: 1px solid #ccc;
+}
+
+.header-scroll {
   overflow: hidden;
 }
 
@@ -249,25 +256,50 @@ onUnmounted(() => {
   min-width: max-content;
 }
 
-/* SCROLL AREA */
-.scroll-container {
-  position: relative;
-  overflow: auto;
+.day-header {
+  min-width: 120px;
+  height: 40px;
+  border-right: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  font-weight: 500;
+}
+
+/* ================= BODY ================= */
+
+.body-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
   height: 100%;
+  overflow: hidden;
+  min-height: 0;
 }
 
-.scroll-inner {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-width: max-content;
+.rooms-scroll {
+  overflow: hidden;
+  background: white;
+  border-right: 1px solid #ccc;
 }
 
-/* BODY CELLS */
-.body-inner {
-  position: relative;
+.room-cell {
+  height: 40px;
+  border-bottom: 1px solid #ddd;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  padding-left: 8px;
+  white-space: nowrap;
+}
+
+.grid-scroll {
+  overflow: auto;
+  min-height: 0;
+  position: relative;
+}
+
+.grid-inner {
+  position: relative;
   min-width: max-content;
 }
 
@@ -276,29 +308,19 @@ onUnmounted(() => {
 }
 
 .cell {
-  border: 1px solid #ddd;
   min-width: 120px;
   height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
   flex-shrink: 0;
 }
 
-.room-header,
-.room-cell {
-  position: sticky;
-  left: 0;
-  z-index: 5;
-  background: white;
-  min-width: 150px;
-}
+/* ================= OVERLAY ================= */
 
-/* OVERLAY */
 .overlay-container {
   position: absolute;
   top: 0;
-  left: 150px; /* width of fixed room column */
+  left: 0;
   pointer-events: none;
 }
 
@@ -310,7 +332,6 @@ onUnmounted(() => {
   border-radius: 6px;
   line-height: 38px;
   text-align: center;
-  color: #004;
   font-size: 12px;
   pointer-events: auto;
 }
