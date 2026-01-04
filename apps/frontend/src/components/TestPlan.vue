@@ -181,7 +181,7 @@ const onScroll = () => {
   }
 };
 
-const scrollToDate = (date: dayjs.Dayjs, center = true) => {
+const scrollToDate = (date: dayjs.Dayjs) => {
   if (!gridRef.value) {
     return;
   }
