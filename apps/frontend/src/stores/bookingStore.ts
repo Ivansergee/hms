@@ -2,29 +2,19 @@ import { defineStore } from "pinia";
 import { type BookingsByDayByRoomId } from "@/types/Booking";
 import { computed, ref } from "vue";
 import { bookingQueries } from "@/queries/bookingQueries";
-import { fromISOString, isSameDay, toISOString } from "@/utils/dateTimeUtils";
+import { isSameDay } from "@/utils/dateTimeUtils";
 import { getBookingsMap } from "@/utils/planTableUtils";
 import { type BookingShort, type BookingCreate } from "@shared/types/booking";
-
-interface DraggedBooking extends BookingShort {
-  clickedDay: string;
-}
 
 export const useBookingStore = defineStore('bookings', () => {
   const bookings = ref<BookingShort[]>([]);
   const rangeStart = ref<string>('');
   const rangeEnd = ref<string>('');
-  const draggedBooking = ref<DraggedBooking>();
 
   const fetch = async (from: string, to: string): Promise<void> => {
     rangeStart.value = from;
     rangeEnd.value = to;
-    const bookingsData = await bookingQueries.fetch(from, to);
-    bookings.value = bookingsData.map(booking => ({
-      ...booking,
-      start: fromISOString(booking.start),
-      end: fromISOString(booking.end),
-    }));
+    bookings.value = await bookingQueries.fetch(from, to);
   };
 
   const bookingsMap = computed<BookingsByDayByRoomId>(() => {
@@ -34,8 +24,8 @@ export const useBookingStore = defineStore('bookings', () => {
   const createBooking = async (createData: BookingCreate): Promise<BookingShort> => {
     const newBooking = await bookingQueries.createBooking({
       ...createData,
-      start: toISOString( createData.start),
-      end: toISOString(createData.end),
+      checkInDate: createData.checkInDate,
+      checkOutDate: createData.checkOutDate,
     });
     bookings.value.push(newBooking);
     return newBooking;
@@ -45,8 +35,10 @@ export const useBookingStore = defineStore('bookings', () => {
     const editedBooking = await bookingQueries.editPlacement(
       editData.id,
       {
-        start: toISOString(editData.start),
-        end: toISOString(editData.end),
+        checkInDate: editData.checkInDate,
+        checkOutDate: editData.checkOutDate,
+        arrivalMinutes: editData.arrivalMinutes,
+        departureMinutes: editData.departureMinutes,
         roomId: editData.roomId,
       }
     );
@@ -71,13 +63,12 @@ export const useBookingStore = defineStore('bookings', () => {
 
   const getByRoomAndDay = (roomId: number, day: string): BookingShort | undefined => {
     const roomBookings = getRoomBookings(roomId);
-    return roomBookings?.find(booking => isSameDay(booking.start, day));
+    return roomBookings?.find(booking => isSameDay(booking.checkInDate, day));
   };
 
   return {
     bookings,
     bookingsMap,
-    draggedBooking,
     fetch,
     createBooking,
     editPlacement,

@@ -24,10 +24,10 @@ export function getDaysRange(from: string, to: string): string[] {
   return dates;
 }
 
-export function generateDays(start: dayjs.Dayjs, end: dayjs.Dayjs) {
+export function generateDays(start: dayjs.Dayjs, end: dayjs.Dayjs): dayjs.Dayjs[] {
   const days = [];
   let d = start.startOf("day");
-  while (d.isBefore(end)) {
+  while (d.isSameOrBefore(end)) {
     days.push(d);
     d = d.add(1, "day");
   }

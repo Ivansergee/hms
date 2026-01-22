@@ -5,8 +5,10 @@ import type { Folio } from "./folio";
 export interface BookingShort {
     id: number;
     roomId: number;
-    start: string;
-    end: string;
+    checkInDate: string;
+    checkOutDate: string;
+    arrivalMinutes: number,
+    departureMinutes: number,
     status: BookingStatus;
     mainGuestId: number;
     guests: GuestShort[];
@@ -15,8 +17,10 @@ export interface BookingShort {
 export interface BookingDetails {
     id: number;
     roomId: number;
-    start: string;
-    end: string;
+    checkInDate: string;
+    checkOutDate: string;
+    arrivalMinutes: number,
+    departureMinutes: number,
     status: BookingStatus;
     mainGuestId: number;
     guests: Guest[];
@@ -25,14 +29,18 @@ export interface BookingDetails {
 
 export interface BookingCreate {
     roomId: number;
-    start: string;
-    end: string;
+    checkInDate: string;
+    checkOutDate: string;
+    arrivalMinutes: number,
+    departureMinutes: number,
     guests: GuestCreate[];
 }
 
 export interface BookingEditPlacement {
-    start: string;
-    end: string;
+    checkInDate: string;
+    checkOutDate: string;
+    arrivalMinutes: number,
+    departureMinutes: number,
     roomId: number;
 }
 

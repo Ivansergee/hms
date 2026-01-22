@@ -4,16 +4,20 @@ import { BookingStatus } from "@shared/enums/BookingStatus";
 import { guestModel } from "@/models/guestModel";
 
 const create = t.Object({
-    start: t.String({ format: 'date-time' }),
-    end: t.String({ format: 'date-time' }),
+    checkInDate: t.String({ format: 'date' }),
+    checkOutDate: t.String({ format: 'date' }),
+    arrivalMinutes: t.Optional(t.Integer()),
+    departureMinutes: t.Optional(t.Integer()),
     status: t.Optional(t.Enum(enumToTypebox(BookingStatus))),
     roomId: t.Integer(),
     guests: t.Array(guestModel.create),
-});
+})
 
 const update = t.Object({
-    start: t.String({ format: 'date-time' }),
-    end: t.String({ format: 'date-time' }),
+    checkInDate: t.String({ format: 'date' }),
+    checkOutDate: t.String({ format: 'date' }),
+    arrivalMinutes: t.Optional(t.Integer()),
+    departureMinutes: t.Optional(t.Integer()),
     roomId: t.Integer(),
     guestIds: t.Array(t.Integer()),
     mainGuestId: t.Integer(),
@@ -21,16 +25,18 @@ const update = t.Object({
 });
 
 const filter = t.Object({
-    start: t.Optional(t.String({ format: 'date-time' })),
-    end: t.Optional(t.String({ format: 'date-time' })),
+    checkInDate: t.String({ format: 'date' }),
+    checkOutDate: t.String({ format: 'date' }),
     roomId: t.Optional(t.Integer()),
     guestId: t.Optional(t.Integer()),
     status: t.Optional(t.Enum(enumToTypebox(BookingStatus))),
 });
 
 const editPlacement = t.Object({
-    start: t.String({ format: 'date-time' }),
-    end: t.String({ format: 'date-time' }),
+    checkInDate: t.String({ format: 'date' }),
+    checkOutDate: t.String({ format: 'date' }),
+    arrivalMinutes: t.Optional(t.Integer()),
+    departureMinutes: t.Optional(t.Integer()),
     roomId: t.Integer(),
 })
 

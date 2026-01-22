@@ -55,9 +55,9 @@ const mainGuestName = computed<string>(() => {
 const getFormattedValue = (booking: BookingShort, property: BookingPropertyForChange) => {
   switch (property) {
     case BookingPropertyForChange.START:
-      return getFormattedDate(booking.start);
+      return getFormattedDate(booking.checkInDate);
     case BookingPropertyForChange.END:
-      return getFormattedDate(booking.end);
+      return getFormattedDate(booking.checkOutDate);
     case BookingPropertyForChange.ROOM:
       return roomStore.getById(booking.roomId)?.name;
   }

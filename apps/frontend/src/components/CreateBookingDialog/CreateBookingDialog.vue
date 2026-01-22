@@ -138,8 +138,8 @@ const isLoading = ref<boolean>(false);
 const stepRef = ref();
 
 const bookingDates = computed<string | undefined>(() => {
-  if (innerData.value.start && innerData.value.end) {
-    return `${getFormattedDate(innerData.value.start)} - ${getFormattedDate(innerData.value.end)}`;
+  if (innerData.value.checkInDate && innerData.value.checkOutDate) {
+    return `${getFormattedDate(innerData.value.checkInDate)} - ${getFormattedDate(innerData.value.checkOutDate)}`;
   }
 });
 
@@ -171,14 +171,17 @@ const reset = (): void => {
 
 const onCreate = async (): Promise<void> => {
   const data = innerData.value;
-  if (data.roomId === undefined || !data.start || !data.end || !isGuestsValid(data.guests)) {
+  if (data.roomId === undefined || !data.checkInDate || !data.checkOutDate || !isGuestsValid(data.guests)) {
     return;
   }
+  // TODO: fix times
   await bookingStore.createBooking({
     ...data,
     roomId: data.roomId,
-    start: data.start,
-    end: data.end,
+    checkInDate: data.checkInDate,
+    checkOutDate: data.checkOutDate,
+    arrivalMinutes: 0,
+    departureMinutes: 0,
     guests: data.guests,
   });
   emit('close');

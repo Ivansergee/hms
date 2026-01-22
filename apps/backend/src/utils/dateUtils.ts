@@ -1,7 +1,7 @@
-import dayjs from "dayjs";
+export function formatDate(d: Date): string {
+    return d.toISOString().slice(0, 10);
+}
 
-export function formatDate(date: Date, withTime: boolean = true): string {
-    return withTime
-        ? dayjs(date).format('YYYY-MM-DD HH:mm')
-        : dayjs(date).format('YYYY-MM-DD');
+export function formatDateTime(d: Date): string {
+    return d.toISOString();
 }

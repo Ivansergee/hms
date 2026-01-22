@@ -10,8 +10,8 @@ export const bookingQueries = {
   async fetch(from: string, to: string): Promise<BookingShort[]> {
 
     return fetcher.post<BookingShort[]>('/booking/filter', {
-      start: from,
-      end: to,
+      checkInDate: from,
+      checkOutDate: to,
     });
   },
 
@@ -28,14 +28,7 @@ export const bookingQueries = {
   // },
 
   async editPlacement(id: number, editData: BookingEditPlacement): Promise<BookingShort> {
-    return fetcher.patch<BookingShort>(
-      `/booking/${id}/placement`,
-      {
-        start: editData.start,
-        end: editData.end,
-        roomId: editData.roomId,
-      }
-    );
+    return fetcher.patch<BookingShort>(`/booking/${id}/placement`, editData);
   },
 
   async deleteBooking(id: number): Promise<boolean> {

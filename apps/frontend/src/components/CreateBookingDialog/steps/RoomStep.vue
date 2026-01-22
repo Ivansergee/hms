@@ -77,12 +77,12 @@ const validate = async (): Promise<boolean> => {
 defineExpose({ validate });
 
 onMounted(async () => {
-  const { start, end } = props.state;
-  if (!start || !end) {
+  const { checkInDate, checkOutDate } = props.state;
+  if (!checkInDate || !checkOutDate) {
     return;
 
   }
-  const availableRooms = await roomStore.getAvailableRooms(start.split(' ')[0], end.split(' ')[0]);
+  const availableRooms = await roomStore.getAvailableRooms(checkInDate.split(' ')[0], checkOutDate.split(' ')[0]);
   roomOptions.value = availableRooms.map(room => ({
     value: room.id,
     label: room.name,

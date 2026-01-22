@@ -9,8 +9,10 @@ function formatDetails(bookingData: BookingDetailsRaw): BookingDetails {
     return {
         id: bookingData.id,
         roomId: bookingData.roomId,
-        start: formatDate(bookingData.start),
-        end: formatDate(bookingData.end),
+        checkInDate: formatDate(bookingData.checkInDate),
+        checkOutDate: formatDate(bookingData.checkOutDate),
+        arrivalMinutes: bookingData.arrivalMinutes,
+        departureMinutes: bookingData.departureMinutes,
         status: bookingData.status as BookingStatus,
         mainGuestId: bookingData.mainGuest.id,
         guests: bookingData.guests.map(guestData => guestFormatter.formatGuest(guestData)),

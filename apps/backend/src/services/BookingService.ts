@@ -5,6 +5,7 @@ import { BookingCreate, BookingDetails, BookingEditPlacement, BookingShort } fro
 import { BookingStatus } from "@shared/enums/BookingStatus";
 import { bookingDbQueries } from "@/dbQueries/bookingDbQueries";
 import { bookingFormatter } from "@/formatters/bookingFormatter";
+import { formatDate, formatDateTime } from "@/utils/dateUtils";
 
 export class BookingService {
     getAll(): Promise<Booking[]> {
@@ -46,8 +47,10 @@ export class BookingService {
 
             return tx.booking.create({
                 data: {
-                    start: bookingData.start,
-                    end: bookingData.end,
+                    checkInDate: new Date(bookingData.checkInDate),
+                    checkOutDate: new Date(bookingData.checkOutDate),
+                    arrivalMinutes: bookingData.arrivalMinutes,
+                    departureMinutes: bookingData.departureMinutes,
                     room: { connect: { id: bookingData.roomId } },
                     mainGuest: { connect: { id: mainGuest.id } },
                     guests: {
@@ -87,15 +90,15 @@ export class BookingService {
     async filter(filter: BookingFilterDTO) {
         const where: Prisma.BookingWhereInput = {};
 
-        if (filter.start && filter.end) {
+        if (filter.checkInDate && filter.checkOutDate) {
             where.AND = [
-                { end: { gte: new Date(filter.start) } },
-                { start: { lte: new Date(filter.end) } },
+                { checkOutDate: { gte: new Date(filter.checkInDate) } },
+                { checkInDate: { lte: new Date(filter.checkOutDate) } },
             ];
-        } else if (filter.start) {
-            where.start = new Date(filter.start);
-        } else if (filter.end) {
-            where.end = new Date(filter.end);
+        } else if (filter.checkInDate) {
+            where.checkInDate = new Date(filter.checkInDate);
+        } else if (filter.checkOutDate) {
+            where.checkOutDate = new Date(filter.checkOutDate);
         }
 
         if (filter.roomId) {
@@ -112,12 +115,8 @@ export class BookingService {
             };
         }
 
-        return prisma.booking.findMany({
+        const bookings = await prisma.booking.findMany({
             where,
-            omit: {
-                createdAt: true,
-                updatedAt: true,
-            },
             include: {
                 guests: {
                     select: {
@@ -128,27 +127,43 @@ export class BookingService {
                 },
             },
         });
+
+        return bookings.map(booking => ({
+            ...booking,
+            checkInDate: formatDate(booking.checkInDate),
+            checkOutDate: formatDate(booking.checkOutDate),
+        }));
     }
 
     async editPlacement(id: number, data: BookingEditPlacement): Promise<BookingShort> {
+        const checkInDate = new Date(`${data.checkInDate}T00:00:00Z`);
+        const checkOutDate = new Date(`${data.checkOutDate}T00:00:00Z`);
+
         const updatedBooking = await prisma.booking.update({
             where: { id },
-            data,
+            data: {
+                ...data,
+                checkInDate,
+                checkOutDate,
+            },
             include: {
                 guests: {
                     select: {
                         id: true,
                         firstName: true,
                         lastName: true,
-                    }
+                    },
                 },
             },
         });
+
         return {
             ...updatedBooking,
             status: updatedBooking.status as BookingStatus,
-            start: updatedBooking.start.toISOString(),
-            end: updatedBooking.end.toISOString(),
+            checkInDate: formatDate(updatedBooking.checkInDate),
+            checkOutDate: formatDate(updatedBooking.checkOutDate),
+            arrivalMinutes: updatedBooking.arrivalMinutes,
+            departureMinutes: updatedBooking.departureMinutes,
         };
     }
 }

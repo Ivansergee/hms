@@ -84,11 +84,11 @@ const emit = defineEmits<{
 const formRef = ref();
 
 const formModel = ref<Partial<FormModel>>({
-  range: !props.state.start || !props.state.end
+  range: !props.state.checkInDate || !props.state.checkOutDate
     ? undefined
-    : [props.state.start, props.state.end],
-  checkInTime: props.state.start?.split(' ')[1] ?? '14:00',
-  checkOutTime: props.state.end?.split(' ')[1] ?? '12:00',
+    : [props.state.checkInDate, props.state.checkOutDate],
+  checkInTime: props.state.checkInDate?.split(' ')[1] ?? '14:00',
+  checkOutTime: props.state.checkOutDate?.split(' ')[1] ?? '12:00',
 })
 
 const onCheckInTimeChange = (value: Dayjs): void => {
@@ -104,8 +104,8 @@ const onCheckOutTimeChange = (value: Dayjs): void => {
 const emitChange = (): void => {
   emit('change', {
     ...props.state,
-    start: `${formModel.value.range?.[0]} ${formModel.value.checkInTime}`,
-    end: `${formModel.value.range?.[1]} ${formModel.value.checkOutTime}`,
+    checkInDate: `${formModel.value.range?.[0]} ${formModel.value.checkInTime}`,
+    checkOutDate: `${formModel.value.range?.[1]} ${formModel.value.checkOutTime}`,
   });
 };
 

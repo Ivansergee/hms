@@ -1,6 +1,6 @@
 <template>
   <div class="plan-view">
-    <TestPlan />
+    <PlanTable />
   </div>
 </template>
 <script setup lang="ts">
