@@ -47,6 +47,9 @@
     "next": "Next",
     "room": "Room"
   },
+  "DateNavigator": {
+    "today": "Today"
+  },
   "DateStep": {
     "checkInTime": "Check-in time",
     "checkInTimeRequiredError": "Enter check in time",

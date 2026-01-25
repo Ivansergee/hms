@@ -47,6 +47,9 @@
     "next": "Далее",
     "room": "Комната"
   },
+  "DateNavigator": {
+    "today": "Сегодня"
+  },
   "DateStep": {
     "checkInTime": "Время заезда",
     "checkInTimeRequiredError": "Укажите время заезда",

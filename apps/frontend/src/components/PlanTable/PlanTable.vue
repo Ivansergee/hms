@@ -1,7 +1,12 @@
 <template>
   <div class="calendar-root">
     <div class="header-row">
-      <div class="corner-cell"></div>
+      <div class="corner-cell">
+        <ActionsPanel
+          :currentDate="currentDate"
+          @navigate="navigateToDate"
+        />
+      </div>
 
       <div class="header-scroll" ref="header">
         <div class="header-inner">
@@ -12,7 +17,9 @@
               :key="month.key"
               :style="{ width: `${month.days * CELL_WIDTH}px` }"
             >
-              {{ month.label }}
+              <span class="month-label">
+                {{ month.label }}
+              </span>
             </div>
           </div>
 
@@ -119,7 +126,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watchEffect } from "vue";
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  useTemplateRef,
+  watch,
+  watchEffect
+} from "vue";
 import dayjs from "dayjs";
 import { useRoomStore } from "@/stores/roomStore.ts";
 import { useBookingStore } from "@/stores/bookingStore.ts";
@@ -163,11 +179,15 @@ const gridRef = useTemplateRef<HTMLElement>('grid');
 const roomStore = useRoomStore();
 const bookingStore = useBookingStore();
 
-const rangeStart = ref<dayjs. Dayjs>(
-  dayjs().subtract(WINDOW_DAYS / 2, "day").startOf('day'),
+const currentDate = ref(dayjs().startOf('day'));
+
+const rangeStart = computed(() =>
+  currentDate.value
+    .subtract(Math.floor(WINDOW_DAYS / 2), 'day')
+    .startOf('day')
 );
-const rangeEnd = computed<dayjs. Dayjs>(
-  () => rangeStart.value.add(WINDOW_DAYS, 'day').startOf('day'),
+const rangeEnd = computed(() =>
+  rangeStart.value.add(WINDOW_DAYS, 'day')
 );
 
 const days = computed<dayjs.Dayjs[]>(() => generateDays(rangeStart.value, rangeEnd.value));
@@ -358,7 +378,7 @@ const shiftRight = (): void => {
     return;
   }
 
-  rangeStart.value = rangeStart.value.add(SHIFT_DAYS, 'day').startOf('day');
+  currentDate.value = currentDate.value.add(SHIFT_DAYS, 'day');
 
   gridScrollRef.value.scrollLeft -= SHIFT_DAYS * CELL_WIDTH;
   headerRef.value.scrollLeft -= SHIFT_DAYS * CELL_WIDTH;
@@ -372,7 +392,7 @@ const shiftLeft = (): void => {
     return;
   }
 
-  rangeStart.value = rangeStart.value.subtract(SHIFT_DAYS, 'day').startOf('day');
+  currentDate.value = currentDate.value.subtract(SHIFT_DAYS, 'day');
 
   gridScrollRef.value.scrollLeft += SHIFT_DAYS * CELL_WIDTH;
   headerRef.value.scrollLeft += SHIFT_DAYS * CELL_WIDTH;
@@ -415,6 +435,10 @@ const scrollToDate = (date: dayjs.Dayjs): void => {
 
   gridScrollRef.value.scrollLeft = index * CELL_WIDTH;
 }
+
+const navigateToDate = (date: dayjs.Dayjs) => {
+  currentDate.value = date.startOf('day');
+};
 
 const onBarClick = async (booking: BookingShort): Promise<void> => {
   bookingDetails.value = await bookingQueries.getDetails(booking.id);
@@ -626,6 +650,16 @@ const onAutoScroll = (e: MouseEvent) => {
   }
 };
 
+watch(currentDate, async (date: dayjs.Dayjs) => {
+  bookingStore.fetch(
+    rangeStart.value.format('YYYY-MM-DD'),
+    rangeEnd.value.format('YYYY-MM-DD')
+  );
+
+  await nextTick();
+  scrollToDate(date);
+});
+
 watchEffect(() => {
   if (draggedBooking.value) {
     highlightedRoomId.value = draggedBooking.value.roomId;
@@ -679,7 +713,7 @@ onUnmounted(() => {
 
 .header-row {
   display: grid;
-  grid-template-columns: 150px 1fr;
+  grid-template-columns: 215px 1fr;
   grid-template-rows: 40px 40px;
   border-bottom: 1px solid #ccc;
 }
@@ -708,12 +742,21 @@ onUnmounted(() => {
 }
 
 .month-header {
+  position: relative;
   height: 40px;
   border-right: 1px solid #bbb;
+  background: white;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: white;
+}
+
+.month-label {
+  position: sticky;
+  left: 10px;
+  white-space: nowrap;
+  text-transform: capitalize;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .day-header {
@@ -731,7 +774,7 @@ onUnmounted(() => {
 
 .body-row {
   display: grid;
-  grid-template-columns: 150px 1fr;
+  grid-template-columns: 215px 1fr;
   height: 100%;
   overflow: hidden;
   min-height: 0;
