@@ -14,8 +14,8 @@ export class RoomService extends BaseService<
     async getAvailableIds(start: string, end: string): Promise<number[]> {
         const overlappingBookings = await prisma.booking.findMany({
             where: {
-                start: { lt: new Date(end) },
-                end: { gt: new Date(start) },
+                checkInDate: { lt: new Date(end) },
+                checkOutDate: { gt: new Date(start) },
             },
             select: { roomId: true },
         });

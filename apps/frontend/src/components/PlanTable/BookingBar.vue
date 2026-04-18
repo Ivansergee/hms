@@ -130,7 +130,7 @@ const onClick = () => {
 <style scoped>
 .booking-bar {
   position: absolute;
-  height: 38px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -154,6 +154,10 @@ const onClick = () => {
 
 .booking-bar.ghost {
   cursor: grabbing;
+}
+
+.booking-bar.ghost.creating {
+  cursor: ew-resize;
 }
 
 .resize-handle {

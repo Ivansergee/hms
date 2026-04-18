@@ -21,4 +21,5 @@ export interface GuestShort {
     lastName: string;
 }
 
-export type GuestCreate = Omit<Guest, 'id' | 'createdAt' | 'updatedAt'> & { id?: number };
+export type GuestCreate = Omit<Guest, 'id' | 'createdAt' | 'updatedAt'>;
+export type GuestInput = { id: number } | Omit<GuestCreate, 'id'>;

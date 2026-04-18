@@ -20,7 +20,7 @@
       <a-col :span="12">
         <a-table
           class="scroll-table"
-          :columns="groupsCol"
+          :columns="groupCols"
           :data-source="groups"
           :pagination="false"
           :row-class-name="getGroupRowClassName"
@@ -33,7 +33,7 @@
       <a-col :span="12">
         <a-table
           class="scroll-table"
-          :columns="servicesCol"
+          :columns="serviceCols"
           :data-source="services"
           :pagination="false"
           :row-class-name="getServiceRowClassName"
@@ -109,7 +109,7 @@ const emit = defineEmits<{
 
 const serviceStore = useServiceStore();
 
-const servicesCol: ColumnType[] = [
+const serviceCols: ColumnType[] = [
   {
     title: t('name'),
     dataIndex: 'name',
@@ -123,7 +123,7 @@ const servicesCol: ColumnType[] = [
   },
 ];
 
-const groupsCol: ColumnType[] = [
+const groupCols: ColumnType[] = [
   {
     title: t('group'),
     dataIndex: 'name',

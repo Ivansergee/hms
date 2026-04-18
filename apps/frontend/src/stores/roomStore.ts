@@ -2,12 +2,15 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import type { Room } from "@/types/Room";
 import { roomQueries } from "@/queries/roomQueries";
+import type { Category } from "@shared/types/category.ts";
 
 export const useRoomStore = defineStore('rooms', () => {
   const rooms = ref<Room[]>([]);
+  const categories = ref<Category[]>([]);
 
   const fetch = async () => {
-    rooms.value = await roomQueries.getAll();
+    rooms.value = await roomQueries.getAllRooms();
+    categories.value = await roomQueries.getAllCategories();
   };
 
   const getById = (id: number): Room | undefined => {
@@ -21,6 +24,7 @@ export const useRoomStore = defineStore('rooms', () => {
 
   return {
     rooms,
+    categories,
     fetch,
     getById,
     getAvailableRooms,

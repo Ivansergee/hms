@@ -1,9 +1,7 @@
 import { defineStore } from "pinia";
-import { type BookingsByDayByRoomId } from "@/types/Booking";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { bookingQueries } from "@/queries/bookingQueries";
 import { isSameDay } from "@/utils/dateTimeUtils";
-import { getBookingsMap } from "@/utils/planTableUtils";
 import { type BookingShort, type BookingCreate } from "@shared/types/booking";
 
 export const useBookingStore = defineStore('bookings', () => {
@@ -17,16 +15,8 @@ export const useBookingStore = defineStore('bookings', () => {
     bookings.value = await bookingQueries.fetch(from, to);
   };
 
-  const bookingsMap = computed<BookingsByDayByRoomId>(() => {
-    return getBookingsMap(bookings.value, rangeStart.value, rangeEnd.value);
-  });
-
   const createBooking = async (createData: BookingCreate): Promise<BookingShort> => {
-    const newBooking = await bookingQueries.createBooking({
-      ...createData,
-      checkInDate: createData.checkInDate,
-      checkOutDate: createData.checkOutDate,
-    });
+    const newBooking = await bookingQueries.createBooking(createData);
     bookings.value.push(newBooking);
     return newBooking;
   };
@@ -37,8 +27,6 @@ export const useBookingStore = defineStore('bookings', () => {
       {
         checkInDate: editData.checkInDate,
         checkOutDate: editData.checkOutDate,
-        arrivalMinutes: editData.arrivalMinutes,
-        departureMinutes: editData.departureMinutes,
         roomId: editData.roomId,
       }
     );
@@ -68,7 +56,6 @@ export const useBookingStore = defineStore('bookings', () => {
 
   return {
     bookings,
-    bookingsMap,
     fetch,
     createBooking,
     editPlacement,

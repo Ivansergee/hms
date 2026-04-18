@@ -3,114 +3,156 @@
     class="create-booking-dialog"
     :open="open"
     :confirm-loading="isLoading"
-    :closable="false"
     :mask-closable="false"
     :title="t('newBooking')"
+    :ok-text="t('create')"
     :body-style="{
       'overflow-y': 'auto',
+      'overflow-x': 'hidden',
       'min-height': '55vh',
-      'max-height': '78vh'
+      'max-height': '75vh'
     }"
     width="60vw"
     :destroy-on-close="true"
-    @cancel="onCancel"
+    @ok="save"
+    @cancel="close"
   >
-    <template #footer>
-      <div class="navigation-buttons">
-        <div>
-          <a-button
-            v-if="currentStep > 0"
-            type="primary"
-            @click="goBack"
-          >
-            <LeftOutlined />
-            {{ t('back') }}
-          </a-button>
-        </div>
-        <div>
-          <a-button
-            v-if="currentStep !== 2"
-            type="primary"
-            @click="goNext"
-          >
-            {{ t('next') }}
-            <RightOutlined />
-          </a-button>
-          <a-button
-            v-else
-            type="primary"
-            @click="onCreate"
-          >
-            {{ t('create') }}
-          </a-button>
-        </div>
-      </div>
-    </template>
-    <a-button-group class="control-buttons">
-      <a-button
-        type="text"
-        :title="t('minimize')"
-        :icon="h(DownOutlined)"
-        @click="onMinimize"
-      />
-      <a-button
-        type="text"
-        :title="t('close')"
-        :icon="h(CloseOutlined)"
-        @click="onCancel"
-      />
-    </a-button-group>
-    <a-steps
-      :current="currentStep"
-      type="navigation"
-      size="small"
-      :style="stepStyle"
+    <a-form
+      ref="formRef"
+      :model="form"
+      :rules="rules"
+      :hideRequiredMark="true"
+      :colon="false"
+      layout="vertical"
     >
-      <a-step
-        :title="t('dates')"
-        :description="bookingDates"
-      />
-      <a-step
-        :title="t('room')"
-        :description="bookingRoom"
-      />
-      <a-step
-        :title="t('guests')"
-      />
-    </a-steps>
+      <a-divider orientation="left">
+        {{ t('datesAndRoom') }}
+      </a-divider>
+      <a-row :gutter="12" align="stretch">
+        <a-col span="12" style="display: flex">
+          <a-card class="w100" size="small">
+            <a-form-item
+              :label="t('range')"
+              name="range"
+            >
+              <a-range-picker
+                class="w100"
+                v-model:value="form.range"
+                :placeholder="[t('startDate'), t('endDate')]"
+                :format="['DD.MM.YYYY', 'DD.MM.YYYY']"
+                value-format="YYYY-MM-DD"
+                @change="onRangeChange"
+              />
+            </a-form-item>
+            <a-row :gutter="12">
+              <a-col span="12">
+                <a-form-item
+                  :label="t('checkInTime')"
+                  name="checkInTime"
+                >
+                  <a-time-picker
+                    v-model:value="form.checkInTime"
+                    class="w100"
+                    format="HH:mm"
+                    value-format="HH:mm"
+                    :placeholder="t('checkInTime')"
+                    :allowClear="false"
+                    :showNow="false"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col span="12">
+                <a-form-item
+                  :label="t('checkOutTime')"
+                  name="checkOutTime"
+                >
+                  <a-time-picker
+                    v-model:value="form.checkOutTime"
+                    class="w100"
+                    format="HH:mm"
+                    value-format="HH:mm"
+                    :placeholder="t('checkOutTime')"
+                    :allowClear="false"
+                    :showNow="false"
+                  />
+                </a-form-item>
+              </a-col>
+            </a-row>
+          </a-card>
+        </a-col>
+        <a-col span="12" style="display: flex">
+          <a-card size="small">
+            <RoomSelector
+              v-model="form.roomId"
+              :available-rooms="availableRooms"
+              :is-range-set="!!form.range"
+            />
+          </a-card>
+        </a-col>
+      </a-row>
 
-    <component
-      :is="stepComponents[currentStep]"
-      ref="stepRef"
-      :state="innerData"
-      @change="onChange"
-    />
+      <a-divider orientation="left">
+        {{ t('guests') }}
+      </a-divider>
+      <div
+        v-for="(guest, index) in form.guests"
+        :key="guest.uiId"
+      >
+        <GuestForm
+          :guest="guest"
+          :is-main-guest="index === 0"
+          :index="index + 1"
+          :is-remove-button-visible="form.guests.length > 1"
+          @remove="removeGuest(index)"
+        />
+      </div>
+      <a-button
+        class="add-guest-button"
+        type="dashed"
+        @click="addGuest"
+      >
+        <PlusOutlined />
+        {{ t('addGuest') }}
+      </a-button>
+    </a-form>
   </a-modal>
 </template>
 
 <script setup lang="ts">
-import { computed, h, ref, watch } from "vue";
-import type { BookingFormState } from "@shared/types/booking";
-import { useTrayStore } from "@/stores/trayStore";
-import {
-  CloseOutlined,
-  DownOutlined,
-  RightOutlined,
-  LeftOutlined,
-} from "@ant-design/icons-vue";
+import { reactive, ref, watch } from "vue";
 import { useBookingStore } from "@/stores/bookingStore";
-import DateStep from "@/components/CreateBookingDialog/steps/DateStep.vue";
-import RoomStep from "@/components/CreateBookingDialog/steps/RoomStep.vue";
-import GuestsStep from "@/components/CreateBookingDialog/steps/GuestsStep.vue";
-import type { GuestCreate } from "@shared/types/guest";
+import type { GuestInput } from "@shared/types/guest";
 import { useScopedI18n } from "@/composables/useScopedI18n";
-import { getFormattedDate } from "@/utils/dateTimeUtils";
 import { useRoomStore } from "@/stores/roomStore";
+import type { RuleObject } from "ant-design-vue/es/form";
+import { PlusOutlined } from "@ant-design/icons-vue";
+import type { Room } from "@/types/Room.ts";
+import type { Dayjs } from "dayjs";
+import { type BookingPlacement } from "@shared/types/booking.ts";
+import { timeToMinutes } from "@/utils/dateTimeUtils.ts";
 
+export interface GuestFormState {
+  uiId: number;
+  id?: number;
+  firstName?: string;
+  lastName?: string;
+  parentName?: string;
+  birthdate?: string;
+  phone?: string;
+  email?: string;
+}
+
+interface FormState {
+  range?: [string, string];
+  checkInTime: string;
+  checkOutTime: string;
+  roomId?: number;
+  guests: GuestFormState[];
+}
 
 interface Props {
   open: boolean;
-  state?: BookingFormState;
+  state?: BookingPlacement;
 }
 
 defineOptions({ name: 'CreateBookingDialog' });
@@ -119,104 +161,134 @@ const { t } = useScopedI18n();
 const props = defineProps<Props>();
 const emit = defineEmits<{
   (event: 'close'): void;
-  (event: 'minimize', state: BookingFormState): void;
 }>();
 
-const trayStore = useTrayStore();
 const bookingStore = useBookingStore();
 const roomStore = useRoomStore();
 
-const stepComponents = [
-  DateStep,
-  RoomStep,
-  GuestsStep,
-]
-
-const innerData = ref<BookingFormState>(props.state ?? { id: Date.now(), guests: [], currentStep: 0});
-const currentStep = ref<number>(props.state?.currentStep ?? 0);
-const isLoading = ref<boolean>(false);
-const stepRef = ref();
-
-const bookingDates = computed<string | undefined>(() => {
-  if (innerData.value.checkInDate && innerData.value.checkOutDate) {
-    return `${getFormattedDate(innerData.value.checkInDate)} - ${getFormattedDate(innerData.value.checkOutDate)}`;
-  }
+const createInitialFormState = (): FormState => ({
+  range: undefined,
+  checkInTime: '14:00',
+  checkOutTime: '12:00',
+  roomId: undefined,
+  guests: [{ uiId: Date.now() }],
 });
 
-const bookingRoom = computed<string | undefined>(() => {
-  if (innerData.value.roomId) {
-    return roomStore.getById(innerData.value.roomId)?.name;
-  }
-});
+const form = reactive<FormState>(createInitialFormState());
 
-const goNext = async () => {
-  const isValid = await stepRef.value?.validate?.();
-  if (isValid) {
-    currentStep.value = currentStep.value + 1;
-  }
-};
-
-const goBack = () => {
-  currentStep.value = currentStep.value - 1;
-};
-
-const isUnsaved = computed<boolean>(() => {
-  return JSON.stringify(props.state) !== JSON.stringify(innerData.value);
-});
-
-const reset = (): void => {
-  innerData.value = { id: Date.now(), guests: []};
-  currentStep.value = 0;
-};
-
-const onCreate = async (): Promise<void> => {
-  const data = innerData.value;
-  if (data.roomId === undefined || !data.checkInDate || !data.checkOutDate || !isGuestsValid(data.guests)) {
-    return;
-  }
-  // TODO: fix times
-  await bookingStore.createBooking({
-    ...data,
-    roomId: data.roomId,
-    checkInDate: data.checkInDate,
-    checkOutDate: data.checkOutDate,
-    arrivalMinutes: 0,
-    departureMinutes: 0,
-    guests: data.guests,
-  });
-  emit('close');
-};
-
-const isGuestsValid = (guests: Array<Partial<GuestCreate>>): guests is GuestCreate[] => {
-  return guests.every(guest => !!guest.firstName && !!guest.lastName);
+const rules: { [key: string]: RuleObject[] } = {
+  range: [{
+    required: true,
+    message: t('rangeRequiredError'),
+    type: 'array',
+  }],
+  checkInTime: [{
+    required: true,
+    message: t('checkInTimeRequiredError'),
+  }],
+  checkOutTime: [{
+    required: true,
+    message: t('checkOutTimeRequiredError'),
+  }],
+  roomId: [{
+    required: true,
+    message: t('roomRequiredError'),
+  }],
 }
 
-const onCancel = (): void => {
-  reset();
+const isLoading = ref<boolean>(false);
+const availableRooms = ref<Room[]>([]);
+
+const isFormValid = (form: FormState): boolean => {
+  if (form.roomId === undefined || !form.range?.[0] || !form.range?.[1]) {
+    return false;
+  }
+  if (!form.guests) {
+    return false;
+  }
+  return form.guests.every((guest) => {
+    if (guest.id) {
+      return true;
+    }
+    return !!guest.firstName && !!guest.lastName;
+  });
+};
+
+const mapGuestsToInput = (guests: GuestFormState[]): GuestInput[] => {
+  return guests.map((guest) => {
+    if (guest.id) {
+      return { id: guest.id };
+    }
+
+    return {
+      firstName: guest.firstName!,
+      lastName: guest.lastName!,
+      parentName: guest.parentName,
+      birthdate: guest.birthdate,
+      phone: guest.phone,
+      email: guest.email,
+    };
+  });
+};
+
+const save = async (): Promise<void> => {
+  if (!isFormValid(form)) {
+    return;
+  }
+  await bookingStore.createBooking({
+    ...form,
+    roomId: form.roomId!,
+    checkInDate: form.range![0],
+    checkOutDate: form.range![1],
+    arrivalMinutes: timeToMinutes(form.checkInTime),
+    departureMinutes: timeToMinutes(form.checkOutTime),
+    guests: mapGuestsToInput(form.guests),
+    mainGuestIndex: 0,
+  });
+  close()
+};
+
+const addGuest = (): void => {
+  if (!form.guests) {
+    return;
+  }
+  form.guests.push({ uiId: Date.now() })
+};
+
+const removeGuest = (index: number): void => {
+  if (!form.guests) {
+    return;
+  }
+  form.guests.splice(index, 1);
+};
+
+const close = (): void => {
+  Object.assign(form, createInitialFormState());
   emit('close');
 };
 
-const onMinimize = (): void => {
-  emit('minimize', innerData.value);
-  reset();
+const onRangeChange = (values: [Dayjs, Dayjs] | [string, string] | null): void => {
+  if (values && Array.isArray(values)) {
+    const [start, end] = values as [string, string];
+    setAvailableRooms(start, end);
+  } else {
+    availableRooms.value = [];
+  }
+}
+
+const setAvailableRooms = async (checkInDate: string, checkOutDate: string): Promise<void> => {
+  availableRooms.value = await roomStore.getAvailableRooms(checkInDate, checkOutDate);
 };
 
-const onChange = (data: BookingFormState): void => {
-  innerData.value = { ...data, currentStep: currentStep.value };
-};
-const stepStyle = {
-  marginBottom: '20px',
-  boxShadow: '0px -1px 0 0 #e8e8e8 inset',
-};
-
-watch(() => props.open, (isOpen: boolean) => {
-  if (isOpen) {
-    innerData.value = props.state ?? { id: Date.now(), guests: []};
-    currentStep.value = props.state?.currentStep ?? 0;
+watch(() => props.open, async (isOpen: boolean) => {
+  if (isOpen && props.state) {
+    const { checkInDate, checkOutDate, roomId} = props.state;
+    form.range = [checkInDate, checkOutDate];
+    await setAvailableRooms(checkInDate, checkOutDate);
+    form.roomId = roomId;
   }
 })
 </script>
-
 <style>
 .create-booking-dialog {
   top: 50px;
@@ -240,14 +312,16 @@ watch(() => props.open, (isOpen: boolean) => {
 </style>
 
 <style scoped>
-.control-buttons {
-  position: absolute;
-  top: 9px;
-  right: 12px;
+.add-guest-button {
+  width: 58%;
+  left: 150px;
 }
 
-.navigation-buttons {
-  display: flex;
-  justify-content: space-between;
+.ant-form-item {
+  margin-bottom: 12px;
+}
+
+.ant-form-item-label > label {
+  color: #666;
 }
 </style>

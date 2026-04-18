@@ -6,11 +6,12 @@ import { guestModel } from "@/models/guestModel";
 const create = t.Object({
     checkInDate: t.String({ format: 'date' }),
     checkOutDate: t.String({ format: 'date' }),
-    arrivalMinutes: t.Optional(t.Integer()),
-    departureMinutes: t.Optional(t.Integer()),
+    arrivalMinutes: t.Integer(),
+    departureMinutes: t.Integer(),
     status: t.Optional(t.Enum(enumToTypebox(BookingStatus))),
     roomId: t.Integer(),
     guests: t.Array(guestModel.create),
+    mainGuestIndex: t.Integer(),
 })
 
 const update = t.Object({
@@ -20,7 +21,7 @@ const update = t.Object({
     departureMinutes: t.Optional(t.Integer()),
     roomId: t.Integer(),
     guestIds: t.Array(t.Integer()),
-    mainGuestId: t.Integer(),
+    mainGuestIndex: t.Integer(),
     status: t.Enum(enumToTypebox(BookingStatus)),
 });
 

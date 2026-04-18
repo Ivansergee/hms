@@ -5,6 +5,7 @@
         <ActionsPanel
           :currentDate="currentDate"
           @navigate="navigateToDate"
+          @create="onCreate"
         />
       </div>
 
@@ -72,6 +73,7 @@
               v-for="day in days"
               :key="day.format()"
               @mouseover="onMouseOverCell(room, day)"
+              @mousedown="onCreateStart($event, room, day)"
             ></div>
           </div>
 
@@ -98,6 +100,7 @@
               :leftOffset="ghostBarState.leftOffset"
               :topOffset="ghostBarState.topOffset"
               :length="ghostBarState.length"
+              :isCreating="dragMode === DragMode.CREATE"
               isGhost
             />
           </div>
@@ -143,11 +146,19 @@ import { generateDays } from "@/utils/dateTimeUtils.ts";
 import {
   type BookingWithLayout,
   CELL_HEIGHT,
-  CELL_WIDTH, type DragEventPayload, DragMode, isBookingPositionChanged,
-  MINUTES_PER_PIXEL, ResizeDirection
+  CELL_WIDTH,
+  type DragEventPayload,
+  DragMode,
+  isBookingPositionChanged,
+  MINUTES_PER_PIXEL,
+  ResizeDirection
 } from "@/utils/planTableUtils.ts";
 import type { Room } from "@/types/Room.ts";
-import type { BookingDetails, BookingFormState, BookingShort } from "@shared/types/booking.ts";
+import {
+  type BookingDetails,
+  type BookingPlacement,
+  type BookingShort
+} from "@shared/types/booking.ts";
 import { useScopedI18n } from "@/composables/useScopedI18n.ts";
 import { bookingQueries } from "@/queries/bookingQueries.ts";
 
@@ -156,6 +167,9 @@ const SHIFT_DAYS = 30;
 
 const AUTO_SCROLL_MARGIN = 40;
 const AUTO_SCROLL_SPEED = 12;
+
+const CREATE_THRESHOLD = 20;
+const DEFAULT_ARRIVAL_MINUTES = 14 * 60;
 
 defineOptions({ name: 'PlanTable' });
 const { t } = useScopedI18n();
@@ -218,7 +232,6 @@ const months = computed(() => {
 
 const bookingDetails = ref<BookingDetails>();
 
-const isCreating = ref<boolean>(false);
 const isConfirmChangeVisible = ref<boolean>(false);
 const isDetailsDialogOpen = ref<boolean>(false);
 const isCreateDialogOpen = ref<boolean>(false);
@@ -239,6 +252,11 @@ const initialResizeState = ref<{
   startLength: number,
   startScrollLeft: number,
 }>();
+const initialCreateState = ref<{
+  startX: number;
+  roomId: number;
+  startDayIndex: number;
+}>();
 
 const ghostBarState = ref<BookingWithLayout>();
 
@@ -250,10 +268,10 @@ const roomIndexById = computed<Record<number, number>>(() =>
   )
 );
 
-const createFormState = ref<BookingFormState>();
+const createFormState = ref<BookingPlacement>();
 
 const getBarTopOffset = (booking: BookingShort): number => {
-  return roomIndexById.value[booking.roomId] * CELL_HEIGHT;
+  return roomIndexById.value[booking.roomId] * CELL_HEIGHT + 2;
 };
 
 const getBarLeftOffset = (booking: BookingShort): number => {
@@ -271,10 +289,6 @@ const getBarLength = (booking: BookingShort): number => {
 };
 
 const getBarTitle = (booking: BookingShort): string => {
-  if (isCreating.value) {
-    return t('newBooking');
-  }
-
   const mainGuest = booking.guests.find(guest => guest.id === booking.mainGuestId);
   if (!mainGuest) {
     return '';
@@ -357,6 +371,25 @@ const resizedBooking = computed<BookingShort | undefined>(() => {
 
     arrivalMinutes: booking.arrivalMinutes,
     departureMinutes: booking.departureMinutes,
+  };
+});
+
+const createdBooking = computed<BookingPlacement | undefined>(() => {
+  if (dragMode.value !== DragMode.CREATE || !ghostBarState.value || !initialCreateState.value) {
+    return;
+  }
+
+  const startDayIndex = Math.floor(ghostBarState.value.leftOffset / CELL_WIDTH);
+  const endDayIndex = Math.floor(
+    (ghostBarState.value.leftOffset + ghostBarState.value.length) / CELL_WIDTH
+  );
+
+  const base = rangeStart.value.startOf('day');
+
+  return {
+    roomId: initialCreateState.value.roomId,
+    checkInDate: base.add(startDayIndex, 'day').format('YYYY-MM-DD'),
+    checkOutDate: base.add(endDayIndex, 'day').format('YYYY-MM-DD'),
   };
 });
 
@@ -445,6 +478,10 @@ const onBarClick = async (booking: BookingShort): Promise<void> => {
   isDetailsDialogOpen.value = true;
 };
 
+const onCreate = (): void => {
+  isCreateDialogOpen.value = true;
+}
+
 const onCreateDialogClose = (): void => {
   isCreateDialogOpen.value = false;
   createFormState.value = undefined;
@@ -456,6 +493,9 @@ const onMouseMove = (e: MouseEvent) => {
   }
   if (dragMode.value === DragMode.RESIZE) {
     onResize(e);
+  }
+  if (dragMode.value === DragMode.CREATE) {
+    onCreateDrag(e);
   }
 
   onAutoScroll(e);
@@ -564,6 +604,86 @@ const onDragEnd = () => {
   }
 };
 
+const onCreateStart = (e: MouseEvent, room: Room, day: dayjs.Dayjs) => {
+  if (e.button !== 0) {
+    return;
+  }
+
+  const dayIndex = days.value.findIndex(d => d.isSame(day, 'day'));
+  if (dayIndex === -1) {
+    return;
+  }
+
+  dragMode.value = DragMode.CREATE;
+
+  const rect = gridScrollRef.value!.getBoundingClientRect();
+  const startCursorX = e.clientX - rect.left + gridScrollRef.value!.scrollLeft;
+
+  initialCreateState.value = {
+    startX: startCursorX,
+    roomId: room.id,
+    startDayIndex: dayIndex,
+  };
+
+  ghostBarState.value = undefined;
+
+  window.addEventListener('mousemove', onMouseMove);
+};
+
+const onCreateDrag = (e: MouseEvent) => {
+  if (!initialCreateState.value || !gridScrollRef.value) {
+    return;
+  }
+
+  const rect = gridScrollRef.value.getBoundingClientRect();
+  const cursorX = e.clientX - rect.left + gridScrollRef.value.scrollLeft;
+
+  const dx = cursorX - initialCreateState.value.startX;
+
+  if (!ghostBarState.value) {
+    if (dx < CREATE_THRESHOLD) {
+      return;
+    }
+
+    const baseLeft = initialCreateState.value.startDayIndex * CELL_WIDTH +
+      DEFAULT_ARRIVAL_MINUTES / MINUTES_PER_PIXEL;
+
+    const topOffset = roomIndexById.value[initialCreateState.value.roomId] * CELL_HEIGHT + 2;
+
+    ghostBarState.value = {
+      booking: {} as any,
+      title: t('newBooking'),
+      leftOffset: baseLeft,
+      topOffset,
+      length: CELL_WIDTH,
+    };
+
+    document.body.style.cursor = 'ew-resize';
+    document.body.style.userSelect = 'none';
+  }
+
+  const baseLeft =initialCreateState.value.startDayIndex * CELL_WIDTH +
+    DEFAULT_ARRIVAL_MINUTES / MINUTES_PER_PIXEL;
+  const newLength = cursorX - baseLeft;
+
+  ghostBarState.value.leftOffset = baseLeft;
+  ghostBarState.value.length = Math.max(CELL_WIDTH, newLength);
+};
+
+const onCreateEnd = () => {
+  if (!ghostBarState.value) {
+    resetDrag();
+    return;
+  }
+
+  if (createdBooking.value) {
+    createFormState.value = createdBooking.value;
+    isCreateDialogOpen.value = true;
+  }
+
+  resetDrag();
+};
+
 const resetDrag = (): void => {
   dragMode.value = undefined;
   ghostBarState.value = undefined;
@@ -578,11 +698,17 @@ const onConfirmDialogClose = (): void => {
 };
 
 const onMouseOverCell = (room: Room, day: dayjs.Dayjs): void => {
+  if (dragMode.value) {
+    return;
+  }
   highlightedRoomId.value = room.id;
   highlightedDays.value = [day.format('YYYY-MM-DD')];
 };
 
 const onMouseEnterBar = (booking: BookingShort): void => {
+  if (dragMode.value) {
+    return;
+  }
   highlightedRoomId.value = booking.roomId;
   highlightedDays.value = generateDays(dayjs(booking.checkInDate), dayjs(booking.checkOutDate))
     .map(day => day.format('YYYY-MM-DD'));
@@ -619,6 +745,8 @@ const onMouseUp = (e: MouseEvent): void => {
     onDragEnd();
   } else if (dragMode.value === DragMode.RESIZE) {
     onResizeEnd();
+  } else if (dragMode.value === DragMode.CREATE) {
+    onCreateEnd();
   }
 
   document.body.style.cursor = '';
@@ -673,6 +801,13 @@ watchEffect(() => {
     highlightedDays.value = generateDays(
       dayjs(resizedBooking.value.checkInDate),
       dayjs(resizedBooking.value.checkOutDate)
+    ).map(d => d.format('YYYY-MM-DD'));
+  }
+  if (createdBooking.value) {
+    highlightedRoomId.value = createdBooking.value.roomId;
+    highlightedDays.value = generateDays(
+      dayjs(createdBooking.value.checkInDate),
+      dayjs(createdBooking.value.checkOutDate)
     ).map(d => d.format('YYYY-MM-DD'));
   }
 });

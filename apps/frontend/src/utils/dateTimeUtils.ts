@@ -112,3 +112,8 @@ export function getFormattedDate(date: string | number, withTime: boolean = fals
     return dayjs(date).format('DD.MM.YYYY');
   }
 }
+
+export function timeToMinutes(time: string): number {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+}

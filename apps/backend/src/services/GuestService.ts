@@ -10,6 +10,14 @@ export class GuestService extends BaseService<
     constructor() {
         super(prisma.guest);
     }
+    create(data: Prisma.GuestCreateInput): Promise<Guest> {
+        return super.create({
+            ...data,
+            birthdate: data.birthdate
+                ? new Date(data.birthdate + 'T00:00:00')
+                : undefined,
+        });
+    }
 }
 
 export type GuestRaw = Prisma.GuestGetPayload<{}>;

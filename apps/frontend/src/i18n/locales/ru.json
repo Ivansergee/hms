@@ -1,4 +1,10 @@
 {
+  "ActionButtons": {
+    "filters": "Фильтры",
+    "goToDate": "Перейти к дате",
+    "newBooking": "Новое бронирование",
+    "search": "Поиск"
+  },
   "AddServiceItemDialog": {
     "add": "Добавить",
     "addService": "Добавление услуги",
@@ -37,39 +43,46 @@
     "save": "Сохранить"
   },
   "CreateBookingDialog": {
+    "addGuest": "Добавить гостя",
     "back": "Назад",
-    "close": "Закрыть",
-    "create": "Сохранить",
-    "dates": "Даты",
-    "guests": "Гости",
-    "minimize": "Свернуть",
-    "newBooking": "Новое бронирование",
-    "next": "Далее",
-    "room": "Комната"
-  },
-  "DateNavigator": {
-    "today": "Сегодня"
-  },
-  "DateStep": {
     "checkInTime": "Время заезда",
     "checkInTimeRequiredError": "Укажите время заезда",
     "checkOutTime": "Время выезда",
     "checkOutTimeRequiredError": "Укажите время выезда",
+    "close": "Закрыть",
+    "create": "Сохранить",
+    "datesAndRoom": "Размещение",
     "endDate": "Выезд",
-    "rangeRequiredError": "Укажите период бронирования",
-    "startDate": "Заезд"
-  },
-  "GuestsStep": {
-    "addGuest": "Добавить гостя",
-    "email": "Email",
     "errorNotValidEmail": "Неправильный email",
     "errorRequiredField": "Обязательное поле",
+    "guests": "Гости",
+    "newBooking": "Новое бронирование",
+    "range": "Даты",
+    "rangeRequiredError": "Укажите период бронирования",
+    "roomRequiredError": "Укажите комнату",
+    "startDate": "Заезд"
+  },
+  "DateInput": {
+    "inputPlaceholder": "ДД.ММ.ГГГГ",
+    "invalidDate": "Неверная дата"
+  },
+  "DateNavigator": {
+    "nextMonth": "Следующий месяц",
+    "nextWeek": "Следующая неделя",
+    "previousMonth": "Предыдущий месяц",
+    "previousWeek": "Предыдущая неделя",
+    "today": "Сегодня"
+  },
+  "GuestForm": {
+    "birthdate": "Дата рождения",
+    "email": "Email",
     "firstName": "Имя",
     "guest": "Гость",
     "lastName": "Фамилия",
     "mainGuest": "Основной гость",
     "parentName": "Отчество",
-    "phone": "Телефон"
+    "phone": "Телефон",
+    "removeGuest": "Удалить гостя"
   },
   "Navbar": {
     "bookings": "Бронирования",
@@ -86,9 +99,15 @@
     "selected": "Только выбранные",
     "total": "Сумма"
   },
-  "RoomStep": {
+  "PlanTable": {
+    "newBooking": "Новое бронирование"
+  },
+  "RoomSelector": {
+    "all": "Все",
+    "category": "Категория",
+    "noRoomsAvailable": "Нет доступных комнат",
     "room": "Комната",
-    "roomRequiredError": "Укажите комнату"
+    "selectDates": "Укажите период бронирования"
   },
   "ServicesTable": {
     "addService": "Добавить услугу",

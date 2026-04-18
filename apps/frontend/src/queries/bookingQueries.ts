@@ -3,7 +3,7 @@ import type {
   BookingShort,
   BookingCreate,
   BookingDetails,
-  BookingEditPlacement,
+  BookingPlacement,
 } from "@shared/types/booking";
 
 export const bookingQueries = {
@@ -27,7 +27,7 @@ export const bookingQueries = {
   //   return fetcher.put<BookingShort>(`/booking`, editData, { id: editData.id });
   // },
 
-  async editPlacement(id: number, editData: BookingEditPlacement): Promise<BookingShort> {
+  async editPlacement(id: number, editData: BookingPlacement): Promise<BookingShort> {
     return fetcher.patch<BookingShort>(`/booking/${id}/placement`, editData);
   },
 

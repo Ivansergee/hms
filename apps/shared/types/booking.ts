@@ -1,5 +1,5 @@
 import type { BookingStatus } from "../enums/BookingStatus";
-import type { Guest, GuestCreate, GuestShort } from "./guest";
+import type { Guest, GuestInput, GuestShort } from "./guest";
 import type { Folio } from "./folio";
 
 export interface BookingShort {
@@ -33,19 +33,12 @@ export interface BookingCreate {
     checkOutDate: string;
     arrivalMinutes: number,
     departureMinutes: number,
-    guests: GuestCreate[];
+    guests: GuestInput[];
+    mainGuestIndex: number;
 }
 
-export interface BookingEditPlacement {
+export interface BookingPlacement {
     checkInDate: string;
     checkOutDate: string;
-    arrivalMinutes: number,
-    departureMinutes: number,
     roomId: number;
-}
-
-export type BookingFormState = Partial<Omit<BookingDetails, 'id' | 'guests'>> & {
-    id: number;
-    guests: Partial<GuestCreate>[];
-    currentStep?: number;
 }

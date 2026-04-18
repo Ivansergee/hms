@@ -3,11 +3,13 @@
   <a-button
     type="text"
     :icon="h(DoubleLeftOutlined)"
+    :title="t('previousMonth')"
     @click="emit('select', currentDate.subtract(1, 'month'))"
   />
   <a-button
     type="text"
     :icon="h(LeftOutlined)"
+    :title="t('previousWeek')"
     @click="emit('select', currentDate.subtract(1, 'week'))"
   />
   <a-button
@@ -17,11 +19,13 @@
   <a-button
     type="text"
     :icon="h(RightOutlined)"
+    :title="t('nextWeek')"
     @click="emit('select', currentDate.add(1, 'week'))"
   />
   <a-button
     type="text"
     :icon="h(DoubleRightOutlined)"
+    :title="t('nextMonth')"
     @click="emit('select', currentDate.add(1, 'month'))"
   />
 </a-space-compact>

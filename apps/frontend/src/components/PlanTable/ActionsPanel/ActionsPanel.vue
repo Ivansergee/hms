@@ -10,6 +10,7 @@
       <ActionButtons
         :currentDate="currentDate"
         @date-select="onDateSelect"
+        @create="$emit('create')"
       />
     </a-col>
   </a-row>
@@ -24,6 +25,7 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits<{
   (event: 'navigate', date: dayjs.Dayjs): void;
+  (event: 'create'): void;
 }>();
 
 const onDateSelect = (date: dayjs.Dayjs): void => {

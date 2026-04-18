@@ -1,11 +1,12 @@
 import { Booking, Prisma } from "@prisma/client";
 import { prisma } from "@/../prisma/prisma";
 import { BookingFilterDTO } from "@/models/bookingModel";
-import { BookingCreate, BookingDetails, BookingEditPlacement, BookingShort } from "@shared/types/booking";
+import { BookingCreate, BookingDetails, BookingPlacement, BookingShort } from "@shared/types/booking";
 import { BookingStatus } from "@shared/enums/BookingStatus";
 import { bookingDbQueries } from "@/dbQueries/bookingDbQueries";
 import { bookingFormatter } from "@/formatters/bookingFormatter";
-import { formatDate, formatDateTime } from "@/utils/dateUtils";
+import { formatDate } from "@/utils/dateUtils";
+import { isExistingGuest } from "@/utils/utils";
 
 export class BookingService {
     getAll(): Promise<Booking[]> {
@@ -24,26 +25,37 @@ export class BookingService {
     //     return prisma.booking.update({ where: { id }, data });
     // }
 
-    create(bookingData: BookingCreate): Promise<Booking> {
-        return prisma.$transaction(async (tx) => {
-            const createdGuests = await Promise.all(
-                bookingData.guests.map(guest =>
-                    tx.guest.create({
-                        data: {
-                            firstName: guest.firstName,
-                            lastName: guest.lastName,
-                            parentName: guest.parentName,
-                            gender: guest.gender,
-                            birthdate: guest.birthdate,
-                            phone: guest.phone,
-                            email: guest.email,
-                            citizenship: guest.citizenship,
-                        },
-                    })
-                )
-            );
+    async create(bookingData: BookingCreate): Promise<Booking> {
+        const { guests, mainGuestIndex } = bookingData;
 
-            const mainGuest = createdGuests[0];
+        if (!guests.length) {
+            throw new Error('At least one guest is required');
+        }
+
+        return prisma.$transaction(async (tx) => {
+            const guestIds: number[] = [];
+
+            for (const guest of guests) {
+                if (isExistingGuest(guest)) {
+                    guestIds.push(guest.id);
+                } else {
+                    const created = await tx.guest.create({
+                        data: {
+                            ...guest,
+                            birthdate: guest.birthdate
+                                ? new Date(guest.birthdate + 'T00:00:00')
+                                : undefined,
+                        },
+                    });
+                    guestIds.push(created.id);
+                }
+            }
+
+            const mainGuestId = guestIds[mainGuestIndex];
+
+            if (!mainGuestId) {
+                throw new Error('Invalid main guest');
+            }
 
             return tx.booking.create({
                 data: {
@@ -51,22 +63,31 @@ export class BookingService {
                     checkOutDate: new Date(bookingData.checkOutDate),
                     arrivalMinutes: bookingData.arrivalMinutes,
                     departureMinutes: bookingData.departureMinutes,
-                    room: { connect: { id: bookingData.roomId } },
-                    mainGuest: { connect: { id: mainGuest.id } },
-                    guests: {
-                        connect: createdGuests.map(g => ({ id: g.id })),
+
+                    room: {
+                        connect: { id: bookingData.roomId },
                     },
+
+                    mainGuest: {
+                        connect: { id: mainGuestId },
+                    },
+
+                    guests: {
+                        connect: guestIds.map(id => ({ id })),
+                    },
+
                     folios: {
                         create: [{}],
                     },
                 },
+
                 include: {
                     guests: {
                         select: {
                             id: true,
                             firstName: true,
                             lastName: true,
-                        }
+                        },
                     },
                 },
             });
@@ -135,7 +156,7 @@ export class BookingService {
         }));
     }
 
-    async editPlacement(id: number, data: BookingEditPlacement): Promise<BookingShort> {
+    async editPlacement(id: number, data: BookingPlacement): Promise<BookingShort> {
         const checkInDate = new Date(`${data.checkInDate}T00:00:00Z`);
         const checkOutDate = new Date(`${data.checkOutDate}T00:00:00Z`);
 
