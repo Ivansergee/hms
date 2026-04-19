@@ -107,7 +107,7 @@
         />
       </div>
       <a-button
-        class="add-guest-button"
+        class="w100"
         type="dashed"
         @click="addGuest"
       >
@@ -312,16 +312,19 @@ watch(() => props.open, async (isOpen: boolean) => {
 </style>
 
 <style scoped>
-.add-guest-button {
-  width: 58%;
-  left: 150px;
-}
-
 .ant-form-item {
   margin-bottom: 12px;
 }
 
 .ant-form-item-label > label {
   color: #666;
+}
+
+:deep(.ant-card) {
+  border-radius: 10px;
+}
+
+.create-booking-dialog :deep(.ant-divider) {
+  margin: 16px 0 12px;
 }
 </style>

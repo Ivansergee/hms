@@ -3,9 +3,13 @@
     <div class="guest-form__header">
       <div>
         <strong>{{ t('guest') }} {{ index }}</strong>
-        <span v-if="isMainGuest" class="guest-form__main-guest">
+        <a-tag
+          v-if="isMainGuest"
+          class="guest-form__main-guest"
+          :bordered="false"
+          color="processing">
           {{ t('mainGuest') }}
-        </span>
+        </a-tag>
       </div>
       <MinusCircleOutlined
         v-if="isRemoveButtonVisible"
@@ -110,28 +114,31 @@ const { t } = useScopedI18n();
 </script>
 <style scoped>
 .guest-form {
-  border: 1px solid #f0f0f0;
   border-radius: 10px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   margin-bottom: 12px;
-  background: #fafafa;
+  background: #fff;
+  border: 1px solid #f0f0f0;
 }
 
 .guest-form__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.guest-form__header strong {
+  font-size: 14px;
 }
 
 .guest-form__main-guest {
   margin-left: 8px;
-  color: #999;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .guest-form__remove-button {
-  color: red;
+  color: #ff4d4f;
   font-size: 16px;
 }
 
