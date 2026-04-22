@@ -18,4 +18,7 @@ export const roomModel = {
         start: t.String({ format: 'date' }),
         end: t.String({ format: 'date' }),
     }),
+    setStatus: t.Object({
+        status: t.Enum(enumToTypebox(RoomStatus)),
+    }),
 };

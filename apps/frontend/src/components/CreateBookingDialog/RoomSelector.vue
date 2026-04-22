@@ -27,21 +27,27 @@
           :custom-row="customRoomRow"
           :row-class-name="getRoomRowClassName"
           :scroll="{ y: 195 }"
-        />
+        >
+          <template #bodyCell="{ record }">
+            <RoomView
+              :room="record"
+            />
+          </template>
+        </a-table>
       </a-col>
     </a-row>
   </div>
 </template>
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from "vue";
-import type { Room } from "@/types/Room.ts";
+import type { Room, RoomWithCategory } from "@/types/Room.ts";
 import type { Category } from "@shared/types/category.ts";
 import type { ColumnType } from "ant-design-vue/es/table";
 import { useScopedI18n } from "@/composables/useScopedI18n.ts";
 import { useRoomStore } from "@/stores/roomStore.ts";
 
 interface Props {
-  availableRooms: Room[];
+  availableRooms: RoomWithCategory[];
   isRangeSet: boolean;
 }
 
@@ -77,18 +83,18 @@ const roomCols: ColumnType[] = [
 
 const availableCategories = computed<Category[]>(() => {
   const categories: Category[] = roomStore.categories.filter((category) => {
-    const availableCategoryIds = props.availableRooms.map(room => room.categoryId);
+    const availableCategoryIds = props.availableRooms.map(room => room.category?.id);
     return availableCategoryIds.includes(category.id);
   });
   categories.unshift({ id: 0, name: t('all'), tag: '', capacity: 0 });
   return categories;
 });
 
-const filteredRooms = computed<Room[]>(() => {
+const filteredRooms = computed<RoomWithCategory[]>(() => {
   if (selectedCategoryId.value === 0) {
     return props.availableRooms;
   }
-  return props.availableRooms.filter(room => room.categoryId === selectedCategoryId.value);
+  return props.availableRooms.filter(room => room.category?.id === selectedCategoryId.value);
 });
 
 const emptyText = computed<string>(() => {
@@ -172,6 +178,10 @@ watch(selectedRoomId, (val) => {
 
 .room-selector__left-side {
   border-right: 1px solid #f0f0f0;
+}
+
+.room-selector__right-side :deep(.ant-table-tbody .ant-table-row .ant-table-cell) {
+  padding: 4px;
 }
 
 :deep(.ant-table-wrapper .ant-table) {

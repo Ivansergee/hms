@@ -2,6 +2,7 @@ import type { Room } from "@prisma/client";
 import { prisma } from "@/../prisma/prisma";
 import { BaseService } from "@/services/BaseService";
 import { RoomCreatePayload, RoomUpdatePayload } from "@shared/types/room";
+import { RoomStatus } from "@shared/enums/RoomStatus";
 
 export class RoomService extends BaseService<
     Room,
@@ -30,5 +31,15 @@ export class RoomService extends BaseService<
         });
 
         return availableRooms.map(room => room.id);
+    }
+
+    async setStatus(id: number, status: RoomStatus): Promise<RoomStatus> {
+        const updatedRoom = await prisma.room.update({
+            where: { id },
+            data: {
+                status,
+            }
+        });
+        return updatedRoom.status as RoomStatus;
     }
 }

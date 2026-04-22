@@ -12,6 +12,7 @@ import { i18n } from '@/i18n/i18n';
 import { useRoomStore } from "@/stores/roomStore";
 import { setupDayjsLocale } from "@/i18n/dayjsLocale";
 import { useServiceStore } from "@/stores/serviceStore";
+import { registerEnums } from "@/i18n/registerEnums.ts";
 
 setupDayjsLocale();
 const app = createApp(App);
@@ -23,6 +24,7 @@ app.use(pinia);
 app.use(router);
 
 async function initApp() {
+  registerEnums();
   await useRoomStore().fetch();
   await useServiceStore().fetch();
 }

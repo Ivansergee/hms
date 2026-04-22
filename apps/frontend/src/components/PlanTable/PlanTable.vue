@@ -46,11 +46,15 @@
       >
         <div
           class="room-cell"
-          v-for="room in roomStore.rooms"
+          v-for="room in roomStore.roomsWithCategory"
           :key="room.id"
           :class="{ highlighted: highlightedRoomId === room.id }"
         >
-          {{ room.name }}
+          <RoomView
+            :room="room"
+            is-category-visible
+            is-status-selectable
+          />
         </div>
       </div>
       <div
@@ -848,7 +852,7 @@ onUnmounted(() => {
 
 .header-row {
   display: grid;
-  grid-template-columns: 215px 1fr;
+  grid-template-columns: 200px 1fr;
   grid-template-rows: 40px 40px;
   border-bottom: 1px solid #ccc;
 }
@@ -909,7 +913,7 @@ onUnmounted(() => {
 
 .body-row {
   display: grid;
-  grid-template-columns: 215px 1fr;
+  grid-template-columns: 200px 1fr;
   height: 100%;
   overflow: hidden;
   min-height: 0;

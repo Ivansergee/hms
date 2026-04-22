@@ -136,6 +136,11 @@
       "CASH": "Cash",
       "CARD": "Card",
       "EXTERNAL": "External"
+    },
+    "RoomStatus": {
+      "CLEAN": "Clean",
+      "DIRTY": "Need cleaning",
+      "PREPARING": "Preparing"
     }
   }
 }

@@ -126,7 +126,7 @@ import { useScopedI18n } from "@/composables/useScopedI18n";
 import { useRoomStore } from "@/stores/roomStore";
 import type { RuleObject } from "ant-design-vue/es/form";
 import { PlusOutlined } from "@ant-design/icons-vue";
-import type { Room } from "@/types/Room.ts";
+import type { RoomWithCategory } from "@/types/Room.ts";
 import type { Dayjs } from "dayjs";
 import { type BookingPlacement } from "@shared/types/booking.ts";
 import { timeToMinutes } from "@/utils/dateTimeUtils.ts";
@@ -197,7 +197,7 @@ const rules: { [key: string]: RuleObject[] } = {
 }
 
 const isLoading = ref<boolean>(false);
-const availableRooms = ref<Room[]>([]);
+const availableRooms = ref<RoomWithCategory[]>([]);
 
 const isFormValid = (form: FormState): boolean => {
   if (form.roomId === undefined || !form.range?.[0] || !form.range?.[1]) {

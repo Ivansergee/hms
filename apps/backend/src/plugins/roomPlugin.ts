@@ -45,3 +45,10 @@ export const room = new Elysia({ prefix: '/room', tags: ['Room'] })
             return roomService.delete(id);
         },
     )
+    .post(
+        '/:id/setStatus',
+        async ({ roomService, params: { id }, body }) => {
+            return roomService.setStatus(id, body.status);
+        },
+        { body: roomModel.setStatus },
+    )
