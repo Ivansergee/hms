@@ -72,7 +72,19 @@ watch(
 .context-menu {
   position: fixed;
   z-index: 2000;
+  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  min-width: 160px;
+  font-size: 13px;
+}
+
+.context-menu :deep(.ant-menu) {
+  padding: 4px 0;
+  border-radius: 6px;
+}
+
+.context-menu :deep(.ant-menu-item) {
+  height: 32px;
+  line-height: 32px;
+  padding: 0 12px;
 }
 </style>

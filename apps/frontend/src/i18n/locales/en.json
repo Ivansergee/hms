@@ -127,6 +127,14 @@
       "PAYMENT": "Payments",
       "FOLIO": "Folio"
     },
+    "BookingContextMenuItem": {
+      "CANCEL_CHECK_IN": "Cancel check in",
+      "CANCEL_CHECK_OUT": "Cancel check out",
+      "CHECK_IN": "Check in",
+      "CHECK_OUT": "Check out",
+      "DELETE": "Delete",
+      "INFO": "Details"
+    },
     "BookingPropertyForChange": {
       "start": "Check-in",
       "end": "Check-out",

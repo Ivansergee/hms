@@ -49,7 +49,6 @@ export const useRoomStore = defineStore('rooms', () => {
     } catch (error) {
       room.status = previousStatus;
       console.error("Failed to update status, rolling back...", error);
-      // message.error("Failed to update room status");
     }
   };
 

@@ -5,6 +5,7 @@ import type {
   BookingDetails,
   BookingPlacement,
 } from "@shared/types/booking";
+import type { BookingStatus } from "@shared/enums/BookingStatus.ts";
 
 export const bookingQueries = {
   async fetch(from: string, to: string): Promise<BookingShort[]> {
@@ -28,7 +29,7 @@ export const bookingQueries = {
   // },
 
   async editPlacement(id: number, editData: BookingPlacement): Promise<BookingShort> {
-    return fetcher.patch<BookingShort>(`/booking/${id}/placement`, editData);
+    return fetcher.post<BookingShort>(`/booking/${id}/placement`, editData);
   },
 
   async deleteBooking(id: number): Promise<boolean> {
@@ -36,4 +37,8 @@ export const bookingQueries = {
 
     return true;
   },
+
+  async setStatus(id: number, status: BookingStatus): Promise<BookingStatus> {
+    return fetcher.post<BookingStatus>(`/booking/${id}/setStatus`, { status });
+  }
 };

@@ -40,7 +40,6 @@
     <a-typography-text
       v-if="isCategoryVisible"
       class="room-view__category"
-      :class="isCategoryVisible ? 'centered' : undefined"
       :content="room.category?.tag"
       type="secondary"
       ellipsis
@@ -48,6 +47,7 @@
     <a-typography-text
       class="room-view__name"
       :content="room.name"
+      :style="{textAlign: roomNameAlign}"
       ellipsis
     />
   </div>
@@ -56,12 +56,13 @@
 import type { RoomWithCategory } from "@/types/Room.ts";
 import { computed, ref } from "vue";
 import { RoomStatus } from "@shared/enums/RoomStatus.ts";
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
 import type { MenuProps } from "ant-design-vue";
 import { useRoomStore } from "@/stores/roomStore.ts";
+import { translateEnum } from "@/i18n/i18n.ts";
 
 interface Props {
   room: RoomWithCategory;
+  roomNameAlign: 'left' | 'center' | 'right';
   isStatusSelectable: boolean;
   isCategoryVisible: boolean;
 }
@@ -70,7 +71,6 @@ const props = defineProps<Props>();
 const emit = defineEmits();
 
 defineOptions({ name: 'RoomView' });
-const { translateEnum } = useScopedI18n();
 
 const roomStore = useRoomStore();
 
@@ -125,9 +125,6 @@ const onStatusChange: MenuProps['onClick']  = (e) => {
 .room-view__name {
   flex: 1;
   min-width: 0;
-}
-
-.room-view__name.centered {
-  text-align: center;
+  padding-right: 10px;
 }
 </style>

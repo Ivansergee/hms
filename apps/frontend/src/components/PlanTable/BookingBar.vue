@@ -1,45 +1,43 @@
 <template>
-<a-tooltip
-  :open="isTooltipShown"
-  placement="topLeft"
-  title="Prompt Text"
+<div
+  ref="bar"
+  class="booking-bar"
+  :class="{
+    creating: isCreating,
+    ghost: isGhost,
+    'drag-source': isDragSource,
+  }"
+  :style="{
+    top: `${topOffset}px`,
+    left: `${leftOffset}px`,
+    width: `${length}px`,
+    backgroundColor,
+  }"
+  @mouseenter="$emit('mouse-enter')"
+  @mousedown="onDrag"
+  @click="onClick"
+  @contextmenu.prevent="onRightClick"
 >
   <div
-    ref="bar"
-    class="booking-bar"
-    :class="{
-      creating: isCreating,
-      ghost: isGhost,
-      'drag-source': isDragSource,
-    }"
+    v-if="isHandlesVisible"
+    class="resize-handle left"
+    :style="{ backgroundColor }"
+    @mousedown="onResize($event, ResizeDirection.LEFT)"
+  ></div>
+  <a-typography-text
+    :content="title"
     :style="{
-      top: `${topOffset}px`,
-      left: `${leftOffset}px`,
-      width: `${length}px`,
+      color: isCreating ? 'black' : 'white',
     }"
-    @mouseenter="$emit('mouse-enter')"
-    @mousedown="onDrag"
-    @click="onClick"
-  >
-    <div
-      v-if="!isCreating && !isDragSource"
-      class="resize-handle left"
-      @mousedown="onResize($event, ResizeDirection.LEFT)"
-    ></div>
-    <a-typography-text
-      :content="title"
-      :style="{
-        color: isCreating ? 'black' : 'white',
-      }"
-      ellipsis
-    />
-    <div
-      v-if="!isCreating && !isDragSource"
-      class="resize-handle right"
-      @mousedown="onResize($event, ResizeDirection.RIGHT)"
-    ></div>
-  </div>
-</a-tooltip>
+    ellipsis
+  />
+  <div
+    v-if="isHandlesVisible"
+    class="resize-handle right"
+    :style="{ backgroundColor }"
+    @mousedown="onResize($event, ResizeDirection.RIGHT)"
+  ></div>
+</div>
 </template>
 <script setup lang="ts">
 import {
@@ -47,14 +45,16 @@ import {
   ResizeDirection,
   type ResizeEventPayload
 } from "@/utils/planTableUtils";
-import { ref, useTemplateRef } from "vue";
+import { computed, useTemplateRef } from "vue";
 import { useScopedI18n } from "@/composables/useScopedI18n";
+import { BookingStatus } from "@shared/enums/BookingStatus.ts";
 
 interface Props {
   topOffset: number,
   leftOffset: number,
   length: number,
   title: string,
+  status?: BookingStatus,
   isCreating?: boolean;
   isDragSource?: boolean;
   isGhost?: boolean;
@@ -71,11 +71,30 @@ const emit = defineEmits<{
   (event: 'mouse-enter'): void;
   (event: 'drag-start', pointerPosition: DragEventPayload): void;
   (event: 'resize-start', resizeData: ResizeEventPayload): void;
+  (event: 'right-click', e: MouseEvent): void;
 }>();
 
 const barRef = useTemplateRef<HTMLElement>('bar');
 
-const isTooltipShown = ref<boolean>(false);
+const backgroundColor = computed<string>(() => {
+  if (props.isCreating) {
+    return '#2995f96b';
+  }
+  switch (props.status) {
+    case BookingStatus.ACTIVE:
+      return '#1890ff';
+    case BookingStatus.CHECKED_IN:
+      return '#73d13d';
+    case BookingStatus.CHECKED_OUT:
+      return '#b3b3b3';
+    default:
+      return '#1890ff';
+  }
+});
+
+const isHandlesVisible = computed<boolean>(() => {
+  return !props.isCreating && !props.isDragSource && props.status !== BookingStatus.CHECKED_OUT;
+});
 
 let startX = 0;
 let startY = 0;
@@ -83,6 +102,9 @@ let isDragging = false;
 
 const onDrag = (e: MouseEvent) => {
   e.stopPropagation();
+  if (e.button !== 0) {
+    return;
+  }
 
   startX = e.clientX;
   startY = e.clientY;
@@ -126,6 +148,10 @@ const onClick = () => {
   }
   emit('bar-clicked');
 };
+
+const onRightClick = (e: MouseEvent) => {
+  emit('right-click', e);
+};
 </script>
 <style scoped>
 .booking-bar {
@@ -138,14 +164,12 @@ const onClick = () => {
   z-index: 10;
   cursor: pointer;
   border-radius: 4px;
-  background-color: #1890ff;
   pointer-events: auto;
 }
 
 .booking-bar.creating {
   border-style: dashed;
   border-color: #1890ff;
-  background-color: #2995f96b;
 }
 
 .booking-bar.drag-source {
@@ -164,7 +188,6 @@ const onClick = () => {
   position: absolute;
   width: 6px;
   height: 100%;
-  background-color: #1890ff;
   cursor: ew-resize;
   top: 0;
   border-radius: 4px;

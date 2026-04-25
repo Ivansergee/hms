@@ -50,6 +50,7 @@ import type { FolioItem } from "@shared/types/folio.ts";
 import Decimal from "decimal.js";
 import { folioQueries } from "@/queries/folioQueries.ts";
 import { TransactionType } from "@shared/enums/TransactionType.ts";
+import { translateEnum } from "@/i18n/i18n.ts";
 
 type PaymentMethodRecord = { name: PaymentMethod };
 
@@ -65,7 +66,7 @@ enum ItemsMode {
 }
 
 defineOptions({ name: 'PaymentDialog' });
-const { t, translateEnum } = useScopedI18n();
+const { t } = useScopedI18n();
 
 const props = defineProps<Props>();
 const emit = defineEmits<{

@@ -127,6 +127,14 @@
       "PAYMENT": "Оплаты",
       "FOLIO": "Фолио"
     },
+    "BookingContextMenuItem": {
+      "CANCEL_CHECK_IN": "Отменить заезд",
+      "CANCEL_CHECK_OUT": "Отменить выезд",
+      "CHECK_IN": "Заезд",
+      "CHECK_OUT": "Выезд",
+      "DELETE": "Удалить",
+      "INFO": "Информация"
+    },
     "BookingPropertyForChange": {
       "start": "Заезд",
       "end": "Выезд",

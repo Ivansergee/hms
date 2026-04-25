@@ -90,7 +90,7 @@
 import { computed, h, ref } from "vue";
 import type { ColumnType } from "ant-design-vue/es/table";
 import { useScopedI18n } from "@/composables/useScopedI18n.ts";
-import type { Folio, FolioItem, Transaction } from "@shared/types/folio.ts";
+import type { Folio, FolioItem } from "@shared/types/folio.ts";
 import { useServiceStore } from "@/stores/serviceStore.ts";
 import { getFormattedDate } from "@/utils/dateTimeUtils.ts";
 import { folioQueries } from "@/queries/folioQueries.ts";
@@ -107,13 +107,14 @@ import {
   type FolioTransactionRecord, type FolioServiceRecord,
   type FolioTableRecord
 } from "@/types/Folio.ts";
+import { translateEnum } from "@/i18n/i18n.ts";
 
 interface Props {
   folios: Folio[],
 }
 
 defineOptions({ name: 'BillingTab' });
-const { t, translateEnum } = useScopedI18n();
+const { t } = useScopedI18n();
 
 const props = defineProps<Props>();
 

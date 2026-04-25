@@ -52,6 +52,7 @@
         >
           <RoomView
             :room="room"
+            :room-name-align="'right'"
             is-category-visible
             is-status-selectable
           />
@@ -89,14 +90,16 @@
               v-for="data in layoutBookings"
               :key="data.booking.id"
               :title="data.title"
+              :status="data.booking.status"
               :leftOffset="data.leftOffset"
               :topOffset="data.topOffset"
               :length="data.length"
               :isDragSource="data.booking.id === ghostBarState?.booking.id"
               @mouse-enter="onMouseEnterBar(data.booking)"
-              @bar-clicked="onBarClick(data.booking)"
+              @bar-clicked="onBarClick(data.booking.id)"
               @drag-start="onDragStart($event, data)"
               @resize-start="onResizeStart($event, data)"
+              @right-click="onBarRightClick($event, data.booking)"
             />
             <BookingBar
               v-if="ghostBarState"
@@ -130,6 +133,12 @@
     :state="createFormState"
     @close="onCreateDialogClose"
   />
+  <ContextMenu
+    v-model="isContextMenuOpen"
+    :items="contextMenuItems"
+    :position="menuPosition"
+    @itemClick="onMenuClick"
+  />
 </template>
 
 <script setup lang="ts">
@@ -152,7 +161,7 @@ import {
   CELL_HEIGHT,
   CELL_WIDTH,
   type DragEventPayload,
-  DragMode,
+  DragMode, getContextMenuItems,
   isBookingPositionChanged,
   MINUTES_PER_PIXEL,
   ResizeDirection
@@ -165,6 +174,10 @@ import {
 } from "@shared/types/booking.ts";
 import { useScopedI18n } from "@/composables/useScopedI18n.ts";
 import { bookingQueries } from "@/queries/bookingQueries.ts";
+import type { ItemType } from "ant-design-vue";
+import { BookingContextMenuItem } from "@/enums/BookingContextMenuItem.ts";
+import { BookingStatus } from "@shared/enums/BookingStatus.ts";
+import type { Key } from "ant-design-vue/es/_util/type";
 
 const WINDOW_DAYS = 120;
 const SHIFT_DAYS = 30;
@@ -235,10 +248,15 @@ const months = computed(() => {
 });
 
 const bookingDetails = ref<BookingDetails>();
+const selectedBookingId = ref<number>();
 
 const isConfirmChangeVisible = ref<boolean>(false);
 const isDetailsDialogOpen = ref<boolean>(false);
 const isCreateDialogOpen = ref<boolean>(false);
+
+const isContextMenuOpen = ref(false);
+const menuPosition = ref({ x: 0, y: 0 });
+const contextMenuItems = ref<ItemType[]>([]);
 
 const isScrollbarGrabbed = ref<boolean>(false);
 const scrollbarHeight = ref<number>(0);
@@ -477,9 +495,44 @@ const navigateToDate = (date: dayjs.Dayjs) => {
   currentDate.value = date.startOf('day');
 };
 
-const onBarClick = async (booking: BookingShort): Promise<void> => {
-  bookingDetails.value = await bookingQueries.getDetails(booking.id);
+const onBarClick = async (bookingId: number): Promise<void> => {
+  bookingDetails.value = await bookingQueries.getDetails(bookingId);
   isDetailsDialogOpen.value = true;
+};
+
+const onBarRightClick = (e: MouseEvent, booking: BookingShort): void => {
+  e.stopPropagation();
+  selectedBookingId.value = booking.id;
+  menuPosition.value = {
+    x: e.clientX,
+    y: e.clientY,
+  };
+  contextMenuItems.value = getContextMenuItems(booking);
+  isContextMenuOpen.value = true;
+};
+
+const onMenuClick = (key: Key): void => {
+  if (!selectedBookingId.value) {
+    return;
+  }
+  switch (key) {
+    case BookingContextMenuItem.INFO:
+      onBarClick(selectedBookingId.value);
+      break;
+    case BookingContextMenuItem.CHECK_IN:
+      bookingStore.setStatus(selectedBookingId.value, BookingStatus.CHECKED_IN);
+      break;
+    case BookingContextMenuItem.CANCEL_CHECK_IN:
+      bookingStore.setStatus(selectedBookingId.value, BookingStatus.ACTIVE);
+      break;
+    case BookingContextMenuItem.CANCEL_CHECK_OUT:
+      bookingStore.setStatus(selectedBookingId.value, BookingStatus.CHECKED_IN);
+      break;
+    case BookingContextMenuItem.CHECK_OUT:
+      bookingStore.setStatus(selectedBookingId.value, BookingStatus.CHECKED_OUT);
+      break;
+    default:
+  }
 };
 
 const onCreate = (): void => {
@@ -852,7 +905,7 @@ onUnmounted(() => {
 
 .header-row {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 215px 1fr;
   grid-template-rows: 40px 40px;
   border-bottom: 1px solid #ccc;
 }
@@ -913,7 +966,7 @@ onUnmounted(() => {
 
 .body-row {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 215px 1fr;
   height: 100%;
   overflow: hidden;
   min-height: 0;

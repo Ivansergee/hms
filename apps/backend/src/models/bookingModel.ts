@@ -46,6 +46,9 @@ export const bookingModel = {
     update,
     filter,
     editPlacement,
+    setStatus: t.Object({
+        status: t.Enum(enumToTypebox(BookingStatus)),
+    }),
     params: t.Object({
         id: t.Numeric(),
     }),

@@ -187,4 +187,14 @@ export class BookingService {
             departureMinutes: updatedBooking.departureMinutes,
         };
     }
+
+    async setStatus(id: number, status: BookingStatus): Promise<BookingStatus> {
+        const updatedBooking = await prisma.booking.update({
+            where: { id },
+            data: {
+                status,
+            },
+        });
+        return updatedBooking.status as BookingStatus;
+    }
 }

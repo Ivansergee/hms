@@ -31,6 +31,7 @@
           <template #bodyCell="{ record }">
             <RoomView
               :room="record"
+              :room-name-align="'left'"
             />
           </template>
         </a-table>

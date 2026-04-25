@@ -38,7 +38,7 @@ export class RoomService extends BaseService<
             where: { id },
             data: {
                 status,
-            }
+            },
         });
         return updatedRoom.status as RoomStatus;
     }

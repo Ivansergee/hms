@@ -1,4 +1,15 @@
 import type { BookingShort } from "@shared/types/booking";
+import type { ItemType } from "ant-design-vue";
+import { BookingContextMenuItem } from "@/enums/BookingContextMenuItem.ts";
+import { translateEnum } from "@/i18n/i18n.ts";
+import { h } from "vue";
+import {
+  DeleteOutlined,
+  InfoCircleOutlined,
+  LoginOutlined,
+  LogoutOutlined
+} from "@ant-design/icons-vue";
+import { BookingStatus } from "@shared/enums/BookingStatus.ts";
 
 export interface BookingWithLayout {
   booking: BookingShort,
@@ -38,4 +49,55 @@ export function isBookingPositionChanged(oldState: BookingShort, newState: Booki
   return oldState.checkInDate !== newState.checkInDate
     || oldState.checkOutDate !== newState.checkOutDate
     || oldState.roomId !== newState.roomId;
+}
+
+export function getContextMenuItems(booking: BookingShort): ItemType[] {
+  const items: ItemType[] = [
+    {
+      key: BookingContextMenuItem.INFO,
+      label: translateEnum(BookingContextMenuItem, BookingContextMenuItem.INFO),
+      icon: h(InfoCircleOutlined),
+    },
+  ];
+  switch (booking.status) {
+    case BookingStatus.ACTIVE:
+      items.push({
+        key: BookingContextMenuItem.CHECK_IN,
+        label: translateEnum(BookingContextMenuItem, BookingContextMenuItem.CHECK_IN),
+        icon: h(LoginOutlined),
+      })
+      break;
+    case BookingStatus.CHECKED_IN:
+      items.push(...[
+        {
+          key: BookingContextMenuItem.CANCEL_CHECK_IN,
+          label: translateEnum(BookingContextMenuItem, BookingContextMenuItem.CANCEL_CHECK_IN),
+          icon: h(LogoutOutlined),
+        },
+        {
+          key: BookingContextMenuItem.CHECK_OUT,
+          label: translateEnum(BookingContextMenuItem, BookingContextMenuItem.CHECK_OUT),
+          icon: h(LogoutOutlined),
+        }
+      ])
+      break;
+    case BookingStatus.CHECKED_OUT:
+      items.push({
+        key: BookingContextMenuItem.CANCEL_CHECK_OUT,
+        label: translateEnum(BookingContextMenuItem, BookingContextMenuItem.CANCEL_CHECK_OUT),
+        icon: h(LogoutOutlined),
+      })
+      break;
+    case BookingStatus.CANCELED:
+      break;
+    default:
+  }
+  items.push({
+    key: BookingContextMenuItem.DELETE,
+    label: translateEnum(BookingContextMenuItem, BookingContextMenuItem.DELETE),
+    danger: true,
+    icon: h(DeleteOutlined),
+  })
+
+  return items;
 }

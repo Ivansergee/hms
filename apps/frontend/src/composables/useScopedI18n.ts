@@ -1,6 +1,5 @@
 import { useI18n } from 'vue-i18n';
 import { getCurrentInstance } from 'vue';
-import { getEnumName } from "@/i18n/enumRegistry";
 
 export function useScopedI18n() {
   const { t: globalT } = useI18n();
@@ -12,19 +11,5 @@ export function useScopedI18n() {
     return globalT(scopedKey, options);
   }
 
-  const translateEnum = (enumObj: object, value: string | number): string => {
-    const enumName = getEnumName(enumObj);
-
-    if (!enumName) {
-      console.error('Enum is not registered');
-      return String(value);
-    }
-
-    const key = `ENUMS.${enumName}.${value}`;
-    const translated = globalT(key);
-
-    return translated === key ? String(value) : translated;
-  };
-
-  return { t, translateEnum };
+  return { t };
 }

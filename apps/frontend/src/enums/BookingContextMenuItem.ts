@@ -1,0 +1,8 @@
+export enum BookingContextMenuItem {
+  CHECK_IN = 'CHECK_IN',
+  CANCEL_CHECK_IN = 'CANCEL_CHECK_IN',
+  CANCEL_CHECK_OUT = 'CANCEL_CHECK_OUT',
+  CHECK_OUT = 'CHECK_OUT',
+  DELETE = 'DELETE',
+  INFO = 'INFO',
+}
