@@ -192,6 +192,7 @@ defineOptions({ name: 'PlanTable' });
 const { t } = useScopedI18n();
 
 let scrollLock = 0;
+let suppressNextScrollToDate = false;
 
 function withScrollLock(fn: () => void) {
   scrollLock++;
@@ -433,6 +434,7 @@ const shiftRight = (): void => {
     return;
   }
 
+  suppressNextScrollToDate = true;
   currentDate.value = currentDate.value.add(SHIFT_DAYS, 'day');
 
   gridScrollRef.value.scrollLeft -= SHIFT_DAYS * CELL_WIDTH;
@@ -447,6 +449,7 @@ const shiftLeft = (): void => {
     return;
   }
 
+  suppressNextScrollToDate = true;
   currentDate.value = currentDate.value.subtract(SHIFT_DAYS, 'day');
 
   gridScrollRef.value.scrollLeft += SHIFT_DAYS * CELL_WIDTH;
@@ -840,6 +843,11 @@ watch(currentDate, async (date: dayjs.Dayjs) => {
     rangeStart.value.format('YYYY-MM-DD'),
     rangeEnd.value.format('YYYY-MM-DD')
   );
+
+  if (suppressNextScrollToDate) {
+    suppressNextScrollToDate = false;
+    return;
+  }
 
   await nextTick();
   scrollToDate(date);
