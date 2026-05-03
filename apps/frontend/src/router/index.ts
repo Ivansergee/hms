@@ -1,6 +1,6 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import PlanView from "@/views/PlanView.vue";
-import SettingsView from "@/views/SettingsView.vue";
+import { createRouter, createWebHistory } from 'vue-router';
+import PlanView from '@/views/PlanView.vue';
+import SettingsView from '@/views/SettingsView.vue';
 
 export enum RouteName {
   PLAN = 'plan',
@@ -21,8 +21,8 @@ const router = createRouter({
       path: '/settings',
       name: 'settings',
       component: SettingsView,
-    }
+    },
   ],
-})
+});
 
-export default router
+export default router;

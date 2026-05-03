@@ -20,7 +20,10 @@
     :scroll="{ y: '390px' }"
   >
     <template #bodyCell="{ column, record }">
-      <a-tooltip v-if="column.key === 'name'" placement="topLeft">
+      <a-tooltip
+        v-if="column.key === 'name'"
+        placement="topLeft"
+      >
         <template #title>
           {{ t('paidAt') }} link
         </template>
@@ -40,14 +43,14 @@
   />
 </template>
 <script setup lang="ts">
-import type { FolioServiceRecord, FolioTransactionRecord } from "@/types/Folio.ts";
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
-import { h, ref } from "vue";
-import { CheckCircleFilled, DeleteOutlined } from "@ant-design/icons-vue";
-import { useServiceStore } from "@/stores/serviceStore.ts";
-import type { ColumnType } from "ant-design-vue/es/table";
-import { getFormattedDate } from "@/utils/dateTimeUtils.ts";
-import { folioQueries } from "@/queries/folioQueries.ts";
+import type { FolioServiceRecord, FolioTransactionRecord } from '@/types/Folio.ts';
+import { useScopedI18n } from '@/composables/useScopedI18n.ts';
+import { h, ref } from 'vue';
+import { CheckCircleFilled, DeleteOutlined } from '@ant-design/icons-vue';
+import { useServiceStore } from '@/stores/serviceStore.ts';
+import type { ColumnType } from 'ant-design-vue/es/table';
+import { getFormattedDate } from '@/utils/dateTimeUtils.ts';
+import { folioQueries } from '@/queries/folioQueries.ts';
 
 interface Props {
   folioId: number;
@@ -58,8 +61,7 @@ defineOptions({ name: 'TransactionsTable' });
 const { t } = useScopedI18n();
 
 const props = defineProps<Props>();
-const emit = defineEmits<{
-  (event: 'change'): void;
+const emit = defineEmits<{(event: 'change'): void;
 }>();
 
 const serviceStore = useServiceStore();
@@ -107,20 +109,14 @@ const columns: ColumnType<FolioTransactionRecord>[] = [
   },
 ];
 
-const getRowClassName = (record: FolioServiceRecord): string | undefined => {
-  return selectedItems.value.some(item => item.id === record.id) ? 'selected' : undefined;
-};
+const getRowClassName = (record: FolioServiceRecord): string | undefined => (selectedItems.value.some((item) => item.id === record.id) ? 'selected' : undefined);
 
-const isItemPaid = (item: FolioServiceRecord): boolean => {
-  return !!item.paymentId;
-};
+const isItemPaid = (item: FolioServiceRecord): boolean => !!item.paymentId;
 
-const getRecordName = (record: FolioServiceRecord): string => {
-  return serviceStore.getById(record.serviceId)?.name ?? '';
-};
+const getRecordName = (record: FolioServiceRecord): string => serviceStore.getById(record.serviceId)?.name ?? '';
 
 const onDeleteItems = async () => {
-  await folioQueries.deleteItems(selectedItems.value.map(item => item.id));
+  await folioQueries.deleteItems(selectedItems.value.map((item) => item.id));
   emitChange();
 };
 
@@ -128,27 +124,25 @@ const emitChange = () => {
   emit('change');
 };
 
-const customRow = (record: FolioServiceRecord) => {
-  return {
-    onClick: (e: MouseEvent) => {
-      const isSelected = selectedItems.value.some(item => item.id === record.id);
+const customRow = (record: FolioServiceRecord) => ({
+  onClick: (e: MouseEvent) => {
+    const isSelected = selectedItems.value.some((item) => item.id === record.id);
 
-      if (e.ctrlKey || e.metaKey) {
-        if (isSelected) {
-          selectedItems.value = selectedItems.value.filter(item => item.id !== record.id);
-        } else {
-          selectedItems.value.push(record);
-        }
-        return;
-      }
+    if (e.ctrlKey || e.metaKey) {
       if (isSelected) {
-        selectedItems.value = selectedItems.value.length === 1 ? [] : [record];
+        selectedItems.value = selectedItems.value.filter((item) => item.id !== record.id);
       } else {
-        selectedItems.value = [record];
+        selectedItems.value.push(record);
       }
-    },
-  };
-}
+      return;
+    }
+    if (isSelected) {
+      selectedItems.value = selectedItems.value.length === 1 ? [] : [record];
+    } else {
+      selectedItems.value = [record];
+    }
+  },
+});
 </script>
 <style scoped>
 

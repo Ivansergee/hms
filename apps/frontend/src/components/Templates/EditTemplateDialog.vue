@@ -36,61 +36,61 @@
         Upload
       </a-button>
     </a-upload>
-<!--    <DocumentEditor-->
-<!--      v-if="uploadedFileUrl"-->
-<!--      documentServerUrl="http://192.168.3.2:8765"-->
-<!--      id="docEditor"-->
-<!--      height="500px"-->
-<!--      :config="{-->
-<!--        document: {-->
-<!--          fileType: 'docx',-->
-<!--          title: 'Template.docx',-->
-<!--          url: uploadedFileUrl,-->
-<!--          key: String(Date.now()),-->
-<!--        },-->
-<!--        editorConfig: {-->
-<!--          mode: 'edit',-->
-<!--          customization: {-->
-<!--            compactHeader: true,-->
-<!--            compactToolbar: true,-->
-<!--            toolbarNoTabs: true,-->
-<!--            hideRightMenu: true,-->
-<!--            hideRulers: true,-->
-<!--            comments: false,-->
-<!--            chat: false,-->
-<!--            feedback: false,-->
-<!--            help: false,-->
-<!--            autosave: false,-->
-<!--            plugins: false,-->
-<!--            macros: false,-->
-<!--            forcesave: false,-->
-<!--            review: {-->
-<!--              showReviewChanges: false,-->
-<!--              trackChanges: false,-->
-<!--              hideReviewDisplay: true,-->
-<!--            },-->
-<!--            logo: {-->
-<!--              visible: false,-->
-<!--            },-->
-<!--            goback: false,-->
-<!--            close: {-->
-<!--              visible: false,-->
-<!--              text: '',-->
-<!--            },-->
-<!--            pointerMode: 'select',-->
-<!--          }-->
-<!--        },-->
-<!--      }"-->
-<!--    />-->
+    <!--    <DocumentEditor-->
+    <!--      v-if="uploadedFileUrl"-->
+    <!--      documentServerUrl="http://192.168.3.2:8765"-->
+    <!--      id="docEditor"-->
+    <!--      height="500px"-->
+    <!--      :config="{-->
+    <!--        document: {-->
+    <!--          fileType: 'docx',-->
+    <!--          title: 'Template.docx',-->
+    <!--          url: uploadedFileUrl,-->
+    <!--          key: String(Date.now()),-->
+    <!--        },-->
+    <!--        editorConfig: {-->
+    <!--          mode: 'edit',-->
+    <!--          customization: {-->
+    <!--            compactHeader: true,-->
+    <!--            compactToolbar: true,-->
+    <!--            toolbarNoTabs: true,-->
+    <!--            hideRightMenu: true,-->
+    <!--            hideRulers: true,-->
+    <!--            comments: false,-->
+    <!--            chat: false,-->
+    <!--            feedback: false,-->
+    <!--            help: false,-->
+    <!--            autosave: false,-->
+    <!--            plugins: false,-->
+    <!--            macros: false,-->
+    <!--            forcesave: false,-->
+    <!--            review: {-->
+    <!--              showReviewChanges: false,-->
+    <!--              trackChanges: false,-->
+    <!--              hideReviewDisplay: true,-->
+    <!--            },-->
+    <!--            logo: {-->
+    <!--              visible: false,-->
+    <!--            },-->
+    <!--            goback: false,-->
+    <!--            close: {-->
+    <!--              visible: false,-->
+    <!--              text: '',-->
+    <!--            },-->
+    <!--            pointerMode: 'select',-->
+    <!--          }-->
+    <!--        },-->
+    <!--      }"-->
+    <!--    />-->
   </a-modal>
 </template>
 <script setup lang="ts">
-import { useScopedI18n } from "@/composables/useScopedI18n";
-import { ref } from "vue";
-import type { FileType } from "ant-design-vue/es/upload/interface";
+import { useScopedI18n } from '@/composables/useScopedI18n';
+import { ref } from 'vue';
+import type { FileType } from 'ant-design-vue/es/upload/interface';
 import { UploadOutlined } from '@ant-design/icons-vue';
-import fetcher from "@/queries/fetcher";
-import { DocumentEditor } from "@onlyoffice/document-editor-vue";
+import fetcher from '@/queries/fetcher';
+import { DocumentEditor } from '@onlyoffice/document-editor-vue';
 
 interface DocParagraph {
   text: string;
@@ -105,8 +105,7 @@ defineOptions({ name: 'EditTemplateDialog' });
 const { t } = useScopedI18n();
 
 const props = defineProps<Props>();
-const emit = defineEmits<{
-  (event: 'close'): void
+const emit = defineEmits<{(event: 'close'): void
 }>();
 
 const isLoading = ref<boolean>(false);
@@ -118,7 +117,7 @@ const onClose = (): void => {
 
 const handleBeforeUpload = async (file: FileType) => {
   if (!file.name.endsWith('.docx')) {
-    return false
+    return false;
   }
 
   const formData = new FormData();
@@ -129,7 +128,7 @@ const handleBeforeUpload = async (file: FileType) => {
   });
 
   return false;
-}
+};
 </script>
 <style scoped>
 

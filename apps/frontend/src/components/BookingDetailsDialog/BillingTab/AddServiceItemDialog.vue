@@ -69,7 +69,10 @@
             name="quantity"
             :label="t('quantity')"
           >
-            <a-input-number v-model:value="formModel.quantity" :min="1"/>
+            <a-input-number
+              v-model:value="formModel.quantity"
+              :min="1"
+            />
           </a-form-item>
         </a-col>
       </a-row>
@@ -77,16 +80,16 @@
   </a-modal>
 </template>
 <script setup lang="ts">
-import { useServiceStore } from "@/stores/serviceStore.ts";
-import type { ColumnType } from "ant-design-vue/es/table";
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
-import { computed, reactive, ref } from "vue";
-import type { Service, ServiceGroup } from "@shared/types/service.ts";
-import dayjs, { type Dayjs } from "dayjs";
-import type { RuleObject } from "ant-design-vue/es/form";
-import { folioQueries } from "@/queries/folioQueries.ts";
-import Decimal from "decimal.js";
-import { toISOString } from "@/utils/dateTimeUtils.ts";
+import { useServiceStore } from '@/stores/serviceStore.ts';
+import type { ColumnType } from 'ant-design-vue/es/table';
+import { useScopedI18n } from '@/composables/useScopedI18n.ts';
+import { computed, reactive, ref } from 'vue';
+import type { Service, ServiceGroup } from '@shared/types/service.ts';
+import dayjs, { type Dayjs } from 'dayjs';
+import type { RuleObject } from 'ant-design-vue/es/form';
+import { folioQueries } from '@/queries/folioQueries.ts';
+import Decimal from 'decimal.js';
+import { toISOString } from '@/utils/dateTimeUtils.ts';
 
 interface Props {
   isOpen: boolean;
@@ -102,8 +105,7 @@ defineOptions({ name: 'AddServiceItemDialog' });
 const { t } = useScopedI18n();
 
 const props = defineProps<Props>();
-const emit = defineEmits<{
-  (event: 'close'): void;
+const emit = defineEmits<{(event: 'close'): void;
   (event: 'add'): void;
 }>();
 
@@ -131,18 +133,16 @@ const groupCols: ColumnType[] = [
   },
 ];
 
-const groups = computed<ServiceGroup[]>(() => {
-  return [
-    { id: 0, name: t('all') },
-    ...serviceStore.groups,
-  ];
-});
+const groups = computed<ServiceGroup[]>(() => [
+  { id: 0, name: t('all') },
+  ...serviceStore.groups,
+]);
 
 const services = computed<Service[]>(() => {
   if (selectedGroup.value.id === 0) {
     return serviceStore.services;
   }
-  return serviceStore.services.filter(service => service.groupId === selectedGroup.value?.id);
+  return serviceStore.services.filter((service) => service.groupId === selectedGroup.value?.id);
 });
 
 const formRef = ref();
@@ -163,35 +163,27 @@ const rules: { [key: string]: RuleObject[] } = {
     required: true,
     message: t('errorRequiredField'),
   }],
-}
-
-const customGroupRow = (record: ServiceGroup) => {
-  return {
-    onClick: () => {
-        selectedGroup.value = record;
-    }
-  };
-}
-
-const customServiceRow = (record: Service) => {
-  return {
-    onClick: () => {
-      if (selectedService.value?.id === record.id) {
-        selectedService.value = undefined;
-      } else {
-        selectedService.value = record;
-      }
-    }
-  };
-}
-
-const getGroupRowClassName = (record: ServiceGroup): string | undefined => {
-  return selectedGroup.value?.id === record.id ? 'selected' : undefined;
 };
 
-const getServiceRowClassName = (record: Service): string | undefined => {
-  return selectedService.value?.id === record.id ? 'selected' : undefined;
-};
+const customGroupRow = (record: ServiceGroup) => ({
+  onClick: () => {
+    selectedGroup.value = record;
+  },
+});
+
+const customServiceRow = (record: Service) => ({
+  onClick: () => {
+    if (selectedService.value?.id === record.id) {
+      selectedService.value = undefined;
+    } else {
+      selectedService.value = record;
+    }
+  },
+});
+
+const getGroupRowClassName = (record: ServiceGroup): string | undefined => (selectedGroup.value?.id === record.id ? 'selected' : undefined);
+
+const getServiceRowClassName = (record: Service): string | undefined => (selectedService.value?.id === record.id ? 'selected' : undefined);
 
 const onAdd = async () => {
   if (selectedService.value) {

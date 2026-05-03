@@ -8,11 +8,11 @@ const api = axios.create({
 });
 
 api.interceptors.response.use(
-  response => response,
-  error => {
+  (response) => response,
+  (error) => {
     console.error(error);
     return Promise.reject(error);
-  }
+  },
 );
 
 const fetcher = {
@@ -57,7 +57,7 @@ const fetcher = {
   ): Promise<TRes> {
     const { data } = await api.patch<TRes>(url, body, { params });
     return data;
-  }
+  },
 };
 
 export default fetcher;

@@ -1,5 +1,5 @@
-import fetcher from "@/queries/fetcher";
-import type { Service, ServiceGroup } from "@shared/types/service";
+import fetcher from '@/queries/fetcher';
+import type { Service, ServiceGroup } from '@shared/types/service';
 
 export const serviceQueries = {
   getAll(): Promise<Service[]> {
@@ -7,5 +7,5 @@ export const serviceQueries = {
   },
   getGroups(): Promise<ServiceGroup[]> {
     return fetcher.get<ServiceGroup[]>('/service/group');
-  }
+  },
 };

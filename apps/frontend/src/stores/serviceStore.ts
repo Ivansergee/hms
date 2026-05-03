@@ -1,7 +1,7 @@
-import { defineStore } from "pinia";
-import type { Service, ServiceGroup } from "@shared/types/service";
-import { ref } from "vue";
-import { serviceQueries } from "@/queries/serviceQueries";
+import { defineStore } from 'pinia';
+import type { Service, ServiceGroup } from '@shared/types/service';
+import { ref } from 'vue';
+import { serviceQueries } from '@/queries/serviceQueries';
 
 export const useServiceStore = defineStore('services', () => {
   const services = ref<Service[]>([]);
@@ -12,9 +12,7 @@ export const useServiceStore = defineStore('services', () => {
     groups.value = await serviceQueries.getGroups();
   };
 
-  const getById = (id: number): Service | undefined => {
-    return services.value.find(service => service.id === id);
-  };
+  const getById = (id: number): Service | undefined => services.value.find((service) => service.id === id);
 
   return {
     services,

@@ -9,7 +9,7 @@ export function useScopedI18n() {
   const t = (key: string, options?: any): string => {
     const scopedKey = componentName ? `${componentName}.${key}` : key;
     return globalT(scopedKey, options);
-  }
+  };
 
   return { t };
 }

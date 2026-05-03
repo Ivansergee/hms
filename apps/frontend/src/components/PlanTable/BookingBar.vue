@@ -1,53 +1,53 @@
 <template>
-<div
-  ref="bar"
-  class="booking-bar"
-  :class="{
-    creating: isCreating,
-    ghost: isGhost,
-    'drag-source': isDragSource,
-  }"
-  :style="{
-    top: `${topOffset}px`,
-    left: `${leftOffset}px`,
-    width: `${length}px`,
-    backgroundColor,
-  }"
-  @mouseenter="$emit('mouse-enter')"
-  @mousedown="onDrag"
-  @click="onClick"
-  @contextmenu.prevent="onRightClick"
->
   <div
-    v-if="isHandlesVisible"
-    class="resize-handle left"
-    :style="{ backgroundColor }"
-    @mousedown="onResize($event, ResizeDirection.LEFT)"
-  ></div>
-  <a-typography-text
-    :content="title"
-    :style="{
-      color: isCreating ? 'black' : 'white',
+    ref="bar"
+    class="booking-bar"
+    :class="{
+      creating: isCreating,
+      ghost: isGhost,
+      'drag-source': isDragSource,
     }"
-    ellipsis
-  />
-  <div
-    v-if="isHandlesVisible"
-    class="resize-handle right"
-    :style="{ backgroundColor }"
-    @mousedown="onResize($event, ResizeDirection.RIGHT)"
-  ></div>
-</div>
+    :style="{
+      top: `${topOffset}px`,
+      left: `${leftOffset}px`,
+      width: `${length}px`,
+      backgroundColor,
+    }"
+    @mouseenter="$emit('mouse-enter')"
+    @mousedown="onDrag"
+    @click="onClick"
+    @contextmenu.prevent="onRightClick"
+  >
+    <div
+      v-if="isHandlesVisible"
+      class="resize-handle left"
+      :style="{ backgroundColor }"
+      @mousedown="onResize($event, ResizeDirection.LEFT)"
+    />
+    <a-typography-text
+      :content="title"
+      :style="{
+        color: isCreating ? 'black' : 'white',
+      }"
+      ellipsis
+    />
+    <div
+      v-if="isHandlesVisible"
+      class="resize-handle right"
+      :style="{ backgroundColor }"
+      @mousedown="onResize($event, ResizeDirection.RIGHT)"
+    />
+  </div>
 </template>
 <script setup lang="ts">
 import {
   type DragEventPayload,
   ResizeDirection,
-  type ResizeEventPayload
-} from "@/utils/planTableUtils";
-import { computed, useTemplateRef } from "vue";
-import { useScopedI18n } from "@/composables/useScopedI18n";
-import { BookingStatus } from "@shared/enums/BookingStatus.ts";
+  type ResizeEventPayload,
+} from '@/utils/planTableUtils';
+import { computed, useTemplateRef } from 'vue';
+import { useScopedI18n } from '@/composables/useScopedI18n';
+import { BookingStatus } from '@shared/enums/BookingStatus.ts';
 
 interface Props {
   topOffset: number,
@@ -66,8 +66,7 @@ defineOptions({ name: 'BookingBar' });
 const { t } = useScopedI18n();
 
 const props = defineProps<Props>();
-const emit = defineEmits<{
-  (event: 'bar-clicked'): void;
+const emit = defineEmits<{(event: 'bar-clicked'): void;
   (event: 'mouse-enter'): void;
   (event: 'drag-start', pointerPosition: DragEventPayload): void;
   (event: 'resize-start', resizeData: ResizeEventPayload): void;
@@ -92,9 +91,7 @@ const backgroundColor = computed<string>(() => {
   }
 });
 
-const isHandlesVisible = computed<boolean>(() => {
-  return !props.isCreating && !props.isDragSource && props.status !== BookingStatus.CHECKED_OUT;
-});
+const isHandlesVisible = computed<boolean>(() => !props.isCreating && !props.isDragSource && props.status !== BookingStatus.CHECKED_OUT);
 
 let startX = 0;
 let startY = 0;
@@ -140,7 +137,7 @@ const onDrag = (e: MouseEvent) => {
 const onResize = (e: MouseEvent, direction: ResizeDirection) => {
   e.stopPropagation();
   emit('resize-start', { direction, startX: e.clientX });
-}
+};
 
 const onClick = () => {
   if (isDragging) {

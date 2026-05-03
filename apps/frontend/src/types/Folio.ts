@@ -1,4 +1,4 @@
-import type { FolioItem, Transaction } from "@shared/types/folio.ts";
+import type { FolioItem, Transaction } from '@shared/types/folio.ts';
 
 export enum FolioItemType {
   SERVICE = 'service',
@@ -13,4 +13,4 @@ export interface FolioTransactionRecord extends Transaction {
   itemType: FolioItemType.TRANSACTION;
 }
 
-export type FolioTableRecord =  FolioServiceRecord | FolioTransactionRecord;
+export type FolioTableRecord = FolioServiceRecord | FolioTransactionRecord;

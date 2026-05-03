@@ -7,7 +7,8 @@
           v-if="isMainGuest"
           class="guest-form__main-guest"
           :bordered="false"
-          color="processing">
+          color="processing"
+        >
           {{ t('mainGuest') }}
         </a-tag>
       </div>
@@ -58,7 +59,7 @@
         <a-form-item
           :label="t('birthdate')"
         >
-          <DateInput v-model="guest.birthdate"/>
+          <DateInput v-model="guest.birthdate" />
         </a-form-item>
       </a-col>
     </a-row>
@@ -78,10 +79,10 @@
         <a-form-item
           :label="t('email')"
           :rules="{
-                  type: 'email',
-                  message: t('errorNotValidEmail'),
-                  trigger: 'blur',
-                }"
+            type: 'email',
+            message: t('errorNotValidEmail'),
+            trigger: 'blur',
+          }"
         >
           <a-input
             v-model:value="guest.email"
@@ -93,9 +94,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import { MinusCircleOutlined } from "@ant-design/icons-vue";
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
-import type { Guest } from "@shared/types/guest.ts";
+import { MinusCircleOutlined } from '@ant-design/icons-vue';
+import { useScopedI18n } from '@/composables/useScopedI18n.ts';
+import type { Guest } from '@shared/types/guest.ts';
 
 interface Props {
   guest: Partial<Guest>;
@@ -105,8 +106,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits<{
-  (event: 'remove'): void;
+const emit = defineEmits<{(event: 'remove'): void;
 }>();
 
 defineOptions({ name: 'GuestForm' });

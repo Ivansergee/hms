@@ -1,5 +1,5 @@
-import type { RoomStatus } from "@shared/enums/RoomStatus";
-import type { Category } from "@shared/types/category.ts";
+import type { RoomStatus } from '@shared/enums/RoomStatus';
+import type { Category } from '@shared/types/category.ts';
 
 export interface Room {
   id: number;

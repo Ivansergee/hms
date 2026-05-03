@@ -26,7 +26,9 @@
       :scroll="{ y: '155px' }"
     />
     <a-radio-group v-model:value="itemsMode">
-      <a-radio :value="ItemsMode.ALL">{{ t('all') }}</a-radio>
+      <a-radio :value="ItemsMode.ALL">
+        {{ t('all') }}
+      </a-radio>
       <a-radio
         :value="ItemsMode.SELECTED"
       >
@@ -37,20 +39,20 @@
       :level="5"
       :style="{ 'text-align': 'right' }"
     >
-      {{t('total')}}: {{total}}
+      {{ t('total') }}: {{ total }}
     </a-typography-title>
   </a-modal>
 </template>
 <script setup lang="ts">
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
-import type { ColumnType } from "ant-design-vue/es/table";
-import { PaymentMethod } from "@/enums/PaymentMethod.ts";
-import { computed, ref, watch } from "vue";
-import type { FolioItem } from "@shared/types/folio.ts";
-import Decimal from "decimal.js";
-import { folioQueries } from "@/queries/folioQueries.ts";
-import { TransactionType } from "@shared/enums/TransactionType.ts";
-import { translateEnum } from "@/i18n/i18n.ts";
+import { useScopedI18n } from '@/composables/useScopedI18n.ts';
+import type { ColumnType } from 'ant-design-vue/es/table';
+import { PaymentMethod } from '@/enums/PaymentMethod.ts';
+import { computed, ref, watch } from 'vue';
+import type { FolioItem } from '@shared/types/folio.ts';
+import Decimal from 'decimal.js';
+import { folioQueries } from '@/queries/folioQueries.ts';
+import { TransactionType } from '@shared/enums/TransactionType.ts';
+import { translateEnum } from '@/i18n/i18n.ts';
 
 type PaymentMethodRecord = { name: PaymentMethod };
 
@@ -69,8 +71,7 @@ defineOptions({ name: 'PaymentDialog' });
 const { t } = useScopedI18n();
 
 const props = defineProps<Props>();
-const emit = defineEmits<{
-  (event: 'close'): void;
+const emit = defineEmits<{(event: 'close'): void;
   (event: 'add'): void;
 }>();
 
@@ -85,42 +86,32 @@ const columns: ColumnType[] = [
     customRender({ text }) {
       return translateEnum(PaymentMethod, text);
     },
-  }
+  },
 ];
 
 const paymentMethods: PaymentMethodRecord[] = Object.values(PaymentMethod)
-  .map(method => ({ name: method }));
+  .map((method) => ({ name: method }));
 
-const getRowClassName = (record: PaymentMethodRecord) => {
-  return selectedMethod.value === record.name ? 'selected' : undefined;
-};
+const getRowClassName = (record: PaymentMethodRecord) => (selectedMethod.value === record.name ? 'selected' : undefined);
 
-const customRow = (record: PaymentMethodRecord) => {
-  return {
-    onClick: () => {
-      if (selectedMethod.value === record.name) {
-        selectedMethod.value = undefined;
-      } else {
-        selectedMethod.value = record.name;
-      }
+const customRow = (record: PaymentMethodRecord) => ({
+  onClick: () => {
+    if (selectedMethod.value === record.name) {
+      selectedMethod.value = undefined;
+    } else {
+      selectedMethod.value = record.name;
     }
-  };
-}
-
-const items = computed<FolioItem[]>(() => {
-  return itemsMode.value === ItemsMode.ALL ? props.allItems : props.selectedItems;
+  },
 });
 
-const total = computed<string>(() => {
-  return items.value.reduce<string>((total, item) => {
-    total = new Decimal(total).add(item.totalPrice).toFixed(2);
-    return total;
-  }, '0.00');
-});
+const items = computed<FolioItem[]>(() => (itemsMode.value === ItemsMode.ALL ? props.allItems : props.selectedItems));
 
-const isConfirmButtonDisabled = computed<boolean>(() => {
-  return !selectedMethod.value || total.value === '0.00';
-});
+const total = computed<string>(() => items.value.reduce<string>((total, item) => {
+  total = new Decimal(total).add(item.totalPrice).toFixed(2);
+  return total;
+}, '0.00'));
+
+const isConfirmButtonDisabled = computed<boolean>(() => !selectedMethod.value || total.value === '0.00');
 
 const confirmButtonTitle = computed<string | undefined>(() => {
   if (!selectedMethod.value) {
@@ -144,7 +135,7 @@ const initPayment = async () => {
     type: TransactionType.PAYMENT,
     method: selectedMethod.value,
     amount: total.value,
-    folioItemIds: items.value.map(item => item.id),
+    folioItemIds: items.value.map((item) => item.id),
   });
   emit('add');
 };
@@ -157,7 +148,7 @@ watch(
         ? ItemsMode.SELECTED
         : ItemsMode.ALL;
     }
-  }
+  },
 );
 </script>
 <style scoped>

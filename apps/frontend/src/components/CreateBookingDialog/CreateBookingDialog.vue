@@ -21,23 +21,32 @@
       ref="formRef"
       :model="form"
       :rules="rules"
-      :hideRequiredMark="true"
+      :hide-required-mark="true"
       :colon="false"
       layout="vertical"
     >
       <a-divider orientation="left">
         {{ t('datesAndRoom') }}
       </a-divider>
-      <a-row :gutter="12" align="stretch">
-        <a-col span="12" style="display: flex">
-          <a-card class="w100" size="small">
+      <a-row
+        :gutter="12"
+        align="stretch"
+      >
+        <a-col
+          span="12"
+          style="display: flex"
+        >
+          <a-card
+            class="w100"
+            size="small"
+          >
             <a-form-item
               :label="t('range')"
               name="range"
             >
               <a-range-picker
-                class="w100"
                 v-model:value="form.range"
+                class="w100"
                 :placeholder="[t('startDate'), t('endDate')]"
                 :format="['DD.MM.YYYY', 'DD.MM.YYYY']"
                 value-format="YYYY-MM-DD"
@@ -56,8 +65,8 @@
                     format="HH:mm"
                     value-format="HH:mm"
                     :placeholder="t('checkInTime')"
-                    :allowClear="false"
-                    :showNow="false"
+                    :allow-clear="false"
+                    :show-now="false"
                   />
                 </a-form-item>
               </a-col>
@@ -72,15 +81,18 @@
                     format="HH:mm"
                     value-format="HH:mm"
                     :placeholder="t('checkOutTime')"
-                    :allowClear="false"
-                    :showNow="false"
+                    :allow-clear="false"
+                    :show-now="false"
                   />
                 </a-form-item>
               </a-col>
             </a-row>
           </a-card>
         </a-col>
-        <a-col span="12" style="display: flex">
+        <a-col
+          span="12"
+          style="display: flex"
+        >
           <a-card size="small">
             <RoomSelector
               v-model="form.roomId"
@@ -119,17 +131,17 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
-import { useBookingStore } from "@/stores/bookingStore";
-import type { GuestInput } from "@shared/types/guest";
-import { useScopedI18n } from "@/composables/useScopedI18n";
-import { useRoomStore } from "@/stores/roomStore";
-import type { RuleObject } from "ant-design-vue/es/form";
-import { PlusOutlined } from "@ant-design/icons-vue";
-import type { RoomWithCategory } from "@/types/Room.ts";
-import type { Dayjs } from "dayjs";
-import { type BookingPlacement } from "@shared/types/booking.ts";
-import { timeToMinutes } from "@/utils/dateTimeUtils.ts";
+import { reactive, ref, watch } from 'vue';
+import { useBookingStore } from '@/stores/bookingStore';
+import type { GuestInput } from '@shared/types/guest';
+import { useScopedI18n } from '@/composables/useScopedI18n';
+import { useRoomStore } from '@/stores/roomStore';
+import type { RuleObject } from 'ant-design-vue/es/form';
+import { PlusOutlined } from '@ant-design/icons-vue';
+import type { RoomWithCategory } from '@/types/Room.ts';
+import type { Dayjs } from 'dayjs';
+import { type BookingPlacement } from '@shared/types/booking.ts';
+import { timeToMinutes } from '@/utils/dateTimeUtils.ts';
 
 export interface GuestFormState {
   uiId: number;
@@ -159,8 +171,7 @@ defineOptions({ name: 'CreateBookingDialog' });
 const { t } = useScopedI18n();
 
 const props = defineProps<Props>();
-const emit = defineEmits<{
-  (event: 'close'): void;
+const emit = defineEmits<{(event: 'close'): void;
 }>();
 
 const bookingStore = useBookingStore();
@@ -194,7 +205,7 @@ const rules: { [key: string]: RuleObject[] } = {
     required: true,
     message: t('roomRequiredError'),
   }],
-}
+};
 
 const isLoading = ref<boolean>(false);
 const availableRooms = ref<RoomWithCategory[]>([]);
@@ -214,22 +225,20 @@ const isFormValid = (form: FormState): boolean => {
   });
 };
 
-const mapGuestsToInput = (guests: GuestFormState[]): GuestInput[] => {
-  return guests.map((guest) => {
-    if (guest.id) {
-      return { id: guest.id };
-    }
+const mapGuestsToInput = (guests: GuestFormState[]): GuestInput[] => guests.map((guest) => {
+  if (guest.id) {
+    return { id: guest.id };
+  }
 
-    return {
-      firstName: guest.firstName!,
-      lastName: guest.lastName!,
-      parentName: guest.parentName,
-      birthdate: guest.birthdate,
-      phone: guest.phone,
-      email: guest.email,
-    };
-  });
-};
+  return {
+    firstName: guest.firstName!,
+    lastName: guest.lastName!,
+    parentName: guest.parentName,
+    birthdate: guest.birthdate,
+    phone: guest.phone,
+    email: guest.email,
+  };
+});
 
 const save = async (): Promise<void> => {
   if (!isFormValid(form)) {
@@ -245,14 +254,14 @@ const save = async (): Promise<void> => {
     guests: mapGuestsToInput(form.guests),
     mainGuestIndex: 0,
   });
-  close()
+  close();
 };
 
 const addGuest = (): void => {
   if (!form.guests) {
     return;
   }
-  form.guests.push({ uiId: Date.now() })
+  form.guests.push({ uiId: Date.now() });
 };
 
 const removeGuest = (index: number): void => {
@@ -274,7 +283,7 @@ const onRangeChange = (values: [Dayjs, Dayjs] | [string, string] | null): void =
   } else {
     availableRooms.value = [];
   }
-}
+};
 
 const setAvailableRooms = async (checkInDate: string, checkOutDate: string): Promise<void> => {
   availableRooms.value = await roomStore.getAvailableRooms(checkInDate, checkOutDate);
@@ -282,12 +291,12 @@ const setAvailableRooms = async (checkInDate: string, checkOutDate: string): Pro
 
 watch(() => props.open, async (isOpen: boolean) => {
   if (isOpen && props.state) {
-    const { checkInDate, checkOutDate, roomId} = props.state;
+    const { checkInDate, checkOutDate, roomId } = props.state;
     form.range = [checkInDate, checkOutDate];
     await setAvailableRooms(checkInDate, checkOutDate);
     form.roomId = roomId;
   }
-})
+});
 </script>
 <style>
 .create-booking-dialog {

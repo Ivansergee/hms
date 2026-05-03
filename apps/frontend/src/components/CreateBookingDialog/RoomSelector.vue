@@ -40,12 +40,14 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from "vue";
-import type { Room, RoomWithCategory } from "@/types/Room.ts";
-import type { Category } from "@shared/types/category.ts";
-import type { ColumnType } from "ant-design-vue/es/table";
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
-import { useRoomStore } from "@/stores/roomStore.ts";
+import {
+  computed, nextTick, ref, watch,
+} from 'vue';
+import type { Room, RoomWithCategory } from '@/types/Room.ts';
+import type { Category } from '@shared/types/category.ts';
+import type { ColumnType } from 'ant-design-vue/es/table';
+import { useScopedI18n } from '@/composables/useScopedI18n.ts';
+import { useRoomStore } from '@/stores/roomStore.ts';
 
 interface Props {
   availableRooms: RoomWithCategory[];
@@ -56,8 +58,7 @@ defineOptions({ name: 'RoomSelector' });
 const { t } = useScopedI18n();
 
 const props = defineProps<Props>();
-const emit = defineEmits<{
-  (event: 'update:modelValue', roomId: number | undefined): void;
+const emit = defineEmits<{(event: 'update:modelValue', roomId: number | undefined): void;
 }>();
 
 const roomStore = useRoomStore();
@@ -84,10 +85,12 @@ const roomCols: ColumnType[] = [
 
 const availableCategories = computed<Category[]>(() => {
   const categories: Category[] = roomStore.categories.filter((category) => {
-    const availableCategoryIds = props.availableRooms.map(room => room.category?.id);
+    const availableCategoryIds = props.availableRooms.map((room) => room.category?.id);
     return availableCategoryIds.includes(category.id);
   });
-  categories.unshift({ id: 0, name: t('all'), tag: '', capacity: 0 });
+  categories.unshift({
+    id: 0, name: t('all'), tag: '', capacity: 0,
+  });
   return categories;
 });
 
@@ -95,36 +98,26 @@ const filteredRooms = computed<RoomWithCategory[]>(() => {
   if (selectedCategoryId.value === 0) {
     return props.availableRooms;
   }
-  return props.availableRooms.filter(room => room.category?.id === selectedCategoryId.value);
+  return props.availableRooms.filter((room) => room.category?.id === selectedCategoryId.value);
 });
 
-const emptyText = computed<string>(() => {
-  return props.isRangeSet ? t('noRoomsAvailable') : t('selectDates');
+const emptyText = computed<string>(() => (props.isRangeSet ? t('noRoomsAvailable') : t('selectDates')));
+
+const customCategoryRow = (record: Category) => ({
+  onClick: () => {
+    selectedCategoryId.value = record.id;
+  },
 });
 
-const customCategoryRow = (record: Category) => {
-  return {
-    onClick: () => {
-      selectedCategoryId.value = record.id;
-    }
-  };
-};
+const customRoomRow = (record: Room) => ({
+  onClick: () => {
+    selectedRoomId.value = record.id;
+  },
+});
 
-const customRoomRow = (record: Room) => {
-  return {
-    onClick: () => {
-      selectedRoomId.value = record.id;
-    }
-  };
-};
+const getCategoryRowClassName = (record: Category): string | undefined => (selectedCategoryId.value === record.id ? 'selected' : undefined);
 
-const getCategoryRowClassName = (record: Category): string | undefined => {
-  return selectedCategoryId.value === record.id ? 'selected' : undefined;
-};
-
-const getRoomRowClassName = (record: Room): string | undefined => {
-  return selectedRoomId.value === record.id ? 'room selected' : undefined;
-};
+const getRoomRowClassName = (record: Room): string | undefined => (selectedRoomId.value === record.id ? 'room selected' : undefined);
 
 const scrollToSelected = async () => {
   await nextTick();

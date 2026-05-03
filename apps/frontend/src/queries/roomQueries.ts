@@ -1,7 +1,7 @@
-import type { Room } from "@/types/Room";
-import fetcher from "@/queries/fetcher";
-import type { Category } from "@shared/types/category.ts";
-import type { RoomStatus } from "@shared/enums/RoomStatus.ts";
+import type { Room } from '@/types/Room';
+import fetcher from '@/queries/fetcher';
+import type { Category } from '@shared/types/category.ts';
+import type { RoomStatus } from '@shared/enums/RoomStatus.ts';
 
 export const roomQueries = {
   getAllRooms(): Promise<Room[]> {
@@ -15,5 +15,5 @@ export const roomQueries = {
   },
   setStatus(id: number, status: RoomStatus): Promise<void> {
     return fetcher.post(`/room/${id}/setStatus`, { status });
-  }
+  },
 };

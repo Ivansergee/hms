@@ -1,11 +1,11 @@
-import fetcher from "@/queries/fetcher";
+import fetcher from '@/queries/fetcher';
 import type {
   Folio,
   FolioItem,
   FolioItemCreate,
   Transaction,
   TransactionCreate,
-} from "@shared/types/folio";
+} from '@shared/types/folio';
 
 export const folioQueries = {
   getById(id: number): Promise<Folio> {
@@ -21,6 +21,6 @@ export const folioQueries = {
   },
 
   addTransaction(txData: TransactionCreate): Promise<Transaction> {
-    return fetcher.post<Transaction>(`/folio/addTransaction`, txData);
+    return fetcher.post<Transaction>('/folio/addTransaction', txData);
   },
 };

@@ -1,8 +1,8 @@
 import dayjs, { Dayjs } from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
-import isBetween from "dayjs/plugin/isBetween";
-import minMax from 'dayjs/plugin/minMax'
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isBetween from 'dayjs/plugin/isBetween';
+import minMax from 'dayjs/plugin/minMax';
 
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
@@ -26,14 +26,13 @@ export function getDaysRange(from: string, to: string): string[] {
 
 export function generateDays(start: dayjs.Dayjs, end: dayjs.Dayjs): dayjs.Dayjs[] {
   const days = [];
-  let d = start.startOf("day");
+  let d = start.startOf('day');
   while (d.isSameOrBefore(end)) {
     days.push(d);
-    d = d.add(1, "day");
+    d = d.add(1, 'day');
   }
   return days;
 }
-
 
 export function getMonthDates(initDate: dayjs.Dayjs): string[] {
   const endDate = initDate.startOf('month').add(1, 'month');
@@ -98,7 +97,7 @@ export function isSameDay(date1: string, date2: string): boolean {
 }
 
 export function toISOString(date: string | Dayjs): string {
-  return dayjs( date, "YYYY-MM-DD HH:mm").toISOString();
+  return dayjs(date, 'YYYY-MM-DD HH:mm').toISOString();
 }
 
 export function fromISOString(date: string): string {
@@ -108,9 +107,8 @@ export function fromISOString(date: string): string {
 export function getFormattedDate(date: string | number, withTime: boolean = false): string {
   if (withTime) {
     return dayjs(date).format('DD.MM.YYYY HH:mm');
-  } else {
-    return dayjs(date).format('DD.MM.YYYY');
   }
+  return dayjs(date).format('DD.MM.YYYY');
 }
 
 export function timeToMinutes(time: string): number {

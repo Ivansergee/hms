@@ -20,14 +20,14 @@
   </a-modal>
 </template>
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { BookingPropertyForChange } from "@/enums/BookingPropertyForChange";
-import { useBookingStore } from "@/stores/bookingStore";
-import type { BookingShort } from "@shared/types/booking";
-import { useScopedI18n } from "@/composables/useScopedI18n";
-import { useRoomStore } from "@/stores/roomStore";
-import { getFormattedDate } from "@/utils/dateTimeUtils";
-import { translateEnum } from "@/i18n/i18n.ts";
+import { computed, ref } from 'vue';
+import { BookingPropertyForChange } from '@/enums/BookingPropertyForChange';
+import { useBookingStore } from '@/stores/bookingStore';
+import type { BookingShort } from '@shared/types/booking';
+import { useScopedI18n } from '@/composables/useScopedI18n';
+import { useRoomStore } from '@/stores/roomStore';
+import { getFormattedDate } from '@/utils/dateTimeUtils';
+import { translateEnum } from '@/i18n/i18n.ts';
 
 interface Props {
   open: boolean;
@@ -49,7 +49,7 @@ const emit = defineEmits(['close']);
 const isLoading = ref<boolean>(false);
 
 const mainGuestName = computed<string>(() => {
-  const mainGuest = props.booking.guests.find(guest => guest.id === props.booking.mainGuestId);
+  const mainGuest = props.booking.guests.find((guest) => guest.id === props.booking.mainGuestId);
   return mainGuest ? `${mainGuest.firstName} ${mainGuest.lastName}` : '';
 });
 

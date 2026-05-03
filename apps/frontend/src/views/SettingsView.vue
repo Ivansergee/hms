@@ -1,9 +1,12 @@
 <template>
   <a-layout style="padding: 24px 0; background: #fff">
-    <a-layout-sider width="200" style="background: #fff">
+    <a-layout-sider
+      width="200"
+      style="background: #fff"
+    >
       <a-menu
-        v-model:selectedKeys="selectedKeys"
-        v-model:openKeys="openKeys"
+        v-model:selected-keys="selectedKeys"
+        v-model:open-keys="openKeys"
         mode="inline"
         style="height: 100%"
       >
@@ -19,7 +22,7 @@
       <a-typography-title :level="3">
         {{ t('templates') }}
       </a-typography-title>
-      <TemplatesTable/>
+      <TemplatesTable />
     </a-layout-content>
   </a-layout>
 </template>
@@ -27,7 +30,7 @@
 import { ref, h } from 'vue';
 import { CopyOutlined } from '@ant-design/icons-vue';
 import type { MenuProps } from 'ant-design-vue';
-import { useScopedI18n } from "@/composables/useScopedI18n";
+import { useScopedI18n } from '@/composables/useScopedI18n';
 
 defineOptions({ name: 'SettingsView' });
 const { t } = useScopedI18n();
@@ -35,7 +38,7 @@ const { t } = useScopedI18n();
 const selectedKeys = ref<string[]>(['1']);
 const openKeys = ref<string[]>([]);
 
-const handleClick: MenuProps['onClick'] = e => {
+const handleClick: MenuProps['onClick'] = (e) => {
   console.log('click', e);
 };
 </script>

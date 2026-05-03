@@ -9,7 +9,7 @@
       </a-button>
       <template #overlay>
         <a-menu
-          v-model:selectedKeys="selectedKeys"
+          v-model:selected-keys="selectedKeys"
           @click="onStatusChange"
         >
           <a-menu-item :key="RoomStatus.CLEAN">
@@ -33,7 +33,10 @@
         </a-menu>
       </template>
     </a-dropdown>
-    <div v-else class="room-view__readonly-status">
+    <div
+      v-else
+      class="room-view__readonly-status"
+    >
       <a-badge :status="badgeStatus" />
     </div>
 
@@ -53,12 +56,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { RoomWithCategory } from "@/types/Room.ts";
-import { computed, ref } from "vue";
-import { RoomStatus } from "@shared/enums/RoomStatus.ts";
-import type { MenuProps } from "ant-design-vue";
-import { useRoomStore } from "@/stores/roomStore.ts";
-import { translateEnum } from "@/i18n/i18n.ts";
+import type { RoomWithCategory } from '@/types/Room.ts';
+import { computed, ref } from 'vue';
+import { RoomStatus } from '@shared/enums/RoomStatus.ts';
+import type { MenuProps } from 'ant-design-vue';
+import { useRoomStore } from '@/stores/roomStore.ts';
+import { translateEnum } from '@/i18n/i18n.ts';
 
 interface Props {
   room: RoomWithCategory;
@@ -89,7 +92,7 @@ const badgeStatus = computed(() => {
   }
 });
 
-const onStatusChange: MenuProps['onClick']  = (e) => {
+const onStatusChange: MenuProps['onClick'] = (e) => {
   const newStatus = e.key as RoomStatus;
   selectedKeys.value = [newStatus];
   roomStore.setStatus(props.room.id, newStatus);

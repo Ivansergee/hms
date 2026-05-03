@@ -1,15 +1,15 @@
-import type { BookingShort } from "@shared/types/booking";
-import type { ItemType } from "ant-design-vue";
-import { BookingContextMenuItem } from "@/enums/BookingContextMenuItem.ts";
-import { translateEnum } from "@/i18n/i18n.ts";
-import { h } from "vue";
+import type { BookingShort } from '@shared/types/booking';
+import type { ItemType } from 'ant-design-vue';
+import { BookingContextMenuItem } from '@/enums/BookingContextMenuItem.ts';
+import { translateEnum } from '@/i18n/i18n.ts';
+import { h } from 'vue';
 import {
   DeleteOutlined,
   InfoCircleOutlined,
   LoginOutlined,
-  LogoutOutlined
-} from "@ant-design/icons-vue";
-import { BookingStatus } from "@shared/enums/BookingStatus.ts";
+  LogoutOutlined,
+} from '@ant-design/icons-vue';
+import { BookingStatus } from '@shared/enums/BookingStatus.ts';
 
 export interface BookingWithLayout {
   booking: BookingShort,
@@ -65,7 +65,7 @@ export function getContextMenuItems(booking: BookingShort): ItemType[] {
         key: BookingContextMenuItem.CHECK_IN,
         label: translateEnum(BookingContextMenuItem, BookingContextMenuItem.CHECK_IN),
         icon: h(LoginOutlined),
-      })
+      });
       break;
     case BookingStatus.CHECKED_IN:
       items.push(...[
@@ -78,15 +78,15 @@ export function getContextMenuItems(booking: BookingShort): ItemType[] {
           key: BookingContextMenuItem.CHECK_OUT,
           label: translateEnum(BookingContextMenuItem, BookingContextMenuItem.CHECK_OUT),
           icon: h(LogoutOutlined),
-        }
-      ])
+        },
+      ]);
       break;
     case BookingStatus.CHECKED_OUT:
       items.push({
         key: BookingContextMenuItem.CANCEL_CHECK_OUT,
         label: translateEnum(BookingContextMenuItem, BookingContextMenuItem.CANCEL_CHECK_OUT),
         icon: h(LogoutOutlined),
-      })
+      });
       break;
     case BookingStatus.CANCELED:
       break;
@@ -97,7 +97,7 @@ export function getContextMenuItems(booking: BookingShort): ItemType[] {
     label: translateEnum(BookingContextMenuItem, BookingContextMenuItem.DELETE),
     danger: true,
     icon: h(DeleteOutlined),
-  })
+  });
 
   return items;
 }

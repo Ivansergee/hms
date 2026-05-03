@@ -6,13 +6,13 @@
   >
     <a-input
       :value="displayValue"
-      @input="onInput"
       :placeholder="t('inputPlaceholder')"
+      @input="onInput"
     >
       <template #suffix>
         <calendar-outlined
-          @click="openPicker = true"
           style="cursor: pointer"
+          @click="openPicker = true"
         />
       </template>
     </a-input>
@@ -20,8 +20,8 @@
     <a-date-picker
       v-model:value="pickerValue"
       :open="openPicker"
-      @openChange="(val) => (openPicker = val)"
       style="position: absolute; opacity: 0; pointer-events: none"
+      @open-change="(val) => (openPicker = val)"
     />
   </a-form-item>
 </template>
@@ -30,15 +30,14 @@
 import { ref, computed, watch } from 'vue';
 import dayjs, { Dayjs } from 'dayjs';
 import { CalendarOutlined } from '@ant-design/icons-vue';
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
+import { useScopedI18n } from '@/composables/useScopedI18n.ts';
 
 const props = defineProps<{
   modelValue?: string;
   label?: string;
 }>();
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value?: string): void;
+const emit = defineEmits<{(e: 'update:modelValue', value?: string): void;
 }>();
 
 defineOptions({ name: 'DateInput' });
@@ -61,12 +60,10 @@ const displayValue = computed(() => {
   return `${d.slice(0, 2)}.${d.slice(2, 4)}.${d.slice(4, 8)}`;
 });
 
-const validateStatus = computed(() => {
-  return errorMessage.value ? 'error' : undefined;
-});
+const validateStatus = computed(() => (errorMessage.value ? 'error' : undefined));
 
 const onInput = (e: Event) => {
-  const value = (e.target as HTMLInputElement).value;
+  const { value } = (e.target as HTMLInputElement);
 
   const digits = value.replace(/\D/g, '').slice(0, 8);
   rawDigits.value = digits;
@@ -92,7 +89,7 @@ const onInput = (e: Event) => {
   }
 
   emit('update:modelValue', undefined);
-}
+};
 
 watch(pickerValue, (val) => {
   if (!val) {
@@ -126,6 +123,6 @@ watch(
       errorMessage.value = undefined;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>

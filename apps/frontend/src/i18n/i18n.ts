@@ -1,7 +1,7 @@
-import { createI18n } from 'vue-i18n'
-import en from './locales/en.json'
-import ru from './locales/ru.json'
-import { getEnumName } from "@/i18n/enumRegistry.ts";
+import { createI18n } from 'vue-i18n';
+import { getEnumName } from '@/i18n/enumRegistry.ts';
+import en from './locales/en.json';
+import ru from './locales/ru.json';
 
 export const i18n = createI18n({
   legacy: false,
@@ -9,7 +9,7 @@ export const i18n = createI18n({
   messages: {
     en,
     ru,
-  }
+  },
 });
 
 export const translateEnum = (enumObj: object, value: string | number): string => {

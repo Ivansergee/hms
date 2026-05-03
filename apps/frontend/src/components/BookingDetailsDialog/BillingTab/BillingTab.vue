@@ -1,5 +1,8 @@
 <template>
-  <a-tabs v-model:activeKey="activeKey" type="card">
+  <a-tabs
+    v-model:active-key="activeKey"
+    type="card"
+  >
     <template #rightExtra>
       <a-button
         class="payment-button"
@@ -87,27 +90,27 @@
   />
 </template>
 <script setup lang="ts">
-import { computed, h, ref } from "vue";
-import type { ColumnType } from "ant-design-vue/es/table";
-import { useScopedI18n } from "@/composables/useScopedI18n.ts";
-import type { Folio, FolioItem } from "@shared/types/folio.ts";
-import { useServiceStore } from "@/stores/serviceStore.ts";
-import { getFormattedDate } from "@/utils/dateTimeUtils.ts";
-import { folioQueries } from "@/queries/folioQueries.ts";
+import { computed, h, ref } from 'vue';
+import type { ColumnType } from 'ant-design-vue/es/table';
+import { useScopedI18n } from '@/composables/useScopedI18n.ts';
+import type { Folio, FolioItem } from '@shared/types/folio.ts';
+import { useServiceStore } from '@/stores/serviceStore.ts';
+import { getFormattedDate } from '@/utils/dateTimeUtils.ts';
+import { folioQueries } from '@/queries/folioQueries.ts';
 import {
   CheckCircleFilled,
   DeleteOutlined,
-  PlusOutlined
+  PlusOutlined,
 } from '@ant-design/icons-vue';
-import { PaymentMethod } from "@/enums/PaymentMethod.ts";
-import Decimal from "decimal.js";
-import { BillingTabTableType } from "@/enums/BillingTabTableType.ts";
+import { PaymentMethod } from '@/enums/PaymentMethod.ts';
+import Decimal from 'decimal.js';
+import { BillingTabTableType } from '@/enums/BillingTabTableType.ts';
 import {
   FolioItemType,
   type FolioTransactionRecord, type FolioServiceRecord,
-  type FolioTableRecord
-} from "@/types/Folio.ts";
-import { translateEnum } from "@/i18n/i18n.ts";
+  type FolioTableRecord,
+} from '@/types/Folio.ts';
+import { translateEnum } from '@/i18n/i18n.ts';
 
 interface Props {
   folios: Folio[],
@@ -128,141 +131,117 @@ const isPaymentDialogOpen = ref(false);
 const selectedItems = ref<FolioItem[]>([]);
 
 const columns: ColumnType<FolioTableRecord>[] = [
-    {
-      title: t('date'),
-      dataIndex: 'dateOfService',
-      key: 'dateOfService',
-      width: 120,
-      customRender({ record }) {
-        return getFormattedDate(isServiceRecord(record) ? record.dateOfService : record.createdAt);
-      },
+  {
+    title: t('date'),
+    dataIndex: 'dateOfService',
+    key: 'dateOfService',
+    width: 120,
+    customRender({ record }) {
+      return getFormattedDate(isServiceRecord(record) ? record.dateOfService : record.createdAt);
     },
-    {
-      title: t('service'),
-      dataIndex: 'serviceId',
-      key: 'name',
-      ellipsis: { showTitle: false },
-      customCell: (record) => {
-        return { colSpan: isServiceRecord(record) ? 1 : 3 };
-      }
+  },
+  {
+    title: t('service'),
+    dataIndex: 'serviceId',
+    key: 'name',
+    ellipsis: { showTitle: false },
+    customCell: (record) => ({ colSpan: isServiceRecord(record) ? 1 : 3 }),
+  },
+  {
+    title: t('quantity'),
+    dataIndex: 'quantity',
+    key: 'quantity',
+    width: 100,
+    align: 'center',
+    customCell: (record) => ({ colSpan: isServiceRecord(record) ? 1 : 0 }),
+  },
+  {
+    title: t('price'),
+    dataIndex: 'unitPrice',
+    width: 120,
+    align: 'center',
+    customCell: (record) => ({ colSpan: isServiceRecord(record) ? 1 : 0 }),
+  },
+  {
+    title: t('totalPrice'),
+    dataIndex: 'totalPrice',
+    width: 120,
+    align: 'center',
+    customRender({ record }) {
+      return isServiceRecord(record) ? record.totalPrice : record.amount;
     },
-    {
-      title: t('quantity'),
-      dataIndex: 'quantity',
-      key: 'quantity',
-      width: 100,
-      align: 'center',
-      customCell: (record) => {
-        return { colSpan: isServiceRecord(record) ? 1 : 0 };
-      }
+  },
+  {
+    title: t('balance'),
+    dataIndex: 'balance',
+    width: 120,
+    align: 'center',
+    customRender({ index }) {
+      return balanceChanges.value.slice(0, index + 1)
+        .reduce((sum, value) => new Decimal(sum).add(value).toFixed(2), '0.00');
     },
-    {
-      title: t('price'),
-      dataIndex: 'unitPrice',
-      width: 120,
-      align: 'center',
-      customCell: (record) => {
-        return { colSpan: isServiceRecord(record) ? 1 : 0 };
-      }
-    },
-    {
-      title: t('totalPrice'),
-      dataIndex: 'totalPrice',
-      width: 120,
-      align: 'center',
-      customRender({ record }) {
-        return isServiceRecord(record) ? record.totalPrice : record.amount;
-      },
-    },
-    {
-      title: t('balance'),
-      dataIndex: 'balance',
-      width: 120,
-      align: 'center',
-      customRender({ index }) {
-        return balanceChanges.value.slice(0, index + 1)
-          .reduce((sum, value) => {
-            return new Decimal(sum).add(value).toFixed(2);
-          }, '0.00')
-      },
-    }
+  },
 ];
 
-const unpaidItems = computed<FolioItem[]>(() => {
-  return activeFolio.value.items.filter((item) => !isItemPaid(item));
-});
+const unpaidItems = computed<FolioItem[]>(() => activeFolio.value.items.filter((item) => !isItemPaid(item)));
 
-const unpaidSelectedItems = computed<FolioItem[]>(() => {
-  return selectedItems.value.filter((item) => !isItemPaid(item));
-});
+const unpaidSelectedItems = computed<FolioItem[]>(() => selectedItems.value.filter((item) => !isItemPaid(item)));
 
-const serviceItems = computed<FolioServiceRecord[]>(() => {
-  return activeFolio.value.items.map(item => ({
-    ...item,
-    itemType: FolioItemType.SERVICE,
-  }));
-});
+const serviceItems = computed<FolioServiceRecord[]>(() => activeFolio.value.items.map((item) => ({
+  ...item,
+  itemType: FolioItemType.SERVICE,
+})));
 
-const transactionItems = computed<FolioTransactionRecord[]>(() => {
-  return activeFolio.value.transactions.map(item => ({
-    ...item,
-    itemType: FolioItemType.TRANSACTION,
-  }));
-});
+const transactionItems = computed<FolioTransactionRecord[]>(() => activeFolio.value.transactions.map((item) => ({
+  ...item,
+  itemType: FolioItemType.TRANSACTION,
+})));
 
-const folioItems = computed<FolioTableRecord[]>(() => {
-  return [...serviceItems.value, ...transactionItems.value].sort((a, b) => a.createdAt - b.createdAt);
-});
+const folioItems = computed<FolioTableRecord[]>(() => [...serviceItems.value, ...transactionItems.value].sort((a, b) => a.createdAt - b.createdAt));
 
-const balanceChanges = computed<string[]>(() => {
-  return folioItems.value.map(row => isServiceRecord(row)
-    ? new Decimal(row.totalPrice).negated().toFixed(2)
-    : row.amount
-  );
-});
+const balanceChanges = computed<string[]>(() => folioItems.value.map((row) => (isServiceRecord(row)
+  ? new Decimal(row.totalPrice).negated().toFixed(2)
+  : row.amount)));
 
-const customRow = (record: FolioTableRecord) => {
-  return {
-    onClick: (e: MouseEvent) => {
-      if (record.itemType !== FolioItemType.SERVICE) {
-        return;
-      }
-      const isSelected = selectedItems.value.some(item => item.id === record.id);
+const customRow = (record: FolioTableRecord) => ({
+  onClick: (e: MouseEvent) => {
+    if (record.itemType !== FolioItemType.SERVICE) {
+      return;
+    }
+    const isSelected = selectedItems.value.some((item) => item.id === record.id);
 
-      if (e.ctrlKey || e.metaKey) {
-        if (isSelected) {
-          selectedItems.value = selectedItems.value.filter(item => item.id !== record.id);
-        } else {
-          selectedItems.value.push(record);
-        }
-        return;
-      }
+    if (e.ctrlKey || e.metaKey) {
       if (isSelected) {
-        selectedItems.value = selectedItems.value.length === 1 ? [] : [record];
+        selectedItems.value = selectedItems.value.filter((item) => item.id !== record.id);
       } else {
-        selectedItems.value = [record];
+        selectedItems.value.push(record);
       }
-    },
-  };
-}
+      return;
+    }
+    if (isSelected) {
+      selectedItems.value = selectedItems.value.length === 1 ? [] : [record];
+    } else {
+      selectedItems.value = [record];
+    }
+  },
+});
 
 const getRowClassName = (record: FolioTableRecord): string | undefined => {
   if (record.itemType !== FolioItemType.SERVICE) {
     return;
   }
-  return selectedItems.value.some(item => item.id === record.id) ? 'selected' : undefined;
+  return selectedItems.value.some((item) => item.id === record.id) ? 'selected' : undefined;
 };
 
 const getRecordName = (record: FolioTableRecord): string => {
   if (isServiceRecord(record)) {
     return serviceStore.getById(record.serviceId)?.name ?? '';
-  } else {
-    return `${t('payment')} (${translateEnum(PaymentMethod, record.method)})`;
   }
+  return `${t('payment')} (${translateEnum(PaymentMethod, record.method)})`;
 };
 
 const onDeleteItems = async () => {
-  await folioQueries.deleteItems(selectedItems.value.map(item => item.id));
+  await folioQueries.deleteItems(selectedItems.value.map((item) => item.id));
   await reloadFolio();
 };
 
@@ -271,13 +250,9 @@ const reloadFolio = async () => {
   activeFolio.value = await folioQueries.getById(activeFolio.value.id);
 };
 
-const isItemPaid = (item: FolioItem): boolean => {
-  return !!item.paymentId;
-};
+const isItemPaid = (item: FolioItem): boolean => !!item.paymentId;
 
-const isServiceRecord = (record: FolioTableRecord): record is FolioServiceRecord => {
-  return record.itemType === FolioItemType.SERVICE;
-}
+const isServiceRecord = (record: FolioTableRecord): record is FolioServiceRecord => record.itemType === FolioItemType.SERVICE;
 </script>
 <style scoped>
 .payment-button {

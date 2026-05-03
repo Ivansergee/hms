@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import { theme } from "ant-design-vue";
+import { RouterView } from 'vue-router';
+import { theme } from 'ant-design-vue';
 import enUS from 'ant-design-vue/es/locale/en_US';
 import ruRU from 'ant-design-vue/es/locale/ru_RU';
 
@@ -11,7 +11,7 @@ theme.useToken();
   <a-config-provider :locale="ruRU">
     <a-layout class="layout">
       <a-layout-header class="header">
-        <Navbar/>
+        <Navbar />
       </a-layout-header>
       <a-layout-content class="content">
         <RouterView />
