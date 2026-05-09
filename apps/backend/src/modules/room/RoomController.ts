@@ -1,9 +1,9 @@
 import { Elysia } from "elysia";
 
-import { RoomService } from "@/services/RoomService";
-import { roomModel } from "@/models/roomModel";
+import { RoomService } from "@/modules/room/RoomService";
+import { roomModel } from "@/modules/room/RoomModel";
 
-export const room = new Elysia({ prefix: '/room', tags: ['Room'] })
+export const roomController = new Elysia({ prefix: '/room', tags: ['Room'] })
     .decorate('roomService', new RoomService())
     .get(
         '/',

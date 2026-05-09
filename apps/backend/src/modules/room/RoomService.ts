@@ -1,17 +1,29 @@
 import type { Room } from "@prisma/client";
-import { prisma } from "@/../prisma/prisma";
-import { BaseService } from "@/services/BaseService";
+import { prisma } from "../../../prisma/prisma";
 import { RoomCreatePayload, RoomUpdatePayload } from "@shared/types/room";
 import { RoomStatus } from "@shared/enums/RoomStatus";
 
-export class RoomService extends BaseService<
-    Room,
-    RoomCreatePayload,
-    RoomUpdatePayload
-> {
-    constructor() {
-        super(prisma.room);
+export class RoomService {
+    getAll(): Promise<Room[]> {
+        return prisma.room.findMany();
     }
+
+    getById(id: number): Promise<Room | null> {
+        return prisma.room.findUnique({ where: { id } });
+    }
+
+    create(data: RoomCreatePayload): Promise<Room> {
+        return prisma.room.create({ data });
+    }
+
+    update(id: number, data: RoomUpdatePayload): Promise<Room> {
+        return prisma.room.update({ where: { id }, data });
+    }
+
+    delete(id: number): Promise<Room> {
+        return prisma.room.delete({ where: { id } });
+    }
+
     async getAvailableIds(start: string, end: string): Promise<number[]> {
         const overlappingBookings = await prisma.booking.findMany({
             where: {

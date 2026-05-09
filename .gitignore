@@ -43,3 +43,6 @@ storage/
 temp/
 
 apps/shared/generated/
+
+.codex/
+.agents/

@@ -1,7 +1,7 @@
 import { Static, t } from 'elysia';
 import { enumToTypebox } from "@/utils/enumUtils";
 import { BookingStatus } from "@shared/enums/BookingStatus";
-import { guestModel } from "@/models/guestModel";
+import { guestModel } from "@/modules/guest/GuestModel";
 
 const create = t.Object({
     checkInDate: t.String({ format: 'date' }),

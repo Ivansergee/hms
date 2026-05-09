@@ -41,7 +41,7 @@ function formatFolioItem(item: FolioItemRaw): FolioItem {
         quantity: item.quantity,
         unitPrice: item.unitPrice.toFixed(2),
         totalPrice: item.totalPrice.toFixed(2),
-        dateOfService: formatDate(item.dateOfService, false),
+        dateOfService: formatDate(item.dateOfService),
         createdAt: item.createdAt.getTime(),
     };
 }

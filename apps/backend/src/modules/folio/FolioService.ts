@@ -1,4 +1,4 @@
-import { prisma } from "@/../prisma/prisma";
+import { prisma } from "../../../prisma/prisma";
 import { Folio, FolioItemCreate, TransactionCreate } from "@shared/types/folio";
 import { folioDbQueries } from "@/dbQueries/folioDbQueries";
 import { folioFormatter } from "@/formatters/folioFormatter";

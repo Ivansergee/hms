@@ -1,10 +1,10 @@
 import { Elysia } from 'elysia'
 
-import { IdentityDocumentService } from "@/services/IdentityDocumentService";
-import { identityDocumentModel } from "@/models/identityDocumentModel";
+import { IdentityDocumentService } from "@/modules/identity-document/IdentityDocumentService";
+import { identityDocumentModel } from "@/modules/identity-document/IdentityDocumentModel";
 
 
-export const identityDocument = new Elysia({ prefix: '/identityDocument', tags: ['IdentityDocument'] })
+export const identityDocumentController = new Elysia({ prefix: '/identityDocument', tags: ['IdentityDocument'] })
     .decorate('identityDocumentService', new IdentityDocumentService())
     .get(
         '/',

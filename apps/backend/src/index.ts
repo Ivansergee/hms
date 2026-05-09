@@ -2,15 +2,15 @@ import { Elysia } from "elysia";
 import swagger from "@elysiajs/swagger";
 import { cors } from '@elysiajs/cors';
 import { logger } from "@rasla/logify";
-import { guest } from "@/plugins/guestPlugin";
-import { room } from "@/plugins/roomPlugin";
-import { category } from "@/plugins/categoryPlugin";
-import { documentType } from "@/plugins/documentTypePlugin";
-import { booking } from "@/plugins/bookingPlugin";
-import { identityDocument } from "@/plugins/identityDocumentPlugin";
-import { folio } from "@/plugins/folioPlugin";
-import { service } from "@/plugins/servicePlugin";
-import { template } from "@/plugins/templatePlugin";
+import { guestController } from "@/modules/guest/GuestController";
+import { roomController } from "@/modules/room/RoomController";
+import { categoryController } from "@/modules/category/CategoryController";
+import { documentTypeController } from "@/modules/document-type/DocumentTypeController";
+import { bookingController } from "@/modules/booking/BookingController";
+import { identityDocumentController } from "@/modules/identity-document/IdentityDocumentController";
+import { folioController } from "@/modules/folio/FolioController";
+import { serviceController } from "@/modules/service/ServiceController";
+import { templateController } from "@/modules/template/TemplateController";
 import path from "path";
 import staticPlugin from "@elysiajs/static";
 
@@ -23,15 +23,15 @@ const app = new Elysia()
             assets: path.resolve('uploads'),
         })
     )
-    .use(documentType)
-    .use(identityDocument)
-    .use(guest)
-    .use(category)
-    .use(room)
-    .use(booking)
-    .use(folio)
-    .use(service)
-    .use(template)
+    .use(documentTypeController)
+    .use(identityDocumentController)
+    .use(guestController)
+    .use(categoryController)
+    .use(roomController)
+    .use(bookingController)
+    .use(folioController)
+    .use(serviceController)
+    .use(templateController)
     .use(cors({
         origin: 'http://localhost:5173',
     }))

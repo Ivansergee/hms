@@ -1,8 +1,8 @@
 import { Elysia } from 'elysia'
-import { ServiceService } from "@/services/ServiceService";
-import { serviceModel } from "@/models/serviceModel";
+import { ServiceService } from "@/modules/service/ServiceService";
+import { serviceModel } from "@/modules/service/ServiceModel";
 
-export const service = new Elysia({ prefix: '/service', tags: ['Service'] })
+export const serviceController = new Elysia({ prefix: '/service', tags: ['Service'] })
     .decorate('serviceService', new ServiceService())
     .get(
         '/',

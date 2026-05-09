@@ -1,10 +1,10 @@
 import { Elysia } from 'elysia'
 
-import { guestModel } from "@/models/guestModel";
-import { GuestService } from "@/services/GuestService";
+import { guestModel } from "@/modules/guest/GuestModel";
+import { GuestService } from "@/modules/guest/GuestService";
 
 
-export const guest = new Elysia({ prefix: '/guest', tags: ['Guest'] })
+export const guestController = new Elysia({ prefix: '/guest', tags: ['Guest'] })
     .decorate('guestService', new GuestService())
     .get(
         '/',

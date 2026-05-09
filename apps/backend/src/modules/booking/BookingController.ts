@@ -1,8 +1,8 @@
 import { Elysia } from 'elysia'
-import { BookingService } from "@/services/BookingService";
-import { bookingModel } from "@/models/bookingModel";
+import { BookingService } from "@/modules/booking/BookingService";
+import { bookingModel } from "@/modules/booking/BookingModel";
 
-export const booking = new Elysia({ prefix: '/booking', tags: ['Booking'] })
+export const bookingController = new Elysia({ prefix: '/booking', tags: ['Booking'] })
     .decorate('bookingService', new BookingService())
     .get(
         '/',

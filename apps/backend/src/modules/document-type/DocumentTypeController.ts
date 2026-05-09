@@ -1,10 +1,10 @@
 import { Elysia } from 'elysia'
 
-import { DocumentTypeService } from "@/services/DocumentTypeService";
-import { documentTypeModel } from "@/models/documentTypeModel";
+import { DocumentTypeService } from "@/modules/document-type/DocumentTypeService";
+import { documentTypeModel } from "@/modules/document-type/DocumentTypeModel";
 
 
-export const documentType = new Elysia({ prefix: '/documentType', tags: ['DocumentType'] })
+export const documentTypeController = new Elysia({ prefix: '/documentType', tags: ['DocumentType'] })
     .decorate('documentTypeService', new DocumentTypeService())
     .get(
         '/',

@@ -1,8 +1,8 @@
 import { Elysia } from 'elysia'
-import { FolioService } from "@/services/FolioService";
-import { folioModel } from "@/models/folioModel";
+import { FolioService } from "@/modules/folio/FolioService";
+import { folioModel } from "@/modules/folio/FolioModel";
 
-export const folio = new Elysia({ prefix: '/folio', tags: ['Folio'] })
+export const folioController = new Elysia({ prefix: '/folio', tags: ['Folio'] })
     .decorate('folioService', new FolioService())
     .post(
         '/',

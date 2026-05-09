@@ -1,4 +1,4 @@
-import { GuestRaw } from "@/services/GuestService";
+import { GuestRaw } from "@/modules/guest/GuestService";
 import { Guest } from "@shared/types/guest";
 import { Gender } from "@shared/enums/Gender";
 import { formatDate } from "@/utils/dateUtils";

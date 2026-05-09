@@ -1,6 +1,6 @@
 import { Booking, Prisma } from "@prisma/client";
-import { prisma } from "@/../prisma/prisma";
-import { BookingFilterDTO } from "@/models/bookingModel";
+import { prisma } from "../../../prisma/prisma";
+import { BookingFilterDTO } from "@/modules/booking/BookingModel";
 import { BookingCreate, BookingDetails, BookingPlacement, BookingShort } from "@shared/types/booking";
 import { BookingStatus } from "@shared/enums/BookingStatus";
 import { bookingDbQueries } from "@/dbQueries/bookingDbQueries";

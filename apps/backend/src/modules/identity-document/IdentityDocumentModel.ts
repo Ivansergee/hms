@@ -1,10 +1,13 @@
 import { Static, t } from 'elysia'
+import { Gender } from "@shared/enums/Gender";
+import { enumToTypebox } from "@/utils/enumUtils";
 
 const create = t.Object({
     typeId: t.Integer(),
     firstName: t.String(),
     lastName: t.String(),
     parentName: t.Optional(t.String()),
+    gender: t.Enum(enumToTypebox(Gender)),
     birthdate: t.Date(),
     number: t.String(),
     issuedBy: t.Optional(t.String()),

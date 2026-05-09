@@ -1,4 +1,4 @@
-import { prisma } from "../../prisma/prisma";
+import { prisma } from "../../../prisma/prisma";
 import { ServiceCreate } from "@shared/types/service";
 
 export class ServiceService {

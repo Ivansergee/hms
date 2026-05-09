@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia'
-import { TemplateService } from "@/services/TemplateService";
-import { templateModel } from "@/models/templateModel";
+import { TemplateService } from "@/modules/template/TemplateService";
+import { templateModel } from "@/modules/template/TemplateModel";
 import { randomUUID } from "crypto";
 import path from "path";
 import { mkdir, writeFile } from 'fs/promises'
@@ -8,7 +8,7 @@ import { mkdir, writeFile } from 'fs/promises'
 const uploadDir = path.join(process.cwd(), 'uploads')
 await mkdir(uploadDir, { recursive: true })
 
-export const template = new Elysia({ prefix: '/template', tags: ['Template'] })
+export const templateController = new Elysia({ prefix: '/template', tags: ['Template'] })
     .decorate('templateService', new TemplateService())
     .post(
         '/upload',
