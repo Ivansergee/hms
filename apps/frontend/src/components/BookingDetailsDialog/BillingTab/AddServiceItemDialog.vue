@@ -91,11 +91,6 @@ import { folioQueries } from '@/queries/folioQueries.ts';
 import Decimal from 'decimal.js';
 import { toISOString } from '@/utils/dateTimeUtils.ts';
 
-interface Props {
-  isOpen: boolean;
-  folioId: number;
-}
-
 interface FormModel {
   dateOfService: Dayjs;
   quantity: number;
@@ -104,9 +99,18 @@ interface FormModel {
 defineOptions({ name: 'AddServiceItemDialog' });
 const { t } = useScopedI18n();
 
-const props = defineProps<Props>();
-const emit = defineEmits<{(event: 'close'): void;
-  (event: 'add'): void;
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+  },
+  folioId: {
+    type: Number,
+    required: true,
+  },
+});
+const emit = defineEmits<{
+  close: [];
+  add: [];
 }>();
 
 const serviceStore = useServiceStore();
@@ -181,9 +185,9 @@ const customServiceRow = (record: Service) => ({
   },
 });
 
-const getGroupRowClassName = (record: ServiceGroup): string | undefined => (selectedGroup.value?.id === record.id ? 'selected' : undefined);
+const getGroupRowClassName = (record: ServiceGroup): string => (selectedGroup.value?.id === record.id ? 'selected' : '');
 
-const getServiceRowClassName = (record: Service): string | undefined => (selectedService.value?.id === record.id ? 'selected' : undefined);
+const getServiceRowClassName = (record: Service): string => (selectedService.value?.id === record.id ? 'selected' : '');
 
 const onAdd = async () => {
   if (selectedService.value) {

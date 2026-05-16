@@ -20,7 +20,7 @@
   </a-modal>
 </template>
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, type PropType, ref } from 'vue';
 import { BookingPropertyForChange } from '@/enums/BookingPropertyForChange';
 import { useBookingStore } from '@/stores/bookingStore';
 import type { BookingShort } from '@shared/types/booking';
@@ -28,12 +28,6 @@ import { useScopedI18n } from '@/composables/useScopedI18n';
 import { useRoomStore } from '@/stores/roomStore';
 import { getFormattedDate } from '@/utils/dateTimeUtils';
 import { translateEnum } from '@/i18n/i18n.ts';
-
-interface Props {
-  open: boolean;
-  booking: BookingShort;
-  changedBooking: BookingShort;
-}
 
 defineOptions({ name: 'ConfirmChangeDialog' });
 const { t } = useScopedI18n();
@@ -43,8 +37,22 @@ const propertiesToShow = Object.values(BookingPropertyForChange);
 const bookingStore = useBookingStore();
 const roomStore = useRoomStore();
 
-const props = defineProps<Props>();
-const emit = defineEmits(['close']);
+const props = defineProps({
+  open: {
+    type: Boolean,
+  },
+  booking: {
+    type: Object as PropType<BookingShort>,
+    required: true,
+  },
+  changedBooking: {
+    type: Object as PropType<BookingShort>,
+    required: true,
+  },
+});
+const emit = defineEmits<{
+  close: [];
+}>();
 
 const isLoading = ref<boolean>(false);
 

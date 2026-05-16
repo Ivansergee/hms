@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 import { useScopedI18n } from '@/composables/useScopedI18n.ts';
-import { h } from 'vue';
+import { h, type PropType } from 'vue';
 import {
   DoubleLeftOutlined,
   DoubleRightOutlined,
@@ -43,12 +43,14 @@ import {
   RightOutlined,
 } from '@ant-design/icons-vue';
 
-interface Props {
-  currentDate: dayjs.Dayjs;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<{(event: 'select', date: dayjs.Dayjs): void;
+defineProps({
+  currentDate: {
+    type: Object as PropType<dayjs.Dayjs>,
+    required: true,
+  },
+});
+const emit = defineEmits<{
+  select: [date: dayjs.Dayjs];
 }>();
 
 defineOptions({ name: 'DateNavigator' });

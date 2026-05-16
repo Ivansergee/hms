@@ -20,13 +20,20 @@
 <script setup lang="ts">
 import { ArrowRightOutlined } from '@ant-design/icons-vue';
 
-interface Props {
-  title: string;
-  oldValue?: string | number;
-  newValue?: string | number;
-}
-
-const props = defineProps<Props>();
+defineProps({
+  title: {
+    type: String,
+    required: true,
+  },
+  oldValue: {
+    type: [String, Number],
+    required: false,
+  },
+  newValue: {
+    type: [String, Number],
+    required: false,
+  },
+});
 </script>
 <style scoped>
 

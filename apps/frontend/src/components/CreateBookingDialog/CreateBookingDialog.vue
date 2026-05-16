@@ -131,7 +131,9 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue';
+import {
+  type PropType, reactive, ref, watch,
+} from 'vue';
 import { useBookingStore } from '@/stores/bookingStore';
 import type { GuestInput } from '@shared/types/guest';
 import { useScopedI18n } from '@/composables/useScopedI18n';
@@ -161,16 +163,20 @@ interface FormState {
   guests: GuestFormState[];
 }
 
-interface Props {
-  open: boolean;
-  state?: BookingPlacement;
-}
-
 defineOptions({ name: 'CreateBookingDialog' });
 const { t } = useScopedI18n();
 
-const props = defineProps<Props>();
-const emit = defineEmits<{(event: 'close'): void;
+const props = defineProps({
+  open: {
+    type: Boolean,
+  },
+  state: {
+    type: Object as PropType<BookingPlacement>,
+    required: false,
+  },
+});
+const emit = defineEmits<{
+  close: [];
 }>();
 
 const bookingStore = useBookingStore();

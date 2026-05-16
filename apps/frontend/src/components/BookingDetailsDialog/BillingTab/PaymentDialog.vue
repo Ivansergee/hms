@@ -47,7 +47,9 @@
 import { useScopedI18n } from '@/composables/useScopedI18n.ts';
 import type { ColumnType } from 'ant-design-vue/es/table';
 import { PaymentMethod } from '@/enums/PaymentMethod.ts';
-import { computed, ref, watch } from 'vue';
+import {
+  computed, type PropType, ref, watch,
+} from 'vue';
 import type { FolioItem } from '@shared/types/folio.ts';
 import Decimal from 'decimal.js';
 import { folioQueries } from '@/queries/folioQueries.ts';
@@ -55,12 +57,6 @@ import { TransactionType } from '@shared/enums/TransactionType.ts';
 import { translateEnum } from '@/i18n/i18n.ts';
 
 type PaymentMethodRecord = { name: PaymentMethod };
-
-interface Props {
-  isOpen: boolean;
-  allItems: FolioItem[];
-  selectedItems: FolioItem[];
-}
 
 enum ItemsMode {
   ALL = 'all',
@@ -70,9 +66,22 @@ enum ItemsMode {
 defineOptions({ name: 'PaymentDialog' });
 const { t } = useScopedI18n();
 
-const props = defineProps<Props>();
-const emit = defineEmits<{(event: 'close'): void;
-  (event: 'add'): void;
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+  },
+  allItems: {
+    type: Array as PropType<FolioItem[]>,
+    required: true,
+  },
+  selectedItems: {
+    type: Array as PropType<FolioItem[]>,
+    required: true,
+  },
+});
+const emit = defineEmits<{
+  close: [];
+  add: [];
 }>();
 
 const selectedMethod = ref<PaymentMethod>();

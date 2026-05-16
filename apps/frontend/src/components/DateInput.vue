@@ -27,17 +27,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import {
+  ref, computed, type PropType, watch,
+} from 'vue';
 import dayjs, { Dayjs } from 'dayjs';
 import { CalendarOutlined } from '@ant-design/icons-vue';
 import { useScopedI18n } from '@/composables/useScopedI18n.ts';
 
-const props = defineProps<{
-  modelValue?: string;
-  label?: string;
-}>();
+const props = defineProps({
+  modelValue: {
+    type: String as PropType<string | undefined>,
+    required: false,
+  },
+  label: {
+    type: String as PropType<string | undefined>,
+    required: false,
+  },
+});
 
-const emit = defineEmits<{(e: 'update:modelValue', value?: string): void;
+const emit = defineEmits<{
+  'update:modelValue': [value?: string];
 }>();
 
 defineOptions({ name: 'DateInput' });

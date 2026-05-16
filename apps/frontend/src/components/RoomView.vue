@@ -57,22 +57,28 @@
 </template>
 <script setup lang="ts">
 import type { RoomWithCategory } from '@/types/Room.ts';
-import { computed, ref } from 'vue';
+import { computed, type PropType, ref } from 'vue';
 import { RoomStatus } from '@shared/enums/RoomStatus.ts';
 import type { MenuProps } from 'ant-design-vue';
 import { useRoomStore } from '@/stores/roomStore.ts';
 import { translateEnum } from '@/i18n/i18n.ts';
 
-interface Props {
-  room: RoomWithCategory;
-  roomNameAlign: 'left' | 'center' | 'right';
-  isStatusSelectable: boolean;
-  isCategoryVisible: boolean;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits();
-
+const props = defineProps({
+  room: {
+    type: Object as PropType<RoomWithCategory>,
+    required: true,
+  },
+  roomNameAlign: {
+    type: String as PropType<'left' | 'center' | 'right'>,
+    required: true,
+  },
+  isStatusSelectable: {
+    type: Boolean,
+  },
+  isCategoryVisible: {
+    type: Boolean,
+  },
+});
 defineOptions({ name: 'RoomView' });
 
 const roomStore = useRoomStore();

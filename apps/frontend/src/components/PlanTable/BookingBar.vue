@@ -45,32 +45,52 @@ import {
   ResizeDirection,
   type ResizeEventPayload,
 } from '@/utils/planTableUtils';
-import { computed, useTemplateRef } from 'vue';
+import { computed, type PropType, useTemplateRef } from 'vue';
 import { useScopedI18n } from '@/composables/useScopedI18n';
 import { BookingStatus } from '@shared/enums/BookingStatus.ts';
-
-interface Props {
-  topOffset: number,
-  leftOffset: number,
-  length: number,
-  title: string,
-  status?: BookingStatus,
-  isCreating?: boolean;
-  isDragSource?: boolean;
-  isGhost?: boolean;
-}
 
 const DRAG_THRESHOLD = 4;
 
 defineOptions({ name: 'BookingBar' });
 const { t } = useScopedI18n();
 
-const props = defineProps<Props>();
-const emit = defineEmits<{(event: 'bar-clicked'): void;
-  (event: 'mouse-enter'): void;
-  (event: 'drag-start', pointerPosition: DragEventPayload): void;
-  (event: 'resize-start', resizeData: ResizeEventPayload): void;
-  (event: 'right-click', e: MouseEvent): void;
+const props = defineProps({
+  topOffset: {
+    type: Number,
+    required: true,
+  },
+  leftOffset: {
+    type: Number,
+    required: true,
+  },
+  length: {
+    type: Number,
+    required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String as PropType<BookingStatus>,
+    required: false,
+  },
+  isCreating: {
+    type: Boolean,
+  },
+  isDragSource: {
+    type: Boolean,
+  },
+  isGhost: {
+    type: Boolean,
+  },
+});
+const emit = defineEmits<{
+  'bar-clicked': [];
+  'mouse-enter': [];
+  'drag-start': [pointerPosition: DragEventPayload];
+  'resize-start': [resizeData: ResizeEventPayload];
+  'right-click': [e: MouseEvent];
 }>();
 
 const barRef = useTemplateRef<HTMLElement>('bar');

@@ -35,7 +35,9 @@
   </a-space>
 </template>
 <script setup lang="ts">
-import { h, ref, watch } from 'vue';
+import {
+  h, type PropType, ref, watch,
+} from 'vue';
 
 import {
   CalendarOutlined,
@@ -47,16 +49,18 @@ import dayjs from 'dayjs';
 import { type SelectInfo } from 'ant-design-vue/es/calendar/generateCalendar';
 import { useScopedI18n } from '@/composables/useScopedI18n.ts';
 
-interface Props {
-  currentDate: dayjs.Dayjs;
-}
-
 defineOptions({ name: 'ActionButtons' });
 const { t } = useScopedI18n();
 
-const props = defineProps<Props>();
-const emit = defineEmits<{(event: 'date-select', date: dayjs.Dayjs): void;
-  (event: 'create'): void;
+const props = defineProps({
+  currentDate: {
+    type: Object as PropType<dayjs.Dayjs>,
+    required: true,
+  },
+});
+const emit = defineEmits<{
+  'date-select': [date: dayjs.Dayjs];
+  create: [];
 }>();
 
 const isCalendarOpen = ref<boolean>(false);

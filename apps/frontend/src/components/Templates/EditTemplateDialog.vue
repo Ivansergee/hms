@@ -97,15 +97,16 @@ interface DocParagraph {
   nodes: Element[];
 }
 
-interface Props {
-  isOpen: boolean;
-}
-
 defineOptions({ name: 'EditTemplateDialog' });
 const { t } = useScopedI18n();
 
-const props = defineProps<Props>();
-const emit = defineEmits<{(event: 'close'): void
+defineProps({
+  isOpen: {
+    type: Boolean,
+  },
+});
+const emit = defineEmits<{
+  close: [];
 }>();
 
 const isLoading = ref<boolean>(false);

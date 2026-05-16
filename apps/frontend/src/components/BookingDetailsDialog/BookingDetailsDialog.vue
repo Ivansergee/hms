@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, type PropType, ref } from 'vue';
 import {
   TeamOutlined,
   InfoCircleOutlined,
@@ -70,13 +70,17 @@ import {
 import type { BookingDetails } from '@shared/types/booking';
 import { useScopedI18n } from '@/composables/useScopedI18n';
 
-interface Props {
-  open: boolean;
-  bookingDetails: BookingDetails;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<{(event: 'close'): void;
+const props = defineProps({
+  open: {
+    type: Boolean,
+  },
+  bookingDetails: {
+    type: Object as PropType<BookingDetails>,
+    required: true,
+  },
+});
+const emit = defineEmits<{
+  close: [];
 }>();
 
 defineOptions({ name: 'BookingDetailsDialog' });

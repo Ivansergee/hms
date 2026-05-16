@@ -20,14 +20,17 @@
 </template>
 <script setup lang="ts">
 import dayjs from 'dayjs';
+import { type PropType } from 'vue';
 
-interface Props {
-  currentDate: dayjs.Dayjs;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<{(event: 'navigate', date: dayjs.Dayjs): void;
-  (event: 'create'): void;
+defineProps({
+  currentDate: {
+    type: Object as PropType<dayjs.Dayjs>,
+    required: true,
+  },
+});
+const emit = defineEmits<{
+  navigate: [date: dayjs.Dayjs];
+  create: [];
 }>();
 
 const onDateSelect = (date: dayjs.Dayjs): void => {

@@ -14,19 +14,26 @@
 <script setup lang="ts">
 import type { ItemType } from 'ant-design-vue';
 import type { MenuInfo } from 'ant-design-vue/es/menu/src/interface';
-import { ref, watch } from 'vue';
+import { type PropType, ref, watch } from 'vue';
 import type { Key } from 'ant-design-vue/es/_util/type';
 import { useEventListener } from '@vueuse/core';
 
-interface Props {
-  modelValue: boolean;
-  items: ItemType[];
-  position: { x: number; y: number };
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<{(event: 'update:modelValue', value: boolean): void;
-  (event: 'itemClick', key: Key): void;
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+  },
+  items: {
+    type: Array as PropType<ItemType[]>,
+    required: true,
+  },
+  position: {
+    type: Object as PropType<{ x: number; y: number }>,
+    required: true,
+  },
+});
+const emit = defineEmits<{
+  'update:modelValue': [value: boolean];
+  itemClick: [key: Key];
 }>();
 
 useEventListener(document, 'mousedown', (e: MouseEvent) => {

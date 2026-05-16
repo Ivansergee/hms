@@ -50,7 +50,7 @@
   />
 </template>
 <script setup lang="ts">
-import { h, ref } from 'vue';
+import { h, type PropType, ref } from 'vue';
 import { CheckCircleFilled, DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
 import type { ColumnType } from 'ant-design-vue/es/table';
 import { type FolioServiceRecord } from '@/types/Folio.ts';
@@ -59,16 +59,22 @@ import { useScopedI18n } from '@/composables/useScopedI18n.ts';
 import { useServiceStore } from '@/stores/serviceStore.ts';
 import { folioQueries } from '@/queries/folioQueries.ts';
 
-interface Props {
-  folioId: number;
-  items: FolioServiceRecord[];
-}
-
 defineOptions({ name: 'ServicesTable' });
 const { t } = useScopedI18n();
 
-const props = defineProps<Props>();
-const emit = defineEmits<{(event: 'change'): void;
+defineProps({
+  folioId: {
+    type: Number,
+    required: true,
+  },
+  items: {
+    type: Array as PropType<FolioServiceRecord[]>,
+    required: true,
+  },
+});
+
+const emit = defineEmits<{
+  change: [],
 }>();
 
 const serviceStore = useServiceStore();

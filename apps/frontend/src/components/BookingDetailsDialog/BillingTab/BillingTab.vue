@@ -90,7 +90,9 @@
   />
 </template>
 <script setup lang="ts">
-import { computed, h, ref } from 'vue';
+import {
+  computed, h, type PropType, ref,
+} from 'vue';
 import type { ColumnType } from 'ant-design-vue/es/table';
 import { useScopedI18n } from '@/composables/useScopedI18n.ts';
 import type { Folio, FolioItem } from '@shared/types/folio.ts';
@@ -112,14 +114,15 @@ import {
 } from '@/types/Folio.ts';
 import { translateEnum } from '@/i18n/i18n.ts';
 
-interface Props {
-  folios: Folio[],
-}
-
 defineOptions({ name: 'BillingTab' });
 const { t } = useScopedI18n();
 
-const props = defineProps<Props>();
+const props = defineProps({
+  folios: {
+    type: Array as PropType<Folio[]>,
+    required: true,
+  },
+});
 
 const serviceStore = useServiceStore();
 

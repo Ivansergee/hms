@@ -52,7 +52,9 @@ interface FormState {
   confirmPassword: string;
 }
 
-const emit = defineEmits(['changed']);
+const emit = defineEmits<{
+  changed: [];
+}>();
 
 defineOptions({ name: 'ChangePasswordForm' });
 const { t } = useScopedI18n();

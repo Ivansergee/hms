@@ -94,19 +94,29 @@
   </div>
 </template>
 <script setup lang="ts">
+import { type PropType } from 'vue';
 import { MinusCircleOutlined } from '@ant-design/icons-vue';
 import { useScopedI18n } from '@/composables/useScopedI18n.ts';
 import type { Guest } from '@shared/types/guest.ts';
 
-interface Props {
-  guest: Partial<Guest>;
-  index: number;
-  isMainGuest: boolean;
-  isRemoveButtonVisible: boolean;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<{(event: 'remove'): void;
+defineProps({
+  guest: {
+    type: Object as PropType<Partial<Guest>>,
+    required: true,
+  },
+  index: {
+    type: Number,
+    required: true,
+  },
+  isMainGuest: {
+    type: Boolean,
+  },
+  isRemoveButtonVisible: {
+    type: Boolean,
+  },
+});
+defineEmits<{
+  remove: [];
 }>();
 
 defineOptions({ name: 'GuestForm' });

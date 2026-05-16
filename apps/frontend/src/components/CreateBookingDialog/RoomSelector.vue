@@ -30,7 +30,7 @@
         >
           <template #bodyCell="{ record }">
             <RoomView
-              :room="record"
+              :room="record as RoomWithCategory"
               :room-name-align="'left'"
             />
           </template>
@@ -41,7 +41,7 @@
 </template>
 <script setup lang="ts">
 import {
-  computed, nextTick, ref, watch,
+  computed, nextTick, type PropType, ref, watch,
 } from 'vue';
 import type { Room, RoomWithCategory } from '@/types/Room.ts';
 import type { Category } from '@shared/types/category.ts';
@@ -49,18 +49,18 @@ import type { ColumnType } from 'ant-design-vue/es/table';
 import { useScopedI18n } from '@/composables/useScopedI18n.ts';
 import { useRoomStore } from '@/stores/roomStore.ts';
 
-interface Props {
-  availableRooms: RoomWithCategory[];
-  isRangeSet: boolean;
-}
-
 defineOptions({ name: 'RoomSelector' });
 const { t } = useScopedI18n();
 
-const props = defineProps<Props>();
-const emit = defineEmits<{(event: 'update:modelValue', roomId: number | undefined): void;
-}>();
-
+const props = defineProps({
+  availableRooms: {
+    type: Array as PropType<RoomWithCategory[]>,
+    required: true,
+  },
+  isRangeSet: {
+    type: Boolean,
+  },
+});
 const roomStore = useRoomStore();
 
 const selectedRoomId = defineModel<number>();
