@@ -143,19 +143,18 @@ const onUserMenuClick = async ({ key }: MenuInfo): Promise<void> => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 255, 255, 0.65);
   height: 34px;
   width: 34px;
   margin: 0 6px;
-  border: 1px solid rgba(255, 255, 255, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.65);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
 }
 
 .navbar__user-button:hover,
 .navbar__user-button:focus {
   color: #fff;
-  border-color: rgba(255, 255, 255, 0.62);
+  border-color: #fff;
   background: rgba(255, 255, 255, 0.16);
 }
 
