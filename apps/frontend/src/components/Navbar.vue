@@ -32,7 +32,10 @@
         <span>{{ t('settings') }}</span>
       </a-menu-item>
     </a-menu>
-    <a-dropdown trigger="click">
+    <a-dropdown
+      trigger="click"
+      :overlay-style="{ width: 'max-content' }"
+    >
       <a-button
         class="navbar__user-button"
         type="text"
@@ -40,17 +43,39 @@
         <UserOutlined />
       </a-button>
       <template #overlay>
-        <a-menu @click="onUserMenuClick">
+        <a-menu
+          class="navbar__user-menu"
+          @click="onUserMenuClick"
+        >
+          <a-menu-item
+            key="user-info"
+            disabled
+            class="navbar__user-meta-item"
+          >
+            <div class="navbar__user-meta">
+              <a-typography-text class="navbar__user-name">
+                {{ authStore.currentUser?.name }}
+              </a-typography-text>
+              <a-typography-text class="navbar__user-username">
+                {{ authStore.currentUser?.username }}
+              </a-typography-text>
+            </div>
+          </a-menu-item>
+          <a-menu-divider />
           <a-menu-item :key="UserMenuKey.PREFERENCES">
-            <ControlOutlined />
-            {{ t('preferences') }}
+            <a-space :size="8">
+              <ControlOutlined />
+              <span>{{ t('preferences') }}</span>
+            </a-space>
           </a-menu-item>
           <a-menu-item
             :key="UserMenuKey.LOGOUT"
             danger
           >
-            <LogoutOutlined />
-            {{ t('logout') }}
+            <a-space :size="8">
+              <PoweroffOutlined />
+              <span>{{ t('logout') }}</span>
+            </a-space>
           </a-menu-item>
         </a-menu>
       </template>
@@ -61,7 +86,7 @@
 import { RouteName } from '@/router';
 import {
   ControlOutlined,
-  LogoutOutlined,
+  PoweroffOutlined,
   SettingOutlined,
   TableOutlined,
   UserOutlined,
@@ -115,14 +140,57 @@ const onUserMenuClick = async ({ key }: MenuInfo): Promise<void> => {
 }
 
 .navbar__user-button {
-  color: rgba(255, 255, 255, 0.85);
-  height: 45px;
-  width: 45px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.88);
+  height: 34px;
+  width: 34px;
+  margin: 0 6px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .navbar__user-button:hover,
 .navbar__user-button:focus {
   color: #fff;
-  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.62);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+:deep(.navbar__user-menu) {
+  min-width: max-content;
+}
+
+:deep(.navbar__user-menu .ant-menu-item) {
+  white-space: nowrap;
+}
+
+:deep(.navbar__user-meta-item.ant-dropdown-menu-item-disabled) {
+  cursor: default !important;
+}
+
+:deep(.navbar__user-meta-item .ant-dropdown-menu-title-content) {
+  cursor: default;
+}
+
+.navbar__user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navbar__user-name,
+.navbar__user-username {
+  line-height: 1.2;
+}
+
+.navbar__user-name {
+  font-weight: 600;
+}
+
+:global(.navbar__user-meta-item .navbar__user-username) {
+  color: rgba(0, 0, 0, 0.25);
 }
 </style>
