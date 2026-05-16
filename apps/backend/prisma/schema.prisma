@@ -137,6 +137,60 @@ model Transaction {
   items     FolioItem[]
 }
 
+model User {
+  id                 Int     @id @default(autoincrement())
+  username           String  @unique
+  email              String? @unique
+  name               String
+  passwordHash       String
+  isActive           Boolean @default(true)
+  mustChangePassword Boolean @default(true)
+
+  roles    UserRole[]
+  sessions Session[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Session {
+  id        String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Role {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  isSystem    Boolean @default(false)
+
+  users       UserRole[]
+  permissions RolePermission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserRole {
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId Int
+
+  @@id([userId, roleId])
+}
+
+model RolePermission {
+  role          Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId        Int
+  permissionKey String
+
+  @@id([roleId, permissionKey])
+}
+
 enum BookingStatus {
   CHECKED_IN
   CHECKED_OUT

@@ -115,9 +115,9 @@ const customRoomRow = (record: Room) => ({
   },
 });
 
-const getCategoryRowClassName = (record: Category): string | undefined => (selectedCategoryId.value === record.id ? 'selected' : undefined);
+const getCategoryRowClassName = (record: Category): string => (selectedCategoryId.value === record.id ? 'selected' : '');
 
-const getRoomRowClassName = (record: Room): string | undefined => (selectedRoomId.value === record.id ? 'room selected' : undefined);
+const getRoomRowClassName = (record: Room): string => (selectedRoomId.value === record.id ? 'room selected' : '');
 
 const scrollToSelected = async () => {
   await nextTick();

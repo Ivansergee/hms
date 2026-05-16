@@ -139,7 +139,6 @@ import { useRoomStore } from '@/stores/roomStore';
 import type { RuleObject } from 'ant-design-vue/es/form';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import type { RoomWithCategory } from '@/types/Room.ts';
-import type { Dayjs } from 'dayjs';
 import { type BookingPlacement } from '@shared/types/booking.ts';
 import { timeToMinutes } from '@/utils/dateTimeUtils.ts';
 
@@ -276,9 +275,13 @@ const close = (): void => {
   emit('close');
 };
 
-const onRangeChange = (values: [Dayjs, Dayjs] | [string, string] | null): void => {
-  if (values && Array.isArray(values)) {
-    const [start, end] = values as [string, string];
+const onRangeChange = (values: unknown): void => {
+  if (
+    Array.isArray(values)
+    && typeof values[0] === 'string'
+    && typeof values[1] === 'string'
+  ) {
+    const [start, end] = values;
     setAvailableRooms(start, end);
   } else {
     availableRooms.value = [];

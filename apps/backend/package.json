@@ -3,7 +3,8 @@
   "version": "1.0.50",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "prisma generate && bun run --watch src/index.ts"
+    "dev": "prisma generate && bun run --watch src/index.ts",
+    "create-superuser": "bun run scripts/create-superuser.ts"
   },
   "dependencies": {
     "@elysiajs/cors": "1.4.2",

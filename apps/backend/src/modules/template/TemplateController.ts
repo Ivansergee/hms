@@ -1,9 +1,10 @@
 import { Elysia } from 'elysia'
 import { TemplateService } from "@/modules/template/TemplateService";
 import { templateModel } from "@/modules/template/TemplateModel";
-import { randomUUID } from "crypto";
 import path from "path";
-import { mkdir, writeFile } from 'fs/promises'
+import { mkdir } from 'fs/promises'
+import { permissions } from "@/auth/permissions";
+import { requirePermission } from "@/modules/auth/AuthGuard";
 
 const uploadDir = path.join(process.cwd(), 'uploads')
 await mkdir(uploadDir, { recursive: true })
@@ -26,7 +27,7 @@ export const templateController = new Elysia({ prefix: '/template', tags: ['Temp
 
             return `http://192.168.3.2:3000/${filePath}`;
         },
-        { body: templateModel.preview },
+        { body: templateModel.preview, beforeHandle: requirePermission(permissions.TEMPLATE_MANAGE) },
     )
     .post(
         '/preview',
@@ -43,7 +44,7 @@ export const templateController = new Elysia({ prefix: '/template', tags: ['Temp
             set.headers['Content-Type'] = 'application/pdf';
             return pdf;
         },
-        { body: templateModel.preview },
+        { body: templateModel.preview, beforeHandle: requirePermission(permissions.TEMPLATE_READ) },
     )
     // .get(
     //     '/',

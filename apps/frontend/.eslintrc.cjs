@@ -48,6 +48,7 @@ module.exports = {
         'import/no-extraneous-dependencies': 'off',
         'no-unused-vars': 'warn',
         'no-use-before-define': 'off',
+        'arrow-body-style': 'off',
         'vue/no-mutating-props': 'off',
         'vue/multi-word-component-names': 'off',
         'vue/valid-define-emits': 'off',

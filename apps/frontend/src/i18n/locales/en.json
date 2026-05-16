@@ -84,9 +84,28 @@
     "phone": "Phone",
     "removeGuest": "Remove guest"
   },
+  "ChangePasswordForm": {
+    "changePassword": "Change password",
+    "confirmPassword": "Confirm password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "newPasswordShouldDiffer": "New password must be different from current password",
+    "passwordsNotMatch": "Passwords do not match",
+    "requiredField": "Required field"
+  },
+  "ChangePasswordView": {
+    "title": "Password change required"
+  },
+  "LoginView": {
+    "login": "Log in",
+    "passwordRequired": "Password required",
+    "usernameRequired": "Username required"
+  },
   "Navbar": {
     "bookings": "Bookings",
+    "logout": "Log out",
     "plan": "Plan",
+    "preferences": "Preferences",
     "settings": "Settings"
   },
   "PaymentDialog": {

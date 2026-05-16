@@ -62,12 +62,12 @@ const emit = defineEmits<{(event: 'date-select', date: dayjs.Dayjs): void;
 const isCalendarOpen = ref<boolean>(false);
 const selectedDate = ref<dayjs.Dayjs>(props.currentDate);
 
-const onDateSelect = (date: dayjs.Dayjs, info: SelectInfo): void => {
+const onDateSelect = (date: unknown, info: SelectInfo): void => {
   if (info.source !== 'date') {
     return;
   }
   isCalendarOpen.value = false;
-  emit('date-select', date);
+  emit('date-select', date as dayjs.Dayjs);
 };
 
 watch(() => props.currentDate, (newDate) => {

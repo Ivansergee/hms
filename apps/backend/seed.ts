@@ -1,7 +1,48 @@
 import { prisma } from "./prisma/prisma";
 import { Gender } from "@shared/enums/Gender";
+import { adminPermissions } from '@/auth/permissions';
 
 async function main() {
+    const administratorRole = await prisma.role.upsert({
+        where: { name: 'Administrator' },
+        create: {
+            name: 'Administrator',
+            isSystem: true,
+            permissions: {
+                create: adminPermissions.map(permissionKey => ({ permissionKey })),
+            },
+        },
+        update: {
+            isSystem: true,
+            permissions: {
+                deleteMany: {},
+                create: adminPermissions.map(permissionKey => ({ permissionKey })),
+            },
+        },
+    });
+
+    if (process.env.NODE_ENV === 'production' && !process.env.BOOTSTRAP_ADMIN_PASSWORD) {
+        throw new Error('BOOTSTRAP_ADMIN_PASSWORD is required in production');
+    }
+
+    const adminPassword = process.env.BOOTSTRAP_ADMIN_PASSWORD ?? 'admin12345';
+
+    await prisma.user.upsert({
+        where: { username: process.env.BOOTSTRAP_ADMIN_USERNAME ?? 'admin' },
+        create: {
+            username: process.env.BOOTSTRAP_ADMIN_USERNAME ?? 'admin',
+            name: process.env.BOOTSTRAP_ADMIN_NAME ?? 'Administrator',
+            passwordHash: await Bun.password.hash(adminPassword, { algorithm: 'bcrypt' }),
+            mustChangePassword: true,
+            roles: {
+                create: {
+                    roleId: administratorRole.id,
+                },
+            },
+        },
+        update: {},
+    });
+
     await prisma.guest.createMany({
         data: [
             {

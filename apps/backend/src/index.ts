@@ -13,29 +13,42 @@ import { serviceController } from "@/modules/service/ServiceController";
 import { templateController } from "@/modules/template/TemplateController";
 import path from "path";
 import staticPlugin from "@elysiajs/static";
+import { authController } from "@/modules/auth/AuthController";
+import { authGuard } from "@/modules/auth/AuthGuard";
+import { userController } from "@/modules/user/UserController";
+import { roleController } from "@/modules/role/RoleController";
+
+const port = Number(process.env.PORT ?? 3000);
 
 const app = new Elysia()
     .use(logger({ includeIp: true }))
     .use(swagger())
-    .use(
-        staticPlugin({
-            prefix: '/uploads',
-            assets: path.resolve('uploads'),
-        })
-    )
-    .use(documentTypeController)
-    .use(identityDocumentController)
-    .use(guestController)
-    .use(categoryController)
-    .use(roomController)
-    .use(bookingController)
-    .use(folioController)
-    .use(serviceController)
-    .use(templateController)
     .use(cors({
-        origin: 'http://localhost:5173',
+        origin: process.env.FRONTEND_ORIGIN ?? 'http://localhost:5173',
+        credentials: true,
     }))
-    .listen({ port: 3000, hostname: '0.0.0.0' });
+    .use(authController)
+    .guard({}, app => app
+        .use(authGuard)
+        .use(
+            staticPlugin({
+                prefix: '/uploads',
+                assets: path.resolve('uploads'),
+            })
+        )
+        .use(userController)
+        .use(roleController)
+        .use(documentTypeController)
+        .use(identityDocumentController)
+        .use(guestController)
+        .use(categoryController)
+        .use(roomController)
+        .use(bookingController)
+        .use(folioController)
+        .use(serviceController)
+        .use(templateController)
+    )
+    .listen({ port, hostname: '0.0.0.0' });
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`

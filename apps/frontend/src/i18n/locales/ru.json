@@ -84,9 +84,28 @@
     "phone": "Телефон",
     "removeGuest": "Удалить гостя"
   },
+  "ChangePasswordForm": {
+    "changePassword": "Сменить пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "currentPassword": "Текущий пароль",
+    "newPassword": "Новый пароль",
+    "newPasswordShouldDiffer": "Новый пароль должен отличаться от текущего",
+    "passwordsNotMatch": "Пароли не совпадают",
+    "requiredField": "Обязательное поле"
+  },
+  "ChangePasswordView": {
+    "title": "Необходимо сменить пароль"
+  },
+  "LoginView": {
+    "login": "Вход",
+    "passwordRequired": "Введите пароль",
+    "usernameRequired": "Введите имя пользователя"
+  },
   "Navbar": {
     "bookings": "Бронирования",
+    "logout": "Выйти",
     "plan": "План",
+    "preferences": "Предпочтения",
     "settings": "Настройки"
   },
   "PaymentDialog": {
