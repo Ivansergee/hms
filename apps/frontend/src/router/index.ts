@@ -1,9 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import PlanView from '@/views/PlanView.vue';
-import SettingsView from '@/views/SettingsView.vue';
 import { useAuthStore } from '@/stores/authStore.ts';
 import LoginView from '@/views/LoginView.vue';
 import ChangePasswordView from '@/views/ChangePasswordView.vue';
+import SettingsView from '@/views/settings/SettingsView.vue';
+import StaffView from '@/views/settings/StaffView.vue';
+import TemplatesView from '@/views/settings/TemplatesView.vue';
 
 export enum RouteName {
   PLAN = 'plan',
@@ -11,6 +13,12 @@ export enum RouteName {
   SETTINGS = 'settings',
   LOGIN = 'login',
   CHANGE_PASSWORD = 'changePassword',
+  PROFILE = 'profile',
+}
+
+export enum SettingsRouteName {
+  TEMPLATES = 'templates',
+  STAFF = 'staff',
 }
 
 const router = createRouter({
@@ -37,6 +45,19 @@ const router = createRouter({
       path: '/settings',
       name: RouteName.SETTINGS,
       component: SettingsView,
+      redirect: { name: SettingsRouteName.STAFF },
+      children: [
+        {
+          path: 'staff',
+          name: SettingsRouteName.STAFF,
+          component: StaffView,
+        },
+        {
+          path: 'templates',
+          name: SettingsRouteName.TEMPLATES,
+          component: TemplatesView,
+        },
+      ],
     },
   ],
 });

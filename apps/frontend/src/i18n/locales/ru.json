@@ -96,6 +96,33 @@
   "ChangePasswordView": {
     "title": "Необходимо сменить пароль"
   },
+  "EditUserDialog": {
+    "active": "Активен",
+    "addUser": "Добавить пользователя",
+    "blockConfirm": "Заблокировать пользоваателя",
+    "blockUser": "Заблокировать",
+    "cancel": "Отмена",
+    "close": "Закрыть",
+    "confirmPassword": "Подтвердите пароль",
+    "disabled": "Заблокирован",
+    "editUser": "Редактирование пользователя",
+    "email": "Email",
+    "invalidEmail": "Неправильный email",
+    "name": "Имя",
+    "notRequired": "Не требуется",
+    "password": "Пароль",
+    "passwordChange": "Смена пароля",
+    "passwordsNotMatch": "Пароли не совпадают",
+    "required": "Требуется",
+    "requiredField": "Обязательное поле",
+    "roles": "Роли",
+    "save": "Сохранить",
+    "status": "Статус",
+    "unblockConfirm": "Разблокировать пользователя",
+    "unblockUser": "Разблокировать",
+    "username": "Логин",
+    "yes": "Да"
+  },
   "LoginView": {
     "login": "Вход",
     "passwordRequired": "Введите пароль",
@@ -103,10 +130,13 @@
   },
   "Navbar": {
     "bookings": "Бронирования",
+    "cancel": "Отмена",
     "logout": "Выйти",
+    "logoutConfirm": "Завершить сеанс работы?",
     "plan": "План",
-    "preferences": "Предпочтения",
-    "settings": "Настройки"
+    "profile": "Профиль",
+    "settings": "Настройки",
+    "yes": "Да"
   },
   "PaymentDialog": {
     "all": "Все неоплаченные",
@@ -138,7 +168,35 @@
     "totalPrice": "Сумма"
   },
   "SettingsView": {
+    "staff": "Персонал",
     "templates": "Шаблоны"
+  },
+  "SelectFilterDropdown": {
+    "reset": "Сбросить",
+    "search": "Поиск"
+  },
+  "StaffView": {
+    "roles": "Роли",
+    "staff": "Персонал",
+    "users": "Пользователи"
+  },
+  "TemplatesView": {
+    "templates": "Шаблоны"
+  },
+  "UsersTable": {
+    "addUser": "Добавить пользователя",
+    "active": "Активен",
+    "createdAt": "Создан",
+    "disabled": "Заблокирован",
+    "email": "Email",
+    "name": "Имя",
+    "roles": "Роли",
+    "status": "Статус",
+    "username": "Логин"
+  },
+  "TextFilterDropdown": {
+    "reset": "Сбросить",
+    "search": "Поиск"
   },
   "ENUMS": {
     "BillingTabTableType": {

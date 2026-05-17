@@ -62,10 +62,10 @@
             </div>
           </a-menu-item>
           <a-menu-divider />
-          <a-menu-item :key="UserMenuKey.PREFERENCES">
+          <a-menu-item :key="UserMenuKey.PROFILE">
             <a-space :size="8">
-              <ControlOutlined />
-              <span>{{ t('preferences') }}</span>
+              <UserOutlined />
+              <span>{{ t(UserMenuKey.PROFILE) }}</span>
             </a-space>
           </a-menu-item>
           <a-menu-item
@@ -74,7 +74,7 @@
           >
             <a-space :size="8">
               <PoweroffOutlined />
-              <span>{{ t('logout') }}</span>
+              <span>{{ t(UserMenuKey.LOGOUT) }}</span>
             </a-space>
           </a-menu-item>
         </a-menu>
@@ -85,20 +85,21 @@
 <script setup lang="ts">
 import { RouteName } from '@/router';
 import {
-  ControlOutlined,
   PoweroffOutlined,
+  QuestionCircleOutlined,
   SettingOutlined,
   TableOutlined,
   UserOutlined,
 } from '@ant-design/icons-vue';
-import { computed } from 'vue';
+import { computed, h } from 'vue';
 import type { MenuInfo } from 'ant-design-vue/es/menu/src/interface';
 import { useRoute, useRouter } from 'vue-router';
 import { useScopedI18n } from '@/composables/useScopedI18n';
 import { useAuthStore } from '@/stores/authStore.ts';
+import { Modal } from 'ant-design-vue';
 
 enum UserMenuKey {
-  PREFERENCES = 'preferences',
+  PROFILE = 'profile',
   LOGOUT = 'logout',
 }
 
@@ -115,15 +116,27 @@ const onMenuClick = ({ key }: MenuInfo): void => {
   router.push({ name: key as RouteName });
 };
 
+const showLogoutConfirm = () => {
+  Modal.confirm({
+    title: t('logoutConfirm'),
+    icon: h(QuestionCircleOutlined),
+    okText: t('yes'),
+    cancelText: t('cancel'),
+    async onOk() {
+      await authStore.logout();
+      await router.push({ name: RouteName.LOGIN });
+    },
+  });
+};
+
 const onUserMenuClick = async ({ key }: MenuInfo): Promise<void> => {
-  if (key === UserMenuKey.PREFERENCES) {
-    await router.push({ name: RouteName.SETTINGS });
+  if (key === UserMenuKey.PROFILE) {
+    await router.push({ name: RouteName.PROFILE });
     return;
   }
 
   if (key === UserMenuKey.LOGOUT) {
-    await authStore.logout();
-    await router.push({ name: RouteName.LOGIN });
+    showLogoutConfirm();
   }
 };
 </script>

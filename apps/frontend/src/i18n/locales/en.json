@@ -96,6 +96,33 @@
   "ChangePasswordView": {
     "title": "Password change required"
   },
+  "EditUserDialog": {
+    "active": "Active",
+    "addUser": "Add user",
+    "blockConfirm": "Block user",
+    "blockUser": "Block user",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirmPassword": "Confirm password",
+    "disabled": "Blocked",
+    "editUser": "Edit user",
+    "email": "Email",
+    "invalidEmail": "This is not a valid email address",
+    "name": "Name",
+    "notRequired": "Not required",
+    "password": "Password",
+    "passwordChange": "Password change",
+    "passwordsNotMatch": "Passwords do not match",
+    "required": "Required",
+    "requiredField": "This field is required",
+    "roles": "Roles",
+    "save": "Save",
+    "status": "Status",
+    "unblockConfirm": "Unblock user",
+    "unblockUser": "Unblock",
+    "username": "Username",
+    "yes": "Yes"
+  },
   "LoginView": {
     "login": "Log in",
     "passwordRequired": "Password required",
@@ -103,10 +130,13 @@
   },
   "Navbar": {
     "bookings": "Bookings",
+    "cancel": "Cancel",
     "logout": "Log out",
+    "logoutConfirm": "End session?",
     "plan": "Plan",
-    "preferences": "Preferences",
-    "settings": "Settings"
+    "profile": "Profile",
+    "settings": "Settings",
+    "yes": "Yes"
   },
   "PaymentDialog": {
     "all": "All unpaid",
@@ -138,7 +168,35 @@
     "totalPrice": "Total"
   },
   "SettingsView": {
+    "staff": "Staff",
     "templates": "Templates"
+  },
+  "SelectFilterDropdown": {
+    "reset": "Reset",
+    "search": "Search"
+  },
+  "StaffView": {
+    "roles": "Roles",
+    "staff": "Staff",
+    "users": "Users"
+  },
+  "TemplatesView": {
+    "templates": "Templates"
+  },
+  "UsersTable": {
+    "addUser": "Add user",
+    "active": "Active",
+    "createdAt": "Created",
+    "disabled": "Blocked",
+    "email": "Email",
+    "name": "Name",
+    "roles": "Roles",
+    "status": "Status",
+    "username": "Username"
+  },
+  "TextFilterDropdown": {
+    "reset": "Reset",
+    "search": "Search"
   },
   "ENUMS": {
     "BillingTabTableType": {
