@@ -704,6 +704,7 @@ const onCreateDrag = (e: MouseEvent) => {
     const topOffset = roomIndexById.value[initialCreateState.value.roomId] * CELL_HEIGHT + 2;
 
     ghostBarState.value = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       booking: {} as any,
       title: t('newBooking'),
       leftOffset: baseLeft,

@@ -129,6 +129,7 @@ const confirmButtonTitle = computed<string | undefined>(() => {
   if (total.value === '0.00') {
     return t('noUnpaidItemsSelected');
   }
+  return undefined;
 });
 
 const onClose = () => {

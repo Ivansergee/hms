@@ -26,8 +26,9 @@
           :rules="{ required: true, message: t('errorRequiredField') }"
         >
           <a-input
-            v-model:value="guest.lastName"
+            :value="guest.lastName"
             autocomplete="none"
+            @update:value="updateGuest('lastName', $event)"
           />
         </a-form-item>
       </a-col>
@@ -37,8 +38,9 @@
           :rules="{ required: true, message: t('errorRequiredField') }"
         >
           <a-input
-            v-model:value="guest.firstName"
+            :value="guest.firstName"
             autocomplete="none"
+            @update:value="updateGuest('firstName', $event)"
           />
         </a-form-item>
       </a-col>
@@ -50,8 +52,9 @@
           :label="t('parentName')"
         >
           <a-input
-            v-model:value="guest.parentName"
+            :value="guest.parentName"
             autocomplete="none"
+            @update:value="updateGuest('parentName', $event)"
           />
         </a-form-item>
       </a-col>
@@ -59,7 +62,10 @@
         <a-form-item
           :label="t('birthdate')"
         >
-          <DateInput v-model="guest.birthdate" />
+          <DateInput
+            :model-value="guest.birthdate"
+            @update:model-value="updateGuest('birthdate', $event)"
+          />
         </a-form-item>
       </a-col>
     </a-row>
@@ -70,8 +76,9 @@
           :label="t('phone')"
         >
           <a-input
-            v-model:value="guest.phone"
+            :value="guest.phone"
             autocomplete="none"
+            @update:value="updateGuest('phone', $event)"
           />
         </a-form-item>
       </a-col>
@@ -85,8 +92,9 @@
           }"
         >
           <a-input
-            v-model:value="guest.email"
+            :value="guest.email"
             autocomplete="none"
+            @update:value="updateGuest('email', $event)"
           />
         </a-form-item>
       </a-col>
@@ -99,7 +107,12 @@ import { MinusCircleOutlined } from '@ant-design/icons-vue';
 import { useScopedI18n } from '@/composables/useScopedI18n.ts';
 import type { Guest } from '@shared/types/guest.ts';
 
-defineProps({
+type GuestField = keyof Pick<
+  Guest,
+  'firstName' | 'lastName' | 'parentName' | 'birthdate' | 'phone' | 'email'
+>;
+
+const props = defineProps({
   guest: {
     type: Object as PropType<Partial<Guest>>,
     required: true,
@@ -115,12 +128,20 @@ defineProps({
     type: Boolean,
   },
 });
-defineEmits<{
+const emit = defineEmits<{
   remove: [];
+  'update:guest': [guest: Partial<Guest>];
 }>();
 
 defineOptions({ name: 'GuestForm' });
 const { t } = useScopedI18n();
+
+const updateGuest = (field: GuestField, value: string | undefined): void => {
+  emit('update:guest', {
+    ...props.guest,
+    [field]: value,
+  });
+};
 </script>
 <style scoped>
 .guest-form {

@@ -1,4 +1,4 @@
-import axios, { type AxiosRequestConfig } from 'axios';
+import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000',
@@ -25,21 +25,21 @@ const fetcher = {
     return data;
   },
 
-  async post<TRes = undefined, TBody = any>(
+  async post<TRes = undefined, TBody = unknown>(
     url: string,
     body: TBody,
     params?: AxiosRequestConfig,
   ): Promise<TRes> {
-    const { data } = await api.post<TRes>(url, body, params);
+    const { data } = await api.post<TRes, AxiosResponse<TRes>, TBody>(url, body, params);
     return data;
   },
 
-  async put<TRes = undefined, TBody = any>(
+  async put<TRes = undefined, TBody = unknown>(
     url: string,
     body: TBody,
     params?: Record<string, string | number>,
   ): Promise<TRes> {
-    const { data } = await api.put<TRes>(url, body, { params });
+    const { data } = await api.put<TRes, AxiosResponse<TRes>, TBody>(url, body, { params });
     return data;
   },
 
@@ -51,12 +51,12 @@ const fetcher = {
     return data;
   },
 
-  async patch<TRes = undefined, TBody = any>(
+  async patch<TRes = undefined, TBody = unknown>(
     url: string,
     body: TBody,
     params?: Record<string, string | number>,
   ): Promise<TRes> {
-    const { data } = await api.patch<TRes>(url, body, { params });
+    const { data } = await api.patch<TRes, AxiosResponse<TRes>, TBody>(url, body, { params });
     return data;
   },
 };

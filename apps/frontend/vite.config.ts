@@ -12,7 +12,6 @@ export default defineConfig({
     vue(),
     vueDevTools(),
     Checker({
-      typescript: true,
       vueTsc: true,
     }),
     Components({

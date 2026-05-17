@@ -6,6 +6,7 @@ export function useScopedI18n() {
   const instance = getCurrentInstance();
   const componentName = instance?.type.name;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const t = (key: string, options?: any): string => {
     const scopedKey = componentName ? `${componentName}.${key}` : key;
     return globalT(scopedKey, options);

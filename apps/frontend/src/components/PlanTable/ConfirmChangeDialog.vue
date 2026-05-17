@@ -10,13 +10,16 @@
   >
     <strong>{{ t('guest') }}: </strong>
     <span>{{ mainGuestName }}</span>
-    <div v-for="property in propertiesToShow">
+    <template
+      v-for="property in propertiesToShow"
+      :key="property"
+    >
       <ChangeView
         :title="translateEnum(BookingPropertyForChange, property)"
         :old-value="getFormattedValue(booking, property)"
         :new-value="getFormattedValue(changedBooking, property)"
       />
-    </div>
+    </template>
   </a-modal>
 </template>
 <script setup lang="ts">

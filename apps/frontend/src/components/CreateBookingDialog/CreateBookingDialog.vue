@@ -115,6 +115,7 @@
           :is-main-guest="index === 0"
           :index="index + 1"
           :is-remove-button-visible="form.guests.length > 1"
+          @update:guest="form.guests[index] = { ...guest, ...$event }"
           @remove="removeGuest(index)"
         />
       </div>
