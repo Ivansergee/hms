@@ -110,7 +110,24 @@ const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 
-const selectedKeys = computed(() => [route.name as RouteName]);
+const NAVBAR_ROUTE_KEYS = new Set<RouteName>([
+  RouteName.PLAN,
+  RouteName.TABLE,
+  RouteName.SETTINGS,
+]);
+
+const selectedKeys = computed(() => {
+  for (const matchedRoute of route.matched) {
+    if (
+      matchedRoute.name
+      && NAVBAR_ROUTE_KEYS.has(matchedRoute.name as RouteName)
+    ) {
+      return [matchedRoute.name as RouteName];
+    }
+  }
+
+  return route.name ? [route.name as RouteName] : [];
+});
 
 const onMenuClick = ({ key }: MenuInfo): void => {
   router.push({ name: key as RouteName });

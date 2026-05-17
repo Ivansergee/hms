@@ -8,7 +8,7 @@
       style="background: #fff"
     >
       <a-menu
-        v-model:selected-keys="selectedKeys"
+        :selected-keys="selectedKeys"
         mode="inline"
         style="height: 100%"
         @click="onMenuClick"
