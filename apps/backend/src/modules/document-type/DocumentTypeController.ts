@@ -2,7 +2,7 @@ import { Elysia } from 'elysia'
 
 import { DocumentTypeService } from "@/modules/document-type/DocumentTypeService";
 import { documentTypeModel } from "@/modules/document-type/DocumentTypeModel";
-import { permissions } from "@/auth/permissions";
+import { Permission } from "@shared/enums/Permission";
 import { requirePermission } from "@/modules/auth/AuthGuard";
 
 
@@ -13,14 +13,14 @@ export const documentTypeController = new Elysia({ prefix: '/documentType', tags
         async ({ documentTypeService }) => {
             return documentTypeService.getAll();
         },
-        { beforeHandle: requirePermission(permissions.DOCUMENT_TYPE_READ) },
+        { beforeHandle: requirePermission(Permission.DOCUMENT_TYPE_READ) },
     )
     .post(
         '/',
         async ({ documentTypeService, body }) => {
             return documentTypeService.create(body);
         },
-        { body: documentTypeModel.create, beforeHandle: requirePermission(permissions.DOCUMENT_TYPE_MANAGE) },
+        { body: documentTypeModel.create, beforeHandle: requirePermission(Permission.DOCUMENT_TYPE_EDIT) },
     )
     .guard({ params: documentTypeModel.params })
     .get(
@@ -28,19 +28,19 @@ export const documentTypeController = new Elysia({ prefix: '/documentType', tags
         async ({ documentTypeService, params: { id } }) => {
             return documentTypeService.getById(id);
         },
-        { beforeHandle: requirePermission(permissions.DOCUMENT_TYPE_READ) },
+        { beforeHandle: requirePermission(Permission.DOCUMENT_TYPE_READ) },
     )
     .put(
         '/:id',
         async ({ documentTypeService, params: { id }, body }) => {
             return documentTypeService.update(id, body);
         },
-        { body: documentTypeModel.update, beforeHandle: requirePermission(permissions.DOCUMENT_TYPE_MANAGE) },
+        { body: documentTypeModel.update, beforeHandle: requirePermission(Permission.DOCUMENT_TYPE_EDIT) },
     )
     .delete(
         '/:id',
         async ({ documentTypeService, params: { id } }) => {
             return documentTypeService.delete(id);
         },
-        { beforeHandle: requirePermission(permissions.DOCUMENT_TYPE_MANAGE) },
+        { beforeHandle: requirePermission(Permission.DOCUMENT_TYPE_EDIT) },
     )

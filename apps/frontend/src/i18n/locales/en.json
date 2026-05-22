@@ -103,6 +103,7 @@
     "blockUser": "Block user",
     "cancel": "Cancel",
     "close": "Close",
+    "confirm": "Confirm",
     "confirmPassword": "Confirm password",
     "disabled": "Blocked",
     "editUser": "Edit user",
@@ -115,9 +116,13 @@
     "passwordsNotMatch": "Passwords do not match",
     "required": "Required",
     "requiredField": "This field is required",
+    "resetPassword": "Reset password",
+    "resetPasswordConfirm": "Reset user password?",
+    "resetPasswordSessionWarning": "The user's active sessions will be ended and they will need to change this temporary password on next login.",
     "roles": "Roles",
     "save": "Save",
     "status": "Status",
+    "temporaryPassword": "Temporary password",
     "unblockConfirm": "Unblock user",
     "unblockUser": "Unblock",
     "username": "Username",
@@ -125,7 +130,9 @@
   },
   "LoginView": {
     "login": "Log in",
+    "password": "Password",
     "passwordRequired": "Password required",
+    "username": "Username",
     "usernameRequired": "Username required"
   },
   "Navbar": {
@@ -150,6 +157,29 @@
   },
   "PlanTable": {
     "newBooking": "New booking"
+  },
+  "ResetPasswordDialog": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "confirmPassword": "Confirm password",
+    "passwordsNotMatch": "Passwords do not match",
+    "requiredField": "This field is required",
+    "resetPassword": "Reset password",
+    "resetPasswordConfirm": "Reset user password?",
+    "resetPasswordSessionWarning": "The user's active sessions will be ended and they will need to change this temporary password on next login.",
+    "temporaryPassword": "Temporary password",
+    "yes": "Yes"
+  },
+  "ProfileView": {
+    "changePassword": "Change password",
+    "email": "Email",
+    "invalidEmail": "This is not a valid email address",
+    "name": "Name",
+    "requiredField": "This field is required",
+    "role": "Role",
+    "save": "Save",
+    "title": "Profile",
+    "username": "Login"
   },
   "RoomSelector": {
     "all": "All",
@@ -194,6 +224,29 @@
     "status": "Status",
     "username": "Username"
   },
+  "RolesTable": {
+    "addRole": "Add role",
+    "createdAt": "Created",
+    "custom": "Custom",
+    "name": "Name",
+    "permissions": "Permissions",
+    "system": "System",
+    "type": "Type"
+  },
+  "EditRoleDialog": {
+    "addRole": "Add role",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteConfirm": "Delete role",
+    "deleteRole": "Delete role",
+    "editRole": "Edit role",
+    "name": "Name",
+    "permissions": "Permissions",
+    "requiredField": "This field is required",
+    "save": "Save",
+    "systemRoleCannotBeDeleted": "System role cannot be deleted",
+    "yes": "Yes"
+  },
   "TextFilterDropdown": {
     "reset": "Reset",
     "search": "Search"
@@ -221,6 +274,31 @@
       "CASH": "Cash",
       "CARD": "Card",
       "EXTERNAL": "External"
+    },
+    "Permission": {
+      "all": "All permissions",
+      "user:read": "View users",
+      "user:edit": "Edit users",
+      "role:read": "View roles",
+      "role:edit": "Edit roles",
+      "guest:read": "View guests",
+      "guest:edit": "Edit guests",
+      "booking:read": "View bookings",
+      "booking:edit": "Edit bookings",
+      "room:read": "View rooms",
+      "room:edit": "Edit rooms",
+      "category:read": "View categories",
+      "category:edit": "Edit categories",
+      "document-type:read": "View document types",
+      "document-type:edit": "Edit document types",
+      "identity-document:read": "View identity documents",
+      "identity-document:edit": "Edit identity documents",
+      "folio:read": "View folios",
+      "folio:edit": "Edit folios",
+      "service:read": "View services",
+      "service:edit": "Edit services",
+      "template:read": "View templates",
+      "template:edit": "Edit templates"
     },
     "RoomStatus": {
       "CLEAN": "Clean",

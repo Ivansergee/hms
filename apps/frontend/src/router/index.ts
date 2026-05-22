@@ -3,6 +3,7 @@ import PlanView from '@/views/PlanView.vue';
 import { useAuthStore } from '@/stores/authStore.ts';
 import LoginView from '@/views/LoginView.vue';
 import ChangePasswordView from '@/views/ChangePasswordView.vue';
+import ProfileView from '@/views/ProfileView.vue';
 import SettingsView from '@/views/settings/SettingsView.vue';
 import StaffView from '@/views/settings/StaffView.vue';
 import TemplatesView from '@/views/settings/TemplatesView.vue';
@@ -40,6 +41,11 @@ const router = createRouter({
       alias: '/',
       name: RouteName.PLAN,
       component: PlanView,
+    },
+    {
+      path: '/profile',
+      name: RouteName.PROFILE,
+      component: ProfileView,
     },
     {
       path: '/settings',

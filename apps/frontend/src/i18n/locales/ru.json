@@ -103,6 +103,7 @@
     "blockUser": "Заблокировать",
     "cancel": "Отмена",
     "close": "Закрыть",
+    "confirm": "Подтвердить",
     "confirmPassword": "Подтвердите пароль",
     "disabled": "Заблокирован",
     "editUser": "Редактирование пользователя",
@@ -115,9 +116,13 @@
     "passwordsNotMatch": "Пароли не совпадают",
     "required": "Требуется",
     "requiredField": "Обязательное поле",
+    "resetPassword": "Сбросить пароль",
+    "resetPasswordConfirm": "Сбросить пароль пользователя?",
+    "resetPasswordSessionWarning": "Активные сеансы пользователя будут завершены, и при следующем входе ему потребуется сменить временный пароль.",
     "roles": "Роли",
     "save": "Сохранить",
     "status": "Статус",
+    "temporaryPassword": "Временный пароль",
     "unblockConfirm": "Разблокировать пользователя",
     "unblockUser": "Разблокировать",
     "username": "Логин",
@@ -125,7 +130,9 @@
   },
   "LoginView": {
     "login": "Вход",
+    "password": "Пароль",
     "passwordRequired": "Введите пароль",
+    "username": "Логин",
     "usernameRequired": "Введите имя пользователя"
   },
   "Navbar": {
@@ -150,6 +157,29 @@
   },
   "PlanTable": {
     "newBooking": "Новое бронирование"
+  },
+  "ResetPasswordDialog": {
+    "cancel": "Отмена",
+    "confirm": "Подтвердить",
+    "confirmPassword": "Подтвердите пароль",
+    "passwordsNotMatch": "Пароли не совпадают",
+    "requiredField": "Обязательное поле",
+    "resetPassword": "Сбросить пароль",
+    "resetPasswordConfirm": "Сбросить пароль пользователя?",
+    "resetPasswordSessionWarning": "Активные сеансы пользователя будут завершены, и при следующем входе ему потребуется сменить временный пароль.",
+    "temporaryPassword": "Временный пароль",
+    "yes": "Да"
+  },
+  "ProfileView": {
+    "changePassword": "Сменить пароль",
+    "email": "Email",
+    "invalidEmail": "Неправильный email",
+    "name": "Имя",
+    "requiredField": "Обязательное поле",
+    "role": "Роль",
+    "save": "Сохранить",
+    "title": "Профиль",
+    "username": "Логин"
   },
   "RoomSelector": {
     "all": "Все",
@@ -194,6 +224,29 @@
     "status": "Статус",
     "username": "Логин"
   },
+  "RolesTable": {
+    "addRole": "Добавить роль",
+    "createdAt": "Создан",
+    "custom": "Пользовательская",
+    "name": "Название",
+    "permissions": "Права доступа",
+    "system": "Системная",
+    "type": "Тип"
+  },
+  "EditRoleDialog": {
+    "addRole": "Добавить роль",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "deleteConfirm": "Удалить роль",
+    "deleteRole": "Удаление роли",
+    "editRole": "Редактирование роли",
+    "name": "Название",
+    "permissions": "Права доступа",
+    "requiredField": "Обязательное поле",
+    "save": "Сохранить",
+    "systemRoleCannotBeDeleted": "Системную роль нельзя удалить",
+    "yes": "Да"
+  },
   "TextFilterDropdown": {
     "reset": "Сбросить",
     "search": "Поиск"
@@ -221,6 +274,31 @@
       "CASH": "Наличные",
       "CARD": "Карта",
       "EXTERNAL": "Внешний"
+    },
+    "Permission": {
+      "all": "Все права доступа",
+      "user:read": "Просмотр пользователей",
+      "user:edit": "Редактирование пользователей",
+      "role:read": "Просмотр ролей",
+      "role:edit": "Редактирование ролей",
+      "guest:read": "Просмотр гостей",
+      "guest:edit": "Редактирование гостей",
+      "booking:read": "Просмотр бронирований",
+      "booking:edit": "Редактирование бронирований",
+      "room:read": "Просмотр комнат",
+      "room:edit": "Редактирование комнат",
+      "category:read": "Просмотр категорий",
+      "category:edit": "Редактирование категорий",
+      "document-type:read": "Просмотр типов документов",
+      "document-type:edit": "Редактирование типов документов",
+      "identity-document:read": "Просмотр документов",
+      "identity-document:edit": "Редактирование документов",
+      "folio:read": "Просмотр фолио",
+      "folio:edit": "Редактирование фолио",
+      "service:read": "Просмотр услуг",
+      "service:edit": "Редактирование услуг",
+      "template:read": "Просмотр шаблонов",
+      "template:edit": "Редактирование шаблонов"
     },
     "RoomStatus": {
       "CLEAN": "Убран",

@@ -3,6 +3,7 @@ import { BillingTabTableType } from '@/enums/BillingTabTableType.ts';
 import { BookingPropertyForChange } from '@/enums/BookingPropertyForChange.ts';
 import { PaymentMethod } from '@/enums/PaymentMethod.ts';
 import { BookingContextMenuItem } from '@/enums/BookingContextMenuItem.ts';
+import { Permission } from '@shared/enums/Permission.ts';
 import { registerEnum } from './enumRegistry';
 
 export function registerEnums() {
@@ -11,4 +12,5 @@ export function registerEnums() {
   registerEnum(BookingPropertyForChange, 'BookingPropertyForChange');
   registerEnum(PaymentMethod, 'PaymentMethod');
   registerEnum(BookingContextMenuItem, 'BookingContextMenuItem');
+  registerEnum(Permission, 'Permission');
 }

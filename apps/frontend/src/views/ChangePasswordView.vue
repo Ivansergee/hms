@@ -11,6 +11,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { useScopedI18n } from '@/composables/useScopedI18n.ts';
+import { RouteName } from '@/router';
 
 defineOptions({ name: 'ChangePasswordView' });
 const { t } = useScopedI18n();
@@ -18,7 +19,7 @@ const { t } = useScopedI18n();
 const router = useRouter();
 
 const onChanged = async (): Promise<void> => {
-  await router.push('/');
+  await router.push({ name: RouteName.LOGIN });
 };
 </script>
 <style scoped>

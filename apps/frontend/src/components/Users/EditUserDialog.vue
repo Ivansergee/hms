@@ -9,6 +9,12 @@
     <template #footer>
       <a-button
         v-if="user"
+        @click="isResetPasswordOpen = true"
+      >
+        {{ t('resetPassword') }}
+      </a-button>
+      <a-button
+        v-if="user"
         :danger="user.isActive"
         @click="onStatusChange"
       >
@@ -85,6 +91,10 @@
       </a-form-item>
     </a-form>
   </a-modal>
+  <ResetPasswordDialog
+    v-model:open="isResetPasswordOpen"
+    :user="user"
+  />
 </template>
 <script setup lang="ts">
 import {
@@ -96,6 +106,7 @@ import type { UserListItem } from '@/queries/userQueries.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { Modal } from 'ant-design-vue';
 import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
+import ResetPasswordDialog from '@/components/Users/ResetPasswordDialog.vue';
 
 type UserFormState = {
   username: string;
@@ -125,6 +136,7 @@ const emit = defineEmits<{
 }>();
 
 const formRef = ref<FormInstance>();
+const isResetPasswordOpen = ref(false);
 const formState = reactive<UserFormState>({
   username: '',
   name: '',
@@ -231,6 +243,8 @@ watch(
   (isOpen: boolean) => {
     if (isOpen) {
       resetForm();
+    } else {
+      isResetPasswordOpen.value = false;
     }
   },
   { immediate: true },

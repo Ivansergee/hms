@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 import { ServiceService } from "@/modules/service/ServiceService";
 import { serviceModel } from "@/modules/service/ServiceModel";
-import { permissions } from "@/auth/permissions";
+import { Permission } from "@shared/enums/Permission";
 import { requirePermission } from "@/modules/auth/AuthGuard";
 
 export const serviceController = new Elysia({ prefix: '/service', tags: ['Service'] })
@@ -11,21 +11,21 @@ export const serviceController = new Elysia({ prefix: '/service', tags: ['Servic
         async ({ serviceService }) => {
             return serviceService.getAll();
         },
-        { beforeHandle: requirePermission(permissions.SERVICE_READ) },
+        { beforeHandle: requirePermission(Permission.SERVICE_READ) },
     )
     .get(
         '/group',
         async ({ serviceService }) => {
             return serviceService.getAllGroups();
         },
-        { beforeHandle: requirePermission(permissions.SERVICE_READ) },
+        { beforeHandle: requirePermission(Permission.SERVICE_READ) },
     )
     .post(
         '/',
         async ({ serviceService, body }) => {
             return serviceService.create(body);
         },
-        { body: serviceModel.create, beforeHandle: requirePermission(permissions.SERVICE_MANAGE) },
+        { body: serviceModel.create, beforeHandle: requirePermission(Permission.SERVICE_EDIT) },
     )
     .guard({ params: serviceModel.params })
     .put(
@@ -33,12 +33,12 @@ export const serviceController = new Elysia({ prefix: '/service', tags: ['Servic
         async ({ serviceService, params: { id }, body }) => {
             return serviceService.edit(id, body);
         },
-        { body: serviceModel.create, beforeHandle: requirePermission(permissions.SERVICE_MANAGE) }
+        { body: serviceModel.create, beforeHandle: requirePermission(Permission.SERVICE_EDIT) }
     )
     .delete(
         '/:id',
         async ({ serviceService, params: { id } }) => {
             return serviceService.delete(id);
         },
-        { beforeHandle: requirePermission(permissions.SERVICE_MANAGE) },
+        { beforeHandle: requirePermission(Permission.SERVICE_EDIT) },
     )

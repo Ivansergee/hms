@@ -13,7 +13,7 @@
       :key="StaffTabKey.ROLES"
       :tab="t(StaffTabKey.ROLES)"
     >
-      Content of Tab Pane 2
+      <RolesTable />
     </a-tab-pane>
   </a-tabs>
 </template>

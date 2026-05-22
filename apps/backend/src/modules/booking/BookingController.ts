@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 import { BookingService } from "@/modules/booking/BookingService";
 import { bookingModel } from "@/modules/booking/BookingModel";
-import { permissions } from "@/auth/permissions";
+import { Permission } from "@shared/enums/Permission";
 import { requirePermission } from "@/modules/auth/AuthGuard";
 
 export const bookingController = new Elysia({ prefix: '/booking', tags: ['Booking'] })
@@ -11,21 +11,21 @@ export const bookingController = new Elysia({ prefix: '/booking', tags: ['Bookin
         async ({ bookingService }) => {
             return bookingService.getAll();
         },
-        { beforeHandle: requirePermission(permissions.BOOKING_READ) },
+        { beforeHandle: requirePermission(Permission.BOOKING_READ) },
     )
     .post(
         '/',
         async ({ bookingService, body }) => {
             return bookingService.create(body);
         },
-        { body: bookingModel.create, beforeHandle: requirePermission(permissions.BOOKING_CREATE) },
+        { body: bookingModel.create, beforeHandle: requirePermission(Permission.BOOKING_EDIT) },
     )
     .post(
         '/filter',
         async ({ bookingService, body }) => {
             return bookingService.filter(body);
         },
-        { body: bookingModel.filter, beforeHandle: requirePermission(permissions.BOOKING_READ) }
+        { body: bookingModel.filter, beforeHandle: requirePermission(Permission.BOOKING_READ) }
     )
     .guard({ params: bookingModel.params })
     .get(
@@ -33,7 +33,7 @@ export const bookingController = new Elysia({ prefix: '/booking', tags: ['Bookin
         async ({ bookingService, params: { id } }) => {
             return bookingService.getById(id);
         },
-        { beforeHandle: requirePermission(permissions.BOOKING_READ) },
+        { beforeHandle: requirePermission(Permission.BOOKING_READ) },
     )
     // .put(
     //     '/:id',
@@ -47,26 +47,26 @@ export const bookingController = new Elysia({ prefix: '/booking', tags: ['Bookin
         async ({ bookingService, params: { id }, body }) => {
             return bookingService.editPlacement(id, body);
         },
-        { body: bookingModel.editPlacement, beforeHandle: requirePermission(permissions.BOOKING_UPDATE) }
+        { body: bookingModel.editPlacement, beforeHandle: requirePermission(Permission.BOOKING_EDIT) }
     )
     .post(
         '/:id/setStatus',
         async ({ bookingService, params: { id }, body }) => {
             return bookingService.setStatus(id, body.status);
         },
-        { body: bookingModel.setStatus, beforeHandle: requirePermission(permissions.BOOKING_UPDATE) }
+        { body: bookingModel.setStatus, beforeHandle: requirePermission(Permission.BOOKING_EDIT) }
     )
     .delete(
         '/:id',
         async ({ bookingService, params: { id } }) => {
             return bookingService.delete(id);
         },
-        { beforeHandle: requirePermission(permissions.BOOKING_CANCEL) },
+        { beforeHandle: requirePermission(Permission.BOOKING_EDIT) },
     )
     .get(
         '/:id/details',
         async ({ bookingService, params: { id } }) => {
             return bookingService.getDetails(id);
         },
-        { beforeHandle: requirePermission(permissions.BOOKING_READ) },
+        { beforeHandle: requirePermission(Permission.BOOKING_READ) },
     )

@@ -1,6 +1,6 @@
 import { prisma } from "./prisma/prisma";
 import { Gender } from "@shared/enums/Gender";
-import { adminPermissions } from '@/auth/permissions';
+import { Permission } from '@shared/enums/Permission';
 
 async function main() {
     const administratorRole = await prisma.role.upsert({
@@ -9,14 +9,14 @@ async function main() {
             name: 'Administrator',
             isSystem: true,
             permissions: {
-                create: adminPermissions.map(permissionKey => ({ permissionKey })),
+                create: [{ permissionKey: Permission.ALL }],
             },
         },
         update: {
             isSystem: true,
             permissions: {
                 deleteMany: {},
-                create: adminPermissions.map(permissionKey => ({ permissionKey })),
+                create: [{ permissionKey: Permission.ALL }],
             },
         },
     });

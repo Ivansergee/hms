@@ -14,6 +14,10 @@ export const authQueries = {
     return fetcher.get('/auth/me');
   },
 
+  updateProfile(data: { name: string; email?: string | null }): Promise<User> {
+    return fetcher.put('/auth/me', data);
+  },
+
   changePassword(currentPassword: string, newPassword: string): Promise<{ success: boolean }> {
     return fetcher.post('/auth/change-password', {
       currentPassword,

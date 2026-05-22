@@ -1,5 +1,5 @@
 import type { Prisma } from "@prisma/client";
-import { adminPermissions, permissionValues } from "@/auth/permissions";
+import { Permission } from "@shared/enums/Permission";
 import { prisma } from "../../../prisma/prisma";
 
 type RoleData = {
@@ -10,6 +10,8 @@ type RoleData = {
 const includeRoleRelations = {
     permissions: true,
 } satisfies Prisma.RoleInclude;
+
+const permissionValues = Object.values(Permission);
 
 export class RoleService {
     getPermissions() {
@@ -91,14 +93,14 @@ export class RoleService {
                 name: 'Administrator',
                 isSystem: true,
                 permissions: {
-                    create: adminPermissions.map(permissionKey => ({ permissionKey })),
+                    create: [{ permissionKey: Permission.ALL }],
                 },
             },
             update: {
                 isSystem: true,
                 permissions: {
                     deleteMany: {},
-                    create: adminPermissions.map(permissionKey => ({ permissionKey })),
+                    create: [{ permissionKey: Permission.ALL }],
                 },
             },
         });
@@ -118,7 +120,7 @@ export class RoleService {
             id: role.id,
             name: role.name,
             isSystem: role.isSystem,
-            permissionKeys: role.permissions.map(permission => permission.permissionKey),
+            permissions: role.permissions.map(permission => permission.permissionKey),
             createdAt: role.createdAt,
             updatedAt: role.updatedAt,
         };

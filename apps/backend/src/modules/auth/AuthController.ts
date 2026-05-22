@@ -44,6 +44,21 @@ export const authController = new Elysia({ prefix: '/auth', tags: ['Auth'] })
 
         return currentUser;
     })
+    .put(
+        '/me',
+        async ({ cookie, body, set }) => {
+            const sessionId = cookie[SESSION_COOKIE]?.value as string | undefined;
+            const currentUser = await authService.getCurrentUser(sessionId);
+
+            if (!currentUser) {
+                set.status = 401;
+                return { message: 'Unauthorized' };
+            }
+
+            return authService.updateProfile(currentUser.id, body);
+        },
+        { body: authModel.updateProfile },
+    )
     .post('/logout', async ({ cookie }) => {
         const sessionId = cookie[SESSION_COOKIE]?.value as string | undefined;
 

@@ -1,11 +1,11 @@
 <template>
   <a-form
+    ref="formRef"
+    class="change-password-form"
     :model="formState"
     :rules="rules"
-    layout="vertical"
     :required-mark="false"
-    class="change-password-form"
-    @finish="onFinish"
+    layout="vertical"
   >
     <a-form-item
       name="currentPassword"
@@ -32,8 +32,8 @@
       <a-button
         :disabled="disabled"
         type="primary"
-        html-type="submit"
         class="change-password-form-button"
+        @click="onChangePassword"
       >
         {{ t('changePassword') }}
       </a-button>
@@ -42,9 +42,9 @@
 </template>
 <script setup lang="ts">
 import { useScopedI18n } from '@/composables/useScopedI18n.ts';
-import { computed, reactive } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { useAuthStore } from '@/stores/authStore.ts';
-import type { Rule } from 'ant-design-vue/es/form';
+import type { FormInstance, Rule } from 'ant-design-vue/es/form';
 
 interface FormState {
   currentPassword: string;
@@ -61,6 +61,7 @@ const { t } = useScopedI18n();
 
 const authStore = useAuthStore();
 
+const formRef = ref<FormInstance>();
 const formState = reactive<FormState>({
   currentPassword: '',
   newPassword: '',
@@ -95,8 +96,9 @@ const rules: Record<string, Rule[]> = {
 
 const disabled = computed(() => !(formState.currentPassword && formState.newPassword && formState.confirmPassword));
 
-const onFinish = async (values: FormState) => {
-  await authStore.changePassword(values.currentPassword, values.newPassword);
+const onChangePassword = async (): Promise<void> => {
+  await formRef.value?.validate();
+  await authStore.changePassword(formState.currentPassword, formState.newPassword);
   emit('changed');
 };
 </script>

@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 
 import { RoomService } from "@/modules/room/RoomService";
 import { roomModel } from "@/modules/room/RoomModel";
-import { permissions } from "@/auth/permissions";
+import { Permission } from "@shared/enums/Permission";
 import { requirePermission } from "@/modules/auth/AuthGuard";
 
 export const roomController = new Elysia({ prefix: '/room', tags: ['Room'] })
@@ -12,21 +12,21 @@ export const roomController = new Elysia({ prefix: '/room', tags: ['Room'] })
         async ({ roomService }) => {
             return roomService.getAll();
         },
-        { beforeHandle: requirePermission(permissions.ROOM_READ) },
+        { beforeHandle: requirePermission(Permission.ROOM_READ) },
     )
     .post(
         '/',
         async ({ roomService, body }) => {
             return roomService.create(body);
         },
-        { body: roomModel.create, beforeHandle: requirePermission(permissions.ROOM_UPDATE) },
+        { body: roomModel.create, beforeHandle: requirePermission(Permission.ROOM_EDIT) },
     )
     .get(
         '/availableIds',
         async ({ roomService, query: { start, end } }) => {
             return roomService.getAvailableIds(start, end);
         },
-        { query: roomModel.available, beforeHandle: requirePermission(permissions.ROOM_READ) },
+        { query: roomModel.available, beforeHandle: requirePermission(Permission.ROOM_READ) },
     )
     .guard({ params: roomModel.params })
     .get(
@@ -34,26 +34,26 @@ export const roomController = new Elysia({ prefix: '/room', tags: ['Room'] })
         async ({ roomService, params: { id } }) => {
             return roomService.getById(id);
         },
-        { beforeHandle: requirePermission(permissions.ROOM_READ) },
+        { beforeHandle: requirePermission(Permission.ROOM_READ) },
     )
     .put(
         '/:id',
         async ({ roomService, params: { id }, body }) => {
             return roomService.update(id, body);
         },
-        { body: roomModel.update, beforeHandle: requirePermission(permissions.ROOM_UPDATE) },
+        { body: roomModel.update, beforeHandle: requirePermission(Permission.ROOM_EDIT) },
     )
     .delete(
         '/:id',
         async ({ roomService, params: { id } }) => {
             return roomService.delete(id);
         },
-        { beforeHandle: requirePermission(permissions.ROOM_UPDATE) },
+        { beforeHandle: requirePermission(Permission.ROOM_EDIT) },
     )
     .post(
         '/:id/setStatus',
         async ({ roomService, params: { id }, body }) => {
             return roomService.setStatus(id, body.status);
         },
-        { body: roomModel.setStatus, beforeHandle: requirePermission(permissions.ROOM_STATUS_UPDATE) },
+        { body: roomModel.setStatus, beforeHandle: requirePermission(Permission.ROOM_EDIT) },
     )

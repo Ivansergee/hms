@@ -1,5 +1,5 @@
 import { prisma } from '../prisma/prisma';
-import { adminPermissions } from '@/auth/permissions';
+import { Permission } from '@shared/enums/Permission';
 
 function askRequired(question: string): string {
     while (true) {
@@ -56,14 +56,14 @@ async function main(): Promise<void> {
                 name: 'Administrator',
                 isSystem: true,
                 permissions: {
-                    create: adminPermissions.map(permissionKey => ({ permissionKey })),
+                    create: [{ permissionKey: Permission.ALL }],
                 },
             },
             update: {
                 isSystem: true,
                 permissions: {
                     deleteMany: {},
-                    create: adminPermissions.map(permissionKey => ({ permissionKey })),
+                    create: [{ permissionKey: Permission.ALL }],
                 },
             },
         });

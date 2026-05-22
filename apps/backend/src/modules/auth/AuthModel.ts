@@ -9,4 +9,8 @@ export const authModel = {
         currentPassword: t.String({ minLength: 1 }),
         newPassword: t.String({ minLength: 1 }),
     }),
+    updateProfile: t.Object({
+        name: t.String({ minLength: 1 }),
+        email: t.Optional(t.Union([t.String({ format: 'email' }), t.Null()])),
+    }),
 };

@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia';
 
-import type { Permission } from "@/auth/permissions";
+import { Permission } from "@shared/enums/Permission";
 import { authService, SESSION_COOKIE } from "@/modules/auth/AuthService";
 
 function requireAuth({ currentUser, set }: any) {
@@ -26,7 +26,7 @@ export function requirePermission(permission: Permission) {
             return { message: 'Unauthorized' };
         }
 
-        if (!currentUser.permissions.includes(permission)) {
+        if (!currentUser.permissions.includes(Permission.ALL) && !currentUser.permissions.includes(permission)) {
             set.status = 403;
             return { message: 'Forbidden' };
         }

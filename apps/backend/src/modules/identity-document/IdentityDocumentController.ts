@@ -2,7 +2,7 @@ import { Elysia } from 'elysia'
 
 import { IdentityDocumentService } from "@/modules/identity-document/IdentityDocumentService";
 import { identityDocumentModel } from "@/modules/identity-document/IdentityDocumentModel";
-import { permissions } from "@/auth/permissions";
+import { Permission } from "@shared/enums/Permission";
 import { requirePermission } from "@/modules/auth/AuthGuard";
 
 
@@ -13,14 +13,14 @@ export const identityDocumentController = new Elysia({ prefix: '/identityDocumen
         async ({ identityDocumentService }) => {
             return identityDocumentService.getAll();
         },
-        { beforeHandle: requirePermission(permissions.IDENTITY_DOCUMENT_READ) },
+        { beforeHandle: requirePermission(Permission.IDENTITY_DOCUMENT_READ) },
     )
     .post(
         '/',
         async ({ identityDocumentService, body }) => {
             return identityDocumentService.create(body);
         },
-        { body: identityDocumentModel.create, beforeHandle: requirePermission(permissions.IDENTITY_DOCUMENT_MANAGE) },
+        { body: identityDocumentModel.create, beforeHandle: requirePermission(Permission.IDENTITY_DOCUMENT_EDIT) },
     )
     .guard({ params: identityDocumentModel.params })
     .get(
@@ -28,19 +28,19 @@ export const identityDocumentController = new Elysia({ prefix: '/identityDocumen
         async ({ identityDocumentService, params: { id } }) => {
             return identityDocumentService.getById(id);
         },
-        { beforeHandle: requirePermission(permissions.IDENTITY_DOCUMENT_READ) },
+        { beforeHandle: requirePermission(Permission.IDENTITY_DOCUMENT_READ) },
     )
     .put(
         '/:id',
         async ({ identityDocumentService, params: { id }, body }) => {
             return identityDocumentService.update(id, body);
         },
-        { body: identityDocumentModel.update, beforeHandle: requirePermission(permissions.IDENTITY_DOCUMENT_MANAGE) },
+        { body: identityDocumentModel.update, beforeHandle: requirePermission(Permission.IDENTITY_DOCUMENT_EDIT) },
     )
     .delete(
         '/:id',
         async ({ identityDocumentService, params: { id } }) => {
             return identityDocumentService.delete(id);
         },
-        { beforeHandle: requirePermission(permissions.IDENTITY_DOCUMENT_MANAGE) },
+        { beforeHandle: requirePermission(Permission.IDENTITY_DOCUMENT_EDIT) },
     )

@@ -9,7 +9,10 @@
         name="username"
         :rules="[{ required: true, message: t('usernameRequired') }]"
       >
-        <a-input v-model:value="formState.username">
+        <a-input
+          v-model:value="formState.username"
+          :placeholder="t('username')"
+        >
           <template #prefix>
             <UserOutlined class="site-form-item-icon" />
           </template>
@@ -20,7 +23,10 @@
         name="password"
         :rules="[{ required: true, message: t('passwordRequired') }]"
       >
-        <a-input-password v-model:value="formState.password">
+        <a-input-password
+          v-model:value="formState.password"
+          :placeholder="t('password')"
+        >
           <template #prefix>
             <LockOutlined class="site-form-item-icon" />
           </template>

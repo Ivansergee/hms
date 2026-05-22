@@ -1,16 +1,16 @@
 <template>
-  <div class="users-table">
-    <a-button-group class="users-table__actions">
+  <div class="roles-table">
+    <a-button-group class="roles-table__actions">
       <a-button
         :icon="h(PlusOutlined)"
-        :title="t('addUser')"
+        :title="t('addRole')"
         @click="openAddDialog"
       />
     </a-button-group>
     <a-table
-      class="users-table__table"
+      class="roles-table__table"
       :columns="columns"
-      :data-source="userStore.users"
+      :data-source="userStore.roles"
       :pagination="{ pageSize: 10 }"
       :custom-row="customRow"
       :show-sorter-tooltip="false"
@@ -19,28 +19,28 @@
       @change="onTableChange"
     >
       <template #bodyCell="{ column, record }">
-        <template v-if="['username', 'name', 'email'].includes(String(column.key))">
+        <template v-if="column.key === 'name'">
           <HighlightedText
-            :text="getTextColumnValue(record, column.key)"
-            :query="getTextFilterValue(String(column.key))"
+            :text="record.name"
+            :query="getTextFilterValue('name')"
           />
         </template>
-        <template v-if="column.key === 'roles'">
+        <template v-if="column.key === 'permissions'">
           <a-space
-            v-if="record.roles.length"
+            v-if="record.permissions.length"
             wrap
           >
             <a-tag
-              v-for="role in record.roles"
-              :key="role.id"
+              v-for="permission in record.permissions"
+              :key="permission"
             >
-              {{ role.name }}
+              {{ translateEnum(Permission, permission) }}
             </a-tag>
           </a-space>
         </template>
-        <template v-if="column.key === 'isActive'">
-          <a-tag :color="record.isActive ? 'green' : 'red'">
-            {{ record.isActive ? t('active') : t('disabled') }}
+        <template v-if="column.key === 'type'">
+          <a-tag :color="record.isSystem ? 'blue' : 'default'">
+            {{ record.isSystem ? t('system') : t('custom') }}
           </a-tag>
         </template>
       </template>
@@ -49,9 +49,9 @@
       </template>
       <template #customFilterDropdown="filterDropdownProps">
         <SelectFilterDropdown
-          v-if="filterDropdownProps.column.key === 'roles'"
+          v-if="filterDropdownProps.column.key === 'permissions'"
           :filter-dropdown-props="filterDropdownProps"
-          :options="roleFilterOptions"
+          :options="permissionFilterOptions"
         />
         <TextFilterDropdown
           v-else
@@ -59,42 +59,41 @@
         />
       </template>
     </a-table>
-    <EditUserDialog
+    <EditRoleDialog
       :is-open="isEditDialogOpen"
-      :user="selectedUser"
+      :role="selectedRole"
       @close="closeEditDialog"
     />
   </div>
 </template>
 <script setup lang="ts">
-import {
-  computed, h, ref,
-} from 'vue';
+import { computed, h, ref } from 'vue';
 import type { ColumnType } from 'ant-design-vue/es/table';
+import type { TableProps } from 'ant-design-vue';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons-vue';
+import type { Role } from '@shared/types/user.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { useScopedI18n } from '@/composables/useScopedI18n.ts';
 import { getFormattedDate } from '@/utils/dateTimeUtils.ts';
-import type { UserListItem } from '@/queries/userQueries.ts';
 import TextFilterDropdown from '@/components/FilterDropdowns/TextFilterDropdown.vue';
 import SelectFilterDropdown from '@/components/FilterDropdowns/SelectFilterDropdown.vue';
-import type { TableProps } from 'ant-design-vue';
+import { translateEnum } from '@/i18n/i18n.ts';
+import { Permission } from '@shared/enums/Permission.ts';
 
-defineOptions({ name: 'UsersTable' });
+defineOptions({ name: 'RolesTable' });
 
 const { t } = useScopedI18n();
 const userStore = useUserStore();
 
-const selectedUserId = ref<number>();
-const selectedUser = computed<UserListItem | undefined>(
-  () => userStore.users.find((user) => user.id === selectedUserId.value),
+const selectedRoleId = ref<number>();
+const selectedRole = computed<Role | undefined>(
+  () => userStore.roles.find((role) => role.id === selectedRoleId.value),
 );
-
 const isEditDialogOpen = ref(false);
 
-const roleFilterOptions = computed(() => userStore.roles.map((role) => ({
-  label: role.name,
-  value: role.id,
+const permissionFilterOptions = computed(() => userStore.rolePermissions.map((permission) => ({
+  label: translateEnum(Permission, permission),
+  value: permission,
 })));
 
 const includesFilterValue = (source: string | undefined, value: unknown): boolean => {
@@ -105,15 +104,7 @@ const includesFilterValue = (source: string | undefined, value: unknown): boolea
   return source.toLowerCase().includes(String(value).toLowerCase());
 };
 
-const columns: ColumnType<UserListItem>[] = [
-  {
-    title: t('username'),
-    dataIndex: 'username',
-    key: 'username',
-    customFilterDropdown: true,
-    onFilter: (value, record) => includesFilterValue(record.username, value),
-    sorter: (a, b) => a.username.localeCompare(b.username),
-  },
+const columns: ColumnType<Role>[] = [
   {
     title: t('name'),
     dataIndex: 'name',
@@ -123,30 +114,23 @@ const columns: ColumnType<UserListItem>[] = [
     sorter: (a, b) => a.name.localeCompare(b.name),
   },
   {
-    title: t('email'),
-    dataIndex: 'email',
-    key: 'email',
+    title: t('permissions'),
+    dataIndex: 'permissions',
+    key: 'permissions',
     customFilterDropdown: true,
-    onFilter: (value, record) => includesFilterValue(record.email ?? undefined, value),
+    onFilter: (value, record) => record.permissions.includes(value as Permission),
   },
   {
-    title: t('roles'),
-    dataIndex: 'roles',
-    key: 'roles',
-    customFilterDropdown: true,
-    onFilter: (value, record) => record.roles.some((role) => role.id === value),
-  },
-  {
-    title: t('status'),
-    dataIndex: 'isActive',
-    key: 'isActive',
+    title: t('type'),
+    dataIndex: 'isSystem',
+    key: 'type',
     width: 120,
     align: 'center',
     filters: [
-      { text: t('active'), value: true },
-      { text: t('disabled'), value: false },
+      { text: t('system'), value: true },
+      { text: t('custom'), value: false },
     ],
-    onFilter: (value, record) => record.isActive === value,
+    onFilter: (value, record) => record.isSystem === value,
   },
   {
     title: t('createdAt'),
@@ -163,31 +147,21 @@ const columns: ColumnType<UserListItem>[] = [
 
 const textFilterValues = ref<Record<string, string>>({});
 
-const onTableChange: TableProps<UserListItem>['onChange'] = (_pagination, filters) => {
+const onTableChange: TableProps<Role>['onChange'] = (_pagination, filters) => {
   textFilterValues.value = {
-    username: String(filters.username?.[0] ?? ''),
     name: String(filters.name?.[0] ?? ''),
-    email: String(filters.email?.[0] ?? ''),
   };
 };
 
 const getTextFilterValue = (columnKey: string): string => textFilterValues.value[columnKey] ?? '';
 
-const getTextColumnValue = (record: Record<string, unknown>, columnKey: unknown): string | undefined => {
-  if (columnKey === 'username' || columnKey === 'name' || columnKey === 'email') {
-    return String(record[columnKey] ?? '');
-  }
-
-  return undefined;
-};
-
 const openAddDialog = (): void => {
-  selectedUserId.value = undefined;
+  selectedRoleId.value = undefined;
   isEditDialogOpen.value = true;
 };
 
-const openEditDialog = (userId: number): void => {
-  selectedUserId.value = userId;
+const openEditDialog = (roleId: number): void => {
+  selectedRoleId.value = roleId;
   isEditDialogOpen.value = true;
 };
 
@@ -195,24 +169,24 @@ const closeEditDialog = (): void => {
   isEditDialogOpen.value = false;
 };
 
-const customRow = (record: UserListItem) => ({
+const customRow = (record: Role) => ({
   onClick: () => openEditDialog(record.id),
 });
 </script>
 <style scoped>
-.users-table {
+.roles-table {
   width: 100%;
 }
 
-.users-table__actions {
+.roles-table__actions {
   margin-bottom: 10px;
 }
 
-.users-table__table {
+.roles-table__table {
   width: 100%;
 }
 
-:deep(.users-table__table .ant-table-row) {
+:deep(.roles-table__table .ant-table-row) {
   cursor: pointer;
 }
 </style>

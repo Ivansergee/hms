@@ -2,7 +2,7 @@ import { Elysia } from 'elysia'
 
 import { CategoryService } from "@/modules/category/CategoryService";
 import { categoryModel } from "@/modules/category/CategoryModel";
-import { permissions } from "@/auth/permissions";
+import { Permission } from "@shared/enums/Permission";
 import { requirePermission } from "@/modules/auth/AuthGuard";
 
 export const categoryController = new Elysia({ prefix: '/category', tags: ['RoomCategory'] })
@@ -12,14 +12,14 @@ export const categoryController = new Elysia({ prefix: '/category', tags: ['Room
         async ({ categoryService }) => {
             return categoryService.getAll();
         },
-        { beforeHandle: requirePermission(permissions.CATEGORY_READ) },
+        { beforeHandle: requirePermission(Permission.CATEGORY_READ) },
     )
     .post(
         '/',
         async ({ categoryService, body }) => {
             return categoryService.create(body);
         },
-        { body: categoryModel.create, beforeHandle: requirePermission(permissions.CATEGORY_MANAGE) },
+        { body: categoryModel.create, beforeHandle: requirePermission(Permission.CATEGORY_EDIT) },
     )
     .guard({ params: categoryModel.params })
     .get(
@@ -27,19 +27,19 @@ export const categoryController = new Elysia({ prefix: '/category', tags: ['Room
         async ({ categoryService, params: { id } }) => {
             return categoryService.getById(id);
         },
-        { beforeHandle: requirePermission(permissions.CATEGORY_READ) },
+        { beforeHandle: requirePermission(Permission.CATEGORY_READ) },
     )
     .put(
         '/:id',
         async ({ categoryService, params: { id }, body }) => {
             return categoryService.update(id, body);
         },
-        { body: categoryModel.update, beforeHandle: requirePermission(permissions.CATEGORY_MANAGE) },
+        { body: categoryModel.update, beforeHandle: requirePermission(Permission.CATEGORY_EDIT) },
     )
     .delete(
         '/:id',
         async ({ categoryService, params: { id } }) => {
             return categoryService.delete(id);
         },
-        { beforeHandle: requirePermission(permissions.CATEGORY_MANAGE) },
+        { beforeHandle: requirePermission(Permission.CATEGORY_EDIT) },
     )

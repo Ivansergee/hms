@@ -3,7 +3,7 @@ import { TemplateService } from "@/modules/template/TemplateService";
 import { templateModel } from "@/modules/template/TemplateModel";
 import path from "path";
 import { mkdir } from 'fs/promises'
-import { permissions } from "@/auth/permissions";
+import { Permission } from "@shared/enums/Permission";
 import { requirePermission } from "@/modules/auth/AuthGuard";
 
 const uploadDir = path.join(process.cwd(), 'uploads')
@@ -27,7 +27,7 @@ export const templateController = new Elysia({ prefix: '/template', tags: ['Temp
 
             return `http://192.168.3.2:3000/${filePath}`;
         },
-        { body: templateModel.preview, beforeHandle: requirePermission(permissions.TEMPLATE_MANAGE) },
+        { body: templateModel.preview, beforeHandle: requirePermission(Permission.TEMPLATE_EDIT) },
     )
     .post(
         '/preview',
@@ -44,7 +44,7 @@ export const templateController = new Elysia({ prefix: '/template', tags: ['Temp
             set.headers['Content-Type'] = 'application/pdf';
             return pdf;
         },
-        { body: templateModel.preview, beforeHandle: requirePermission(permissions.TEMPLATE_READ) },
+        { body: templateModel.preview, beforeHandle: requirePermission(Permission.TEMPLATE_READ) },
     )
     // .get(
     //     '/',

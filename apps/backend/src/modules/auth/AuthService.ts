@@ -24,6 +24,11 @@ const userSelect = {
 
 type UserWithRoles = NonNullable<Awaited<ReturnType<AuthService['getUserById']>>>;
 
+interface UpdateProfileData {
+    name: string;
+    email?: string | null;
+}
+
 export class AuthService {
     async login(username: string, password: string) {
         const user = await prisma.user.findUnique({
@@ -129,6 +134,16 @@ export class AuthService {
         });
 
         return true;
+    }
+
+    async updateProfile(userId: number, data: UpdateProfileData) {
+        const user = await prisma.user.update({
+            where: { id: userId },
+            data,
+            select: userSelect,
+        });
+
+        return this.serializeUser(user);
     }
 
     getUserById(id: number) {
