@@ -34,8 +34,17 @@ From `apps/backend`:
 bunx prisma migrate dev
 ```
 
+## Create Superuser
+
+After running database migrations, create an administrator account:
+
+```bash
+bun run --cwd apps/backend create-superuser
+```
+
+It creates or updates an `Administrator` user with all permissions.
+
 ## Screenshots
 
 ![Plan view](docs/screenshots/plan-view.png)
 ![Booking dialog](docs/screenshots/create-booking-dialog.png)
-
