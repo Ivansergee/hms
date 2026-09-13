@@ -1,4 +1,5 @@
 import { Gender } from "../enums/Gender";
+import type { CountryCode } from "../constants/countryCodes";
 
 export interface Guest {
     id: number;
@@ -9,17 +10,10 @@ export interface Guest {
     birthdate?: string;
     phone?: string;
     email?: string;
-    citizenship?: string;
+    citizenship?: CountryCode;
     createdAt: string;
     updatedAt: string;
     identityDocumentId?: number;
 }
 
-export interface GuestShort {
-    id: number;
-    firstName: string;
-    lastName: string;
-}
-
-export type GuestCreate = Omit<Guest, 'id' | 'createdAt' | 'updatedAt'>;
-export type GuestInput = { id: number } | Omit<GuestCreate, 'id'>;
+export type GuestCreate = Omit<Guest, 'id' | 'createdAt' | 'updatedAt' | 'identityDocumentId'>;

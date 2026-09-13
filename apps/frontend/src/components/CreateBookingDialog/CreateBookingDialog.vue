@@ -106,27 +106,14 @@
       <a-divider orientation="left">
         {{ t('guests') }}
       </a-divider>
-      <div
-        v-for="(guest, index) in form.guests"
-        :key="guest.uiId"
-      >
-        <GuestForm
-          :guest="guest"
-          :is-main-guest="index === 0"
-          :index="index + 1"
-          :is-remove-button-visible="form.guests.length > 1"
-          @update:guest="form.guests[index] = { ...guest, ...$event }"
-          @remove="removeGuest(index)"
-        />
-      </div>
-      <a-button
-        class="w100"
-        type="dashed"
-        @click="addGuest"
-      >
-        <PlusOutlined />
-        {{ t('addGuest') }}
-      </a-button>
+      <GuestTabs
+        :guests="form.guests"
+        @add="addGuest"
+        @remove="removeGuest"
+        @update:guest="updateGuest"
+        @select:guest="selectExistingGuest"
+        @toggle-link="toggleGuestProfile"
+      />
     </a-form>
   </a-modal>
 </template>
@@ -136,25 +123,20 @@ import {
   type PropType, reactive, ref, watch,
 } from 'vue';
 import { useBookingStore } from '@/stores/bookingStore';
-import type { GuestInput } from '@shared/types/guest';
+import type { BookingGuestCreate } from '@shared/types/bookingGuest';
 import { useScopedI18n } from '@/composables/useScopedI18n';
 import { useRoomStore } from '@/stores/roomStore';
 import type { RuleObject } from 'ant-design-vue/es/form';
-import { PlusOutlined } from '@ant-design/icons-vue';
 import type { RoomWithCategory } from '@/types/Room.ts';
 import { type BookingPlacement } from '@shared/types/booking.ts';
 import { timeToMinutes } from '@/utils/dateTimeUtils.ts';
+import GuestTabs, { type GuestTabsGuest } from '@/components/GuestTabs.vue';
+import type { Guest } from '@shared/types/guest.ts';
+import { guestQueries } from '@/queries/guestQueries.ts';
+import { toGuestCreatePayload } from '@/utils/guestUtils.ts';
+import { isValidGuestData } from '@shared/validation/guest';
 
-export interface GuestFormState {
-  uiId: number;
-  id?: number;
-  firstName?: string;
-  lastName?: string;
-  parentName?: string;
-  birthdate?: string;
-  phone?: string;
-  email?: string;
-}
+export type GuestFormState = GuestTabsGuest;
 
 interface FormState {
   range?: [string, string];
@@ -174,6 +156,7 @@ const props = defineProps({
   state: {
     type: Object as PropType<BookingPlacement>,
     required: false,
+    default: undefined,
   },
 });
 const emit = defineEmits<{
@@ -183,12 +166,18 @@ const emit = defineEmits<{
 const bookingStore = useBookingStore();
 const roomStore = useRoomStore();
 
+let nextGuestUiId = Date.now();
+
+const createGuestFormState = (): GuestFormState => ({
+  key: `new-guest-${nextGuestUiId++}`,
+});
+
 const createInitialFormState = (): FormState => ({
   range: undefined,
   checkInTime: '14:00',
   checkOutTime: '12:00',
   roomId: undefined,
-  guests: [{ uiId: Date.now() }],
+  guests: [createGuestFormState()],
 });
 
 const form = reactive<FormState>(createInitialFormState());
@@ -223,28 +212,13 @@ const isFormValid = (form: FormState): boolean => {
   if (!form.guests) {
     return false;
   }
-  return form.guests.every((guest) => {
-    if (guest.id) {
-      return true;
-    }
-    return !!guest.firstName && !!guest.lastName;
-  });
+  return form.guests.every(isValidGuestData);
 };
 
-const mapGuestsToInput = (guests: GuestFormState[]): GuestInput[] => guests.map((guest) => {
-  if (guest.id) {
-    return { id: guest.id };
-  }
-
-  return {
-    firstName: guest.firstName!,
-    lastName: guest.lastName!,
-    parentName: guest.parentName,
-    birthdate: guest.birthdate,
-    phone: guest.phone,
-    email: guest.email,
-  };
-});
+const mapGuestsToInput = (guests: GuestFormState[]): BookingGuestCreate[] => guests.map((guest) => ({
+  ...toGuestCreatePayload(guest),
+  ...(guest.guestId !== undefined && { guestId: guest.guestId }),
+}));
 
 const save = async (): Promise<void> => {
   if (!isFormValid(form)) {
@@ -267,14 +241,77 @@ const addGuest = (): void => {
   if (!form.guests) {
     return;
   }
-  form.guests.push({ uiId: Date.now() });
+  const guest = createGuestFormState();
+  form.guests.push(guest);
 };
 
-const removeGuest = (index: number): void => {
+const removeGuest = (key: string): void => {
   if (!form.guests) {
     return;
   }
+  const index = form.guests.findIndex((guest) => guest.key === key);
+
+  if (index === -1 || form.guests.length === 1) {
+    return;
+  }
+
   form.guests.splice(index, 1);
+
+  if (!form.guests.length) {
+    addGuest();
+  }
+};
+
+const updateGuest = (index: number, guest: Partial<GuestFormState>): void => {
+  form.guests[index] = { ...form.guests[index], ...guest };
+};
+
+const selectExistingGuest = (index: number, guest: Guest): void => {
+  if (!form.guests[index]) {
+    return;
+  }
+
+  form.guests[index] = {
+    ...form.guests[index],
+    ...guest,
+    guestId: guest.id,
+    disabled: true,
+  };
+};
+
+const toggleGuestProfile = async (index: number): Promise<void> => {
+  const guest = form.guests[index];
+
+  if (!guest) {
+    return;
+  }
+
+  if (guest.guestId) {
+    form.guests[index] = {
+      ...guest,
+      guestId: undefined,
+      disabled: false,
+    };
+    return;
+  }
+
+  if (!isValidGuestData(guest)) {
+    return;
+  }
+
+  isLoading.value = true;
+  try {
+    const createdGuest = await guestQueries.create(toGuestCreatePayload(guest));
+
+    form.guests[index] = {
+      ...guest,
+      ...createdGuest,
+      guestId: createdGuest.id,
+      disabled: true,
+    };
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 const close = (): void => {
@@ -346,4 +383,5 @@ watch(() => props.open, async (isOpen: boolean) => {
 .create-booking-dialog :deep(.ant-divider) {
   margin: 16px 0 12px;
 }
+
 </style>

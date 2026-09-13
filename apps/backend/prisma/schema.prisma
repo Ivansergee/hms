@@ -63,8 +63,7 @@ model Guest {
   identityDocument   IdentityDocument? @relation(fields: [identityDocumentId], references: [id])
   identityDocumentId Int?              @unique
 
-  bookings     Booking[] @relation("BookingGuests")
-  mainBookings Booking[] @relation("MainGuest")
+  bookingGuests BookingGuest[]
 }
 
 model Booking {
@@ -81,11 +80,36 @@ model Booking {
   room   Room @relation(fields: [roomId], references: [id])
   roomId Int
 
-  guests      Guest[] @relation("BookingGuests")
-  mainGuest   Guest   @relation("MainGuest", fields: [mainGuestId], references: [id])
-  mainGuestId Int
+  guests BookingGuest[]
 
   folios Folio[]
+}
+
+model BookingGuest {
+  id Int @id @default(autoincrement())
+
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId Int
+
+  guest   Guest? @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  guestId Int?
+
+  role BookingGuestRole @default(ACCOMPANYING)
+
+  firstName   String
+  lastName    String
+  parentName  String?
+  gender      Gender?
+  birthdate   DateTime? @db.Date
+  phone       String?
+  email       String?
+  citizenship String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([bookingId, guestId])
+  @@index([guestId])
 }
 
 model Folio {
@@ -196,6 +220,11 @@ enum BookingStatus {
   CHECKED_OUT
   ACTIVE
   CANCELED
+}
+
+enum BookingGuestRole {
+  MAIN
+  ACCOMPANYING
 }
 
 enum RoomStatus {

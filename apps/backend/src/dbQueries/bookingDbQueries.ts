@@ -4,7 +4,6 @@ export const bookingDbQueries = {
     details: {
         include: {
             guests: true,
-            mainGuest: { select: { id: true } },
             folios: {
                 include: {
                     items: {

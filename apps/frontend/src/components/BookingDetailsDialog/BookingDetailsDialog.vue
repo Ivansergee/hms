@@ -22,7 +22,11 @@
         </template>
       </a-tab-pane>
       <a-tab-pane key="2">
-        Content of Tab Pane 2
+        <GuestsTab
+          :booking-id="bookingDetails.id"
+          :guests="bookingDetails.guests"
+          @change="$emit('change')"
+        />
         <template #tab>
           <TeamOutlined />
           {{ t('guests') }}
@@ -69,6 +73,7 @@ import {
 } from '@ant-design/icons-vue';
 import type { BookingDetails } from '@shared/types/booking';
 import { useScopedI18n } from '@/composables/useScopedI18n';
+import GuestsTab from '@/components/BookingDetailsDialog/GuestsTab.vue';
 
 const props = defineProps({
   open: {
@@ -81,6 +86,7 @@ const props = defineProps({
 });
 const emit = defineEmits<{
   close: [];
+  change: [];
 }>();
 
 defineOptions({ name: 'BookingDetailsDialog' });

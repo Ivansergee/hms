@@ -7,12 +7,13 @@
     <a-input
       :value="displayValue"
       :placeholder="t('inputPlaceholder')"
+      :disabled="disabled"
       @input="onInput"
     >
       <template #suffix>
         <calendar-outlined
-          style="cursor: pointer"
-          @click="openPicker = true"
+          :style="{ cursor: disabled ? 'not-allowed' : 'pointer' }"
+          @click="openDatePicker"
         />
       </template>
     </a-input>
@@ -21,6 +22,7 @@
       v-model:value="pickerValue"
       :open="openPicker"
       style="position: absolute; opacity: 0; pointer-events: none"
+      :disabled="disabled"
       @open-change="(val) => (openPicker = val)"
     />
   </a-form-item>
@@ -31,17 +33,25 @@ import {
   ref, computed, type PropType, watch,
 } from 'vue';
 import dayjs, { Dayjs } from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { CalendarOutlined } from '@ant-design/icons-vue';
 import { useScopedI18n } from '@/composables/useScopedI18n.ts';
+
+dayjs.extend(customParseFormat);
 
 const props = defineProps({
   modelValue: {
     type: String as PropType<string | undefined>,
     required: false,
+    default: undefined,
   },
   label: {
     type: String as PropType<string | undefined>,
     required: false,
+    default: undefined,
+  },
+  disabled: {
+    type: Boolean,
   },
 });
 
@@ -71,7 +81,17 @@ const displayValue = computed(() => {
 
 const validateStatus = computed(() => (errorMessage.value ? 'error' : undefined));
 
+const openDatePicker = (): void => {
+  if (!props.disabled) {
+    openPicker.value = true;
+  }
+};
+
 const onInput = (e: Event) => {
+  if (props.disabled) {
+    return;
+  }
+
   const { value } = (e.target as HTMLInputElement);
 
   const digits = value.replace(/\D/g, '').slice(0, 8);
@@ -101,6 +121,10 @@ const onInput = (e: Event) => {
 };
 
 watch(pickerValue, (val) => {
+  if (props.disabled) {
+    return;
+  }
+
   if (!val) {
     emit('update:modelValue', undefined);
     rawDigits.value = '';

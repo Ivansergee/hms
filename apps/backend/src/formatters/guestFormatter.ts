@@ -1,8 +1,9 @@
 import { GuestRaw } from "@/modules/guest/GuestService";
 import { Guest } from "@shared/types/guest";
 import { Gender } from "@shared/enums/Gender";
-import { formatDate } from "@/utils/dateUtils";
+import { formatDate, formatDateTime } from "@/utils/dateUtils";
 import { nullToUndefined } from "@/utils/formatUtils";
+import { isCountryCode } from "@shared/validation/guest";
 
 export const guestFormatter = {
     formatGuest(guestData: GuestRaw): Guest {
@@ -10,9 +11,12 @@ export const guestFormatter = {
         return {
             ...cleanData,
             birthdate: cleanData.birthdate ? formatDate(cleanData.birthdate) : undefined,
-            createdAt: formatDate(cleanData.createdAt),
-            updatedAt: formatDate(cleanData.updatedAt),
+            createdAt: formatDateTime(cleanData.createdAt),
+            updatedAt: formatDateTime(cleanData.updatedAt),
             gender: cleanData.gender as Gender,
+            citizenship: cleanData.citizenship && isCountryCode(cleanData.citizenship)
+                ? cleanData.citizenship
+                : undefined,
         };
     }
 };

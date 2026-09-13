@@ -2,7 +2,7 @@ import { BookingDetails } from "@shared/types/booking";
 import type { BookingDetailsRaw } from "@/dbQueries/bookingDbQueries";
 import { formatDate } from "@/utils/dateUtils";
 import { BookingStatus } from "@shared/enums/BookingStatus";
-import { guestFormatter } from "@/formatters/guestFormatter";
+import { bookingGuestFormatter } from "@/formatters/bookingGuestFormatter";
 import { folioFormatter } from "@/formatters/folioFormatter";
 
 function formatDetails(bookingData: BookingDetailsRaw): BookingDetails {
@@ -14,8 +14,7 @@ function formatDetails(bookingData: BookingDetailsRaw): BookingDetails {
         arrivalMinutes: bookingData.arrivalMinutes,
         departureMinutes: bookingData.departureMinutes,
         status: bookingData.status as BookingStatus,
-        mainGuestId: bookingData.mainGuest.id,
-        guests: bookingData.guests.map(guestData => guestFormatter.formatGuest(guestData)),
+        guests: bookingData.guests.map(guestData => bookingGuestFormatter.formatBookingGuest(guestData)),
         folios: bookingData.folios.map(folio => folioFormatter.formatFolio(folio)),
     };
 }

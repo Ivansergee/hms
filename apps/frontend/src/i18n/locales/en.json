@@ -55,6 +55,7 @@
     "endDate": "Check-out",
     "errorNotValidEmail": "This is not a valid email address",
     "errorRequiredField": "This field is required",
+    "guest": "Guest",
     "guests": "Guests",
     "newBooking": "New booking",
     "range": "Dates",
@@ -75,14 +76,25 @@
   },
   "GuestForm": {
     "birthdate": "Birth date",
+    "citizenship": "Citizenship",
     "email": "Email",
+    "female": "Female",
     "firstName": "First name",
+    "gender": "Gender",
     "guest": "Guest",
     "lastName": "Last name",
     "mainGuest": "Main guest",
+    "male": "Male",
     "parentName": "Parent name",
     "phone": "Phone",
-    "removeGuest": "Remove guest"
+    "removeGuest": "Remove guest",
+    "save": "Save",
+    "saveAsProfile": "Save as guest profile",
+    "selectCountry": "Select a country",
+    "unlinkProfile": "Unlink guest profile"
+  },
+  "GuestTabs": {
+    "newGuest": "New guest"
   },
   "ChangePasswordForm": {
     "changePassword": "Change password",

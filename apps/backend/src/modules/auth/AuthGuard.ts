@@ -19,14 +19,16 @@ export const authGuard = new Elysia({ name: 'auth-guard' })
     })
     .onBeforeHandle(requireAuth);
 
-export function requirePermission(permission: Permission) {
+export function requirePermission(...permissions: Permission[]) {
     return ({ currentUser, set }: any) => {
         if (!currentUser) {
             set.status = 401;
             return { message: 'Unauthorized' };
         }
 
-        if (!currentUser.permissions.includes(Permission.ALL) && !currentUser.permissions.includes(permission)) {
+        const hasRequiredPermissions = permissions.every(permission => currentUser.permissions.includes(permission));
+
+        if (!currentUser.permissions.includes(Permission.ALL) && !hasRequiredPermissions) {
             set.status = 403;
             return { message: 'Forbidden' };
         }

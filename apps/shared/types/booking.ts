@@ -1,5 +1,5 @@
 import type { BookingStatus } from "../enums/BookingStatus";
-import type { Guest, GuestInput, GuestShort } from "./guest";
+import type { BookingGuest, BookingGuestCreate, BookingGuestShort } from "./bookingGuest";
 import type { Folio } from "./folio";
 
 export interface BookingShort {
@@ -10,8 +10,7 @@ export interface BookingShort {
     arrivalMinutes: number,
     departureMinutes: number,
     status: BookingStatus;
-    mainGuestId: number;
-    guests: GuestShort[];
+    guests: BookingGuestShort[];
 }
 
 export interface BookingDetails {
@@ -22,8 +21,7 @@ export interface BookingDetails {
     arrivalMinutes: number,
     departureMinutes: number,
     status: BookingStatus;
-    mainGuestId: number;
-    guests: Guest[];
+    guests: BookingGuest[];
     folios: Folio[];
 }
 
@@ -33,7 +31,7 @@ export interface BookingCreate {
     checkOutDate: string;
     arrivalMinutes: number,
     departureMinutes: number,
-    guests: GuestInput[];
+    guests: BookingGuestCreate[];
     mainGuestIndex: number;
 }
 

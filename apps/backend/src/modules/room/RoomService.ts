@@ -1,5 +1,6 @@
 import type { Room } from "@prisma/client";
 import { prisma } from "../../../prisma/prisma";
+import { parseDateOnly } from "@/utils/dateUtils";
 import { RoomCreatePayload, RoomUpdatePayload } from "@shared/types/room";
 import { RoomStatus } from "@shared/enums/RoomStatus";
 
@@ -27,8 +28,8 @@ export class RoomService {
     async getAvailableIds(start: string, end: string): Promise<number[]> {
         const overlappingBookings = await prisma.booking.findMany({
             where: {
-                checkInDate: { lt: new Date(end) },
-                checkOutDate: { gt: new Date(start) },
+                checkInDate: { lt: parseDateOnly(end) },
+                checkOutDate: { gt: parseDateOnly(start) },
             },
             select: { roomId: true },
         });

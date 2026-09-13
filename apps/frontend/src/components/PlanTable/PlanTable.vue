@@ -129,6 +129,7 @@
     v-if="bookingDetails"
     :open="isDetailsDialogOpen"
     :booking-details="bookingDetails"
+    @change="reloadBookingDetails"
     @close="isDetailsDialogOpen = false"
   />
   <CreateBookingDialog
@@ -180,6 +181,7 @@ import { bookingQueries } from '@/queries/bookingQueries.ts';
 import type { ItemType } from 'ant-design-vue';
 import { BookingContextMenuItem } from '@/enums/BookingContextMenuItem.ts';
 import { BookingStatus } from '@shared/enums/BookingStatus.ts';
+import { BookingGuestRole } from '@shared/enums/BookingGuestRole';
 import type { Key } from 'ant-design-vue/es/_util/type';
 
 const WINDOW_DAYS = 120;
@@ -307,7 +309,7 @@ const getBarLength = (booking: BookingShort): number => {
 };
 
 const getBarTitle = (booking: BookingShort): string => {
-  const mainGuest = booking.guests.find((guest) => guest.id === booking.mainGuestId);
+  const mainGuest = booking.guests.find((guest) => guest.role === BookingGuestRole.MAIN);
   if (!mainGuest) {
     return '';
   }
@@ -492,8 +494,18 @@ const navigateToDate = (date: dayjs.Dayjs) => {
 };
 
 const onBarClick = async (bookingId: number): Promise<void> => {
+  selectedBookingId.value = bookingId;
   bookingDetails.value = await bookingQueries.getDetails(bookingId);
   isDetailsDialogOpen.value = true;
+};
+
+const reloadBookingDetails = async (): Promise<void> => {
+  if (!bookingDetails.value) {
+    return;
+  }
+
+  bookingDetails.value = await bookingQueries.getDetails(bookingDetails.value.id);
+  await bookingStore.fetch(rangeStart.value.format('YYYY-MM-DD'), rangeEnd.value.format('YYYY-MM-DD'));
 };
 
 const onBarRightClick = (e: MouseEvent, booking: BookingShort): void => {

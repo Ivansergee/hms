@@ -35,13 +35,6 @@ export const bookingController = new Elysia({ prefix: '/booking', tags: ['Bookin
         },
         { beforeHandle: requirePermission(Permission.BOOKING_READ) },
     )
-    // .put(
-    //     '/:id',
-    //     async ({ bookingService, params: { id }, body }) => {
-    //         return bookingService.update(id, body);
-    //     },
-    //     { body: bookingModel.update },
-    // )
     .post(
         '/:id/placement',
         async ({ bookingService, params: { id }, body }) => {
@@ -55,6 +48,68 @@ export const bookingController = new Elysia({ prefix: '/booking', tags: ['Bookin
             return bookingService.setStatus(id, body.status);
         },
         { body: bookingModel.setStatus, beforeHandle: requirePermission(Permission.BOOKING_EDIT) }
+    )
+    .post(
+        '/:id/guests',
+        async ({ bookingService, params: { id }, body }) => {
+            return bookingService.createBookingGuestSnapshot(id, body);
+        },
+        {
+            body: bookingModel.createBookingGuestSnapshot,
+            beforeHandle: requirePermission(Permission.BOOKING_EDIT),
+        },
+    )
+    .post(
+        '/:id/guests/:bookingGuestId/link',
+        async ({ bookingService, params: { id, bookingGuestId }, body }) => {
+            return bookingService.linkBookingGuest(id, bookingGuestId, body.guestId);
+        },
+        {
+            params: bookingModel.bookingGuestParams,
+            body: bookingModel.linkBookingGuest,
+            beforeHandle: requirePermission(Permission.BOOKING_EDIT),
+        },
+    )
+    .post(
+        '/:id/guests/:bookingGuestId/createGuest',
+        async ({ bookingService, params: { id, bookingGuestId } }) => {
+            return bookingService.createGuestFromBookingGuest(id, bookingGuestId);
+        },
+        {
+            params: bookingModel.bookingGuestParams,
+            beforeHandle: requirePermission(Permission.BOOKING_EDIT, Permission.GUEST_EDIT),
+        },
+    )
+    .put(
+        '/:id/guests/:bookingGuestId/snapshot',
+        async ({ bookingService, params: { id, bookingGuestId }, body }) => {
+            return bookingService.updateBookingGuestSnapshot(id, bookingGuestId, body);
+        },
+        {
+            params: bookingModel.bookingGuestParams,
+            body: bookingModel.updateBookingGuestSnapshot,
+            beforeHandle: requirePermission(Permission.BOOKING_EDIT),
+        },
+    )
+    .post(
+        '/:id/guests/:bookingGuestId/unlink',
+        async ({ bookingService, params: { id, bookingGuestId } }) => {
+            return bookingService.unlinkBookingGuest(id, bookingGuestId);
+        },
+        {
+            params: bookingModel.bookingGuestParams,
+            beforeHandle: requirePermission(Permission.BOOKING_EDIT),
+        },
+    )
+    .delete(
+        '/:id/guests/:bookingGuestId',
+        async ({ bookingService, params: { id, bookingGuestId } }) => {
+            return bookingService.deleteBookingGuestSnapshot(id, bookingGuestId);
+        },
+        {
+            params: bookingModel.bookingGuestParams,
+            beforeHandle: requirePermission(Permission.BOOKING_EDIT),
+        },
     )
     .delete(
         '/:id',

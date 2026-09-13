@@ -31,6 +31,7 @@ import { useScopedI18n } from '@/composables/useScopedI18n';
 import { useRoomStore } from '@/stores/roomStore';
 import { getFormattedDate } from '@/utils/dateTimeUtils';
 import { translateEnum } from '@/i18n/i18n.ts';
+import { BookingGuestRole } from '@shared/enums/BookingGuestRole';
 
 defineOptions({ name: 'ConfirmChangeDialog' });
 const { t } = useScopedI18n();
@@ -60,7 +61,7 @@ const emit = defineEmits<{
 const isLoading = ref<boolean>(false);
 
 const mainGuestName = computed<string>(() => {
-  const mainGuest = props.booking.guests.find((guest) => guest.id === props.booking.mainGuestId);
+  const mainGuest = props.booking.guests.find((guest) => guest.role === BookingGuestRole.MAIN);
   return mainGuest ? `${mainGuest.firstName} ${mainGuest.lastName}` : '';
 });
 

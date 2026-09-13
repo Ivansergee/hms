@@ -13,20 +13,24 @@ import { useAuthStore } from '@/stores/authStore.ts';
 import router from './router';
 import App from './App.vue';
 
-setupDayjsLocale();
+const bootstrap = async (): Promise<void> => {
+  setupDayjsLocale();
 
-const app = createApp(App);
-const pinia = createPinia();
+  const app = createApp(App);
+  const pinia = createPinia();
 
-pinia.use(piniaPluginPersistedstate);
+  pinia.use(piniaPluginPersistedstate);
 
-app.use(i18n);
-app.use(pinia);
+  app.use(i18n);
+  app.use(pinia);
 
-registerEnums();
+  registerEnums();
 
-const authStore = useAuthStore();
-await authStore.restore();
+  const authStore = useAuthStore();
+  await authStore.restore();
 
-app.use(router);
-app.mount('#app');
+  app.use(router);
+  app.mount('#app');
+};
+
+void bootstrap();

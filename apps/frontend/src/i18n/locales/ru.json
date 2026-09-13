@@ -55,6 +55,7 @@
     "endDate": "Выезд",
     "errorNotValidEmail": "Неправильный email",
     "errorRequiredField": "Обязательное поле",
+    "guest": "Гость",
     "guests": "Гости",
     "newBooking": "Новое бронирование",
     "range": "Даты",
@@ -75,14 +76,25 @@
   },
   "GuestForm": {
     "birthdate": "Дата рождения",
+    "citizenship": "Гражданство",
     "email": "Email",
+    "female": "Женский",
     "firstName": "Имя",
+    "gender": "Пол",
     "guest": "Гость",
     "lastName": "Фамилия",
     "mainGuest": "Основной гость",
+    "male": "Мужской",
     "parentName": "Отчество",
     "phone": "Телефон",
-    "removeGuest": "Удалить гостя"
+    "removeGuest": "Удалить гостя",
+    "save": "Сохранить",
+    "saveAsProfile": "Сохранить профиль гостя",
+    "selectCountry": "Выберите страну",
+    "unlinkProfile": "Отвязать профиль гостя"
+  },
+  "GuestTabs": {
+    "newGuest": "Новый гость"
   },
   "ChangePasswordForm": {
     "changePassword": "Сменить пароль",
